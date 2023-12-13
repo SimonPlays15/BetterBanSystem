@@ -5,7 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class BetterBanSystem extends JavaPlugin {
 
     public void onEnable(){
-        // Start method
+        System.out.println("This is a test!");
     }
 
 }
