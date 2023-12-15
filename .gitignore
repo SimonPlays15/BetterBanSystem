@@ -1,15 +1,17 @@
-target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+!/.idea/copyright/
 test/
+target/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
-idea/
+.idea/**
+.idea/shelf/***
 *.iws
 *.iml
 *.ipr
@@ -30,8 +32,8 @@ idea/
 /nbdist/
 /.nb-gradle/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+**/src/main/**/build/
+**/src/test/**/build/
 
 ### VS Code ###
 .vscode/

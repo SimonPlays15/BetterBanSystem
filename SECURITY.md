@@ -1,21 +1,10 @@
-# Security Policy
+## Supported Minecraft Spigot Versions
 
-## Supported Versions
+| Version       | Supported |
+|---------------|-----------|
+| 1.20.1        | ✅         |
+| Other Version | ❌         |
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+## ⚠️ You found a Bug, a vulnerability or something else? ⚠️
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
-
-## Reporting a Vulnerability
-
-Use this section to tell people how to report a vulnerability.
-
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Join this discord [MCDevStudios](https://discord.gg/QWpsnKPC8W) and create a Ticket 

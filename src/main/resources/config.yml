@@ -1,0 +1,8 @@
+# -----------------------------------------------------
+# BetterBanSystem Configuration File v${project.version}
+# -----------------------------------------------------
+# Authors: SimonPlays15 & Blubo
+# Description: Diese Datei enthält die Konfiguration für das BetterBanSystem-Plugin.
+# -----------------------------------------------------
+
+language: "en_US"
