@@ -18,6 +18,6 @@ permissions:
 
 logging:
   # should we write the logs in a seperate file?
-  seperate: true
+  logfile: true
   # Do you want to see debugging messages from this plugin?
   debug: false
