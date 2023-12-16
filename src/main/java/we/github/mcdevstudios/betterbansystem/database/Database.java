@@ -4,7 +4,9 @@
 
 package we.github.mcdevstudios.betterbansystem.database;
 
-import org.apache.commons.lang.NotImplementedException;
+import we.github.mcdevstudios.betterbansystem.database.mongodb.MongoDBDatabase;
+import we.github.mcdevstudios.betterbansystem.database.mysql.MySQLDatabase;
+import we.github.mcdevstudios.betterbansystem.database.sqlite.SQLiteDatabase;
 
 public abstract class Database implements IDatabase {
 
@@ -12,10 +14,19 @@ public abstract class Database implements IDatabase {
     }
 
     /**
-     * @throws NotImplementedException
+     * @param driver DriverType
+     * @see DriverType
      */
-    public Database getDatabaseDriver() {
-        throw new NotImplementedException();
+    public IDatabase getDatabaseDriver(DriverType driver) {
+        IDatabase h = null;
+
+        switch (driver) {
+            case MySQL -> h = new MySQLDatabase();
+            case SQLite -> h = new SQLiteDatabase();
+            case MongoDB -> new MongoDBDatabase();
+        }
+
+        return h;
     }
 
 }
