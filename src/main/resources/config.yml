@@ -17,7 +17,7 @@ permissions:
   system: DEFAULT
 
 logging:
-  # should we write the logs in a seperate file?
+  # Should we write the logs in a seperate file?
   logfile: true
   # Do you want to see debugging messages from this plugin?
   debug: false
