@@ -38,14 +38,13 @@ public class BetterBanSystem extends JavaPlugin {
         new CommandHandler();
         new EventManager(this);
         languageFile = new LanguageFile(getDataFolder() + "/BetterBanSystem/language/" + getConfig().getString("chat.language" + ".yml"));
-
-        getGlobalLogger().info("Plugin enabled");
-
         if (getConfig().getBoolean("chat.usePrefix")) {
             prefix = getConfig().getString("chat.prefix") + "§r ";
         } else {
             prefix = "";
         }
+
+        getGlobalLogger().info("Plugin enabled");
     }
 
     public void onDisable() {
