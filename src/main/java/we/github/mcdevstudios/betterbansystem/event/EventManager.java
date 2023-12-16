@@ -7,6 +7,7 @@ package we.github.mcdevstudios.betterbansystem.event;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
+import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -43,7 +44,7 @@ public class EventManager {
                     }
 
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    BetterBanSystem.getGlobalLogger().error("Failed to load EventListeners", ex);
                 }
             }
         }

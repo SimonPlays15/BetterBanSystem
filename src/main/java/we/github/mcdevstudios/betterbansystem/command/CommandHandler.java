@@ -9,8 +9,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.command.commands.KickCommand;
-import we.github.mcdevstudios.betterbansystem.utils.ChatUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,17 +42,26 @@ public class CommandHandler implements CommandExecutor {
             BaseCommand baseCommand = commands.get(command.getName().toLowerCase());
             baseCommand.setLabel(label);
             if (!baseCommand.testPermission(sender)) {
-                sender.sendMessage(ChatUtils.getPrefix() + "§4You are not allowed to execute this command");
+                sender.sendMessage(BetterBanSystem.getLanguageFile().getMessage("permissions_message"));
+                BetterBanSystem.getGlobalLogger().debug(sender.getName(), "tried to execute command " + command.getName() + " but has no permissions");
                 return false;
             }
 
-            boolean commandSuccess = baseCommand.execute(sender, args);
+            boolean commandSuccess = false;
+            try {
+                commandSuccess = baseCommand.execute(sender, args);
+                BetterBanSystem.getGlobalLogger().debug(sender.getName(), "executed command", command.getName(), (commandSuccess ? "with success" : "but the command failed"), "| Arguments: ", args);
+            } catch (Exception e) {
+                BetterBanSystem.getGlobalLogger().error("Failed to execute command " + command.getName() + " by user " + sender.getName(), e);
+                sender.sendMessage(BetterBanSystem.getPrefix() + "Failed to execute command. See log for more details.");
+                return false;
+            }
             if (!commandSuccess)
-                sender.sendMessage(ChatUtils.getPrefix() + baseCommand.getUsage());
+                sender.sendMessage(BetterBanSystem.getPrefix() + baseCommand.getUsage());
 
             return commandSuccess;
         } else {
-            sender.sendMessage(ChatUtils.getPrefix() + "Sorry but we didn't found the command in our system §c" + label);
+            sender.sendMessage(BetterBanSystem.getPrefix() + "Sorry but we didn't found the command in our system §c\"" + label + "\"");
         }
         return false;
     }

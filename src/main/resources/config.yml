@@ -2,7 +2,22 @@
 # BetterBanSystem Configuration File v${project.version}
 # -----------------------------------------------------
 # Authors: SimonPlays15 & Blubo
-# Description: Diese Datei enthält die Konfiguration für das BetterBanSystem-Plugin.
+# Description: This file contains the configuration for BetterBanSystem.
 # -----------------------------------------------------
+chat:
+  prefix: "&6[&cBetterBanSystem&6]"
+  usePrefix: true
+  language: "en_US"
 
-language: "en_US"
+database:
+  # Available Types: MYSQL, SQLITE, MONGODB
+  type: none
+permissions:
+  # Available Types: DEFAULT, PERMISSIONSEX, LUCKPERMS
+  system: DEFAULT
+
+logging:
+  # should we write the logs in a seperate file?
+  seperate: true
+  # Do you want to see debugging messages from this plugin?
+  debug: false

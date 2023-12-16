@@ -8,13 +8,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
-import we.github.mcdevstudios.betterbansystem.utils.ChatUtils;
+import we.github.mcdevstudios.betterbansystem.api.permissions.PermissionsManager;
 
 import java.util.Map;
 
 public abstract class BaseCommand {
 
     private final String commandName;
+    private final PermissionsManager manager = PermissionsManager.getAvailableManager();
     private String permission;
     private String description;
     private String usage;
@@ -35,16 +36,14 @@ public abstract class BaseCommand {
     }
 
     public boolean testPermission(@NotNull CommandSender sender) {
-        if (permission == null || permission.isEmpty())
-            return true;
-        return sender.hasPermission(permission);
+        return manager.hasPermission(sender.getName(), this.permission);
     }
 
     public boolean testPermission(CommandSender sender, String permission) {
-        return sender.hasPermission(permission);
+        return manager.hasPermission(sender.getName(), permission);
     }
 
-    public abstract boolean execute(CommandSender sender, String[] args);
+    public abstract boolean execute(CommandSender sender, String[] args) throws Exception;
 
     public String getCommandName() {
         return commandName;
@@ -67,7 +66,7 @@ public abstract class BaseCommand {
     }
 
     public void sendUsage(CommandSender sender) {
-        sender.sendMessage(ChatUtils.getPrefix() + getUsage());
+        sender.sendMessage(BetterBanSystem.getPrefix() + getUsage());
     }
 
     public void setLabel(String label) {

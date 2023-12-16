@@ -4,6 +4,7 @@
 
 package we.github.mcdevstudios.betterbansystem.database.sqlite;
 
+import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.database.Database;
 import we.github.mcdevstudios.betterbansystem.database.IDatabase;
 
@@ -30,8 +31,7 @@ public class SQLiteDatabase extends Database {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + connectionstring);
         } catch (ClassNotFoundException | SQLException ex) {
-            // TODO add correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to connect to the database", ex);
         }
     }
 
@@ -44,8 +44,7 @@ public class SQLiteDatabase extends Database {
             if (connection != null && !connection.isClosed())
                 connection.close();
         } catch (SQLException ex) {
-            // TODO ADd correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to close the database connection", ex);
         }
     }
 
@@ -77,8 +76,7 @@ public class SQLiteDatabase extends Database {
 
             statement.executeUpdate();
         } catch (SQLException ex) {
-            // TODO add correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
     }
 
@@ -111,8 +109,7 @@ public class SQLiteDatabase extends Database {
 
             statement.executeUpdate();
         } catch (SQLException ex) {
-            // TODO add correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
 
     }
@@ -132,8 +129,7 @@ public class SQLiteDatabase extends Database {
 
             statement.executeUpdate();
         } catch (SQLException ex) {
-            // TODO add correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
     }
 
@@ -166,8 +162,7 @@ public class SQLiteDatabase extends Database {
             }
 
         } catch (SQLException ex) {
-            // TODO add correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
 
         return result;
@@ -201,8 +196,7 @@ public class SQLiteDatabase extends Database {
             }
 
         } catch (SQLException ex) {
-            // TODO add correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
 
         return result;
@@ -230,8 +224,7 @@ public class SQLiteDatabase extends Database {
                 result.add(row);
             }
         } catch (SQLException ex) {
-            // TODO add correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", queryString, ex);
         }
 
         return result;
@@ -261,8 +254,7 @@ public class SQLiteDatabase extends Database {
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (SQLException ex) {
-            // TODO add correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
     }
 
@@ -274,8 +266,7 @@ public class SQLiteDatabase extends Database {
         try {
             connection.setAutoCommit(false);
         } catch (SQLException ex) {
-            // TODO add correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to start transaction", ex);
         }
     }
 
@@ -288,8 +279,7 @@ public class SQLiteDatabase extends Database {
             connection.commit();
             connection.setAutoCommit(true);
         } catch (SQLException ex) {
-            // TODO add correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to commit transaction", ex);
         }
     }
 
@@ -302,8 +292,7 @@ public class SQLiteDatabase extends Database {
             connection.rollback();
             connection.setAutoCommit(true);
         } catch (SQLException ex) {
-            // TODO add correct logging
-            ex.printStackTrace();
+            BetterBanSystem.getGlobalLogger().error("Failed to rollback transaction", ex);
         }
     }
 }

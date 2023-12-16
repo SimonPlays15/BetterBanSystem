@@ -8,8 +8,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.command.BaseCommand;
-import we.github.mcdevstudios.betterbansystem.utils.ChatUtils;
+
+import java.util.Map;
 
 public class KickCommand extends BaseCommand {
     public KickCommand() {
@@ -17,14 +19,14 @@ public class KickCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(CommandSender sender, String[] args) {
+    public boolean execute(CommandSender sender, String[] args) throws Exception {
         if (args.length < 1) {
             this.sendUsage(sender);
             return true;
         }
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            sender.sendMessage(ChatUtils.getPrefix() + "The player " + args[0] + " is §coffline");
+            sender.sendMessage(BetterBanSystem.getLanguageFile().getMessage("player_is_offline", Map.of("player", args[0])));
             return true;
         }
 
@@ -38,7 +40,7 @@ public class KickCommand extends BaseCommand {
         }
 
         target.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason.toString()));
-        sender.sendMessage(ChatUtils.getPrefix() + "You kicked " + target.getName() + " from the server for: " + reason);
+        sender.sendMessage(BetterBanSystem.getLanguageFile().getMessage("kick_message", Map.of("target", target.getName(), "reason", reason.toString())));
         // TODO Broadcast Message to all Admins?
         return true;
     }

@@ -11,6 +11,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
+import org.apache.commons.lang.NotImplementedException;
 import org.bson.Document;
 import we.github.mcdevstudios.betterbansystem.database.Database;
 import we.github.mcdevstudios.betterbansystem.database.IDatabase;
@@ -177,6 +178,7 @@ public class MongoDBDatabase extends Database {
      */
     @Override
     public void startTransaction() {
+        throw new NotImplementedException();
     }
 
     /**
@@ -184,6 +186,7 @@ public class MongoDBDatabase extends Database {
      */
     @Override
     public void commitTransaction() {
+        throw new NotImplementedException();
     }
 
     /**
@@ -191,5 +194,6 @@ public class MongoDBDatabase extends Database {
      */
     @Override
     public void rollbackTransaction() {
+        throw new NotImplementedException();
     }
 }

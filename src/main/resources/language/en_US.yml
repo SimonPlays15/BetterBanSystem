@@ -1,0 +1,10 @@
+#
+# Non-specific messages
+#
+permissions_message: "&4You are not allowed to execute this command"
+player_is_offline: "The player {target} is &coffline"
+
+
+# Command specific messages
+# kick command
+kick_message: "You kicked {target} from the server for: {reason}"
