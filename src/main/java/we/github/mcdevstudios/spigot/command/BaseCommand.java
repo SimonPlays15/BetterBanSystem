@@ -7,8 +7,8 @@ package we.github.mcdevstudios.spigot.command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
-import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.api.permissions.PermissionsManager;
+import we.github.mcdevstudios.spigot.BetterBanSystem;
 
 import java.util.Map;
 

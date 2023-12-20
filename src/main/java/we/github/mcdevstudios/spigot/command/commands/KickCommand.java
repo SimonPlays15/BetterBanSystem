@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
+import we.github.mcdevstudios.spigot.BetterBanSystem;
 import we.github.mcdevstudios.spigot.command.BaseCommand;
 
 import java.util.Map;

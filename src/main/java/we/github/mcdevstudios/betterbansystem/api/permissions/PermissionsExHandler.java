@@ -7,7 +7,7 @@ package we.github.mcdevstudios.betterbansystem.api.permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
+import we.github.mcdevstudios.spigot.BetterBanSystem;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

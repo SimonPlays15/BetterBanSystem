@@ -7,7 +7,7 @@ package we.github.mcdevstudios.spigot.event;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
+import we.github.mcdevstudios.spigot.BetterBanSystem;
 
 import java.io.File;
 import java.lang.reflect.Constructor;

@@ -9,7 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
+import we.github.mcdevstudios.spigot.BetterBanSystem;
 import we.github.mcdevstudios.spigot.command.commands.KickCommand;
 
 import java.util.HashMap;

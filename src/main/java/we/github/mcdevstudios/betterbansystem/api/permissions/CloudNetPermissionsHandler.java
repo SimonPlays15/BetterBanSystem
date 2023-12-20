@@ -4,8 +4,8 @@
 
 package we.github.mcdevstudios.betterbansystem.api.permissions;
 
-import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
+import we.github.mcdevstudios.spigot.BetterBanSystem;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
