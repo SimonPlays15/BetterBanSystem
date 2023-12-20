@@ -2,9 +2,11 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.utils;
+package we.github.mcdevstudios.betterbansystem.api.logging;
 
 import org.bukkit.ChatColor;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
 
 import java.io.IOException;
@@ -20,6 +22,7 @@ public class GlobalLogger extends Logger {
     private final boolean debug;
     private FileHandler fileHandler;
     private String currentLogFileName;
+    private boolean writeLogsToFile = false;
 
     /**
      * @param loggerName the Logger name
@@ -35,9 +38,11 @@ public class GlobalLogger extends Logger {
      */
     public GlobalLogger(String loggerName, boolean debug, boolean writeLogsToFile) {
         super(loggerName, null);
+        this.writeLogsToFile = writeLogsToFile;
         this.debug = debug;
         setLevel(Level.ALL);
         setUseParentHandlers(false);
+        setParent(Logger.getGlobal());
 
         if (writeLogsToFile) {
             createLogFolder();
@@ -50,12 +55,29 @@ public class GlobalLogger extends Logger {
 
     }
 
-    public static GlobalLogger createNamedLogger(String name) {
+    /**
+     * Create GlobalLogger Instance with name "BetterBanSystem", debug: true, writeLogsToFile: false
+     *
+     * @return {@link GlobalLogger}
+     */
+    @Contract(" -> new")
+    public static @NotNull GlobalLogger getLogger() {
+        return new GlobalLogger("BetterBanSystem", true, false);
+    }
+
+    @Contract("_ -> new")
+    public static @NotNull GlobalLogger createNamedLogger(String name) {
         return new GlobalLogger(name);
     }
 
-    public static GlobalLogger createNamedLogger(String name, boolean debug, boolean writeLogsToFile) {
+    @Contract("_, _, _ -> new")
+    public static @NotNull GlobalLogger createNamedLogger(String name, boolean debug, boolean writeLogsToFile) {
         return new GlobalLogger(name, debug, writeLogsToFile);
+    }
+
+    public GlobalLogger withFileWrite() {
+        this.setWriteLogsToFile(true);
+        return this;
     }
 
     private void createLogFolder() {
@@ -151,10 +173,30 @@ public class GlobalLogger extends Logger {
         checkAndRotateLogFile();
     }
 
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public boolean doWriteLogFiles() {
+        return writeLogsToFile;
+    }
+
+    public void setWriteLogsToFile(boolean writeLogsToFile) {
+        this.writeLogsToFile = writeLogsToFile;
+        if (writeLogsToFile) {
+            createLogFolder();
+            try {
+                configureFileHandler();
+            } catch (IOException e) {
+                log(Level.SEVERE, "Error setting up fileHandler", e);
+            }
+        }
+    }
+
     private static class LogFormatter extends Formatter {
         @Override
         public String format(LogRecord record) {
-            return String.format("[%s] %s%n", record.getLevel(), ChatColor.stripColor(record.getMessage()));
+            return String.format("[%s] [%s] %s%n", record.getLoggerName(), record.getLevel(), ChatColor.stripColor(record.getMessage()));
         }
     }
 

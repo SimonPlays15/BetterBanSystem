@@ -2,7 +2,7 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.command;
+package we.github.mcdevstudios.spigot.command;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -43,7 +43,7 @@ public abstract class BaseCommand {
         return manager.hasPermission(sender.getName(), permission);
     }
 
-    public abstract boolean execute(CommandSender sender, String[] args) throws Exception;
+    public abstract boolean execute(CommandSender sender, String[] args);
 
     public String getCommandName() {
         return commandName;

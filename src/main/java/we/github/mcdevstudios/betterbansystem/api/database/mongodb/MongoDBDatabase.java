@@ -2,7 +2,7 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.database.mongodb;
+package we.github.mcdevstudios.betterbansystem.api.database.mongodb;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -13,8 +13,9 @@ import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import org.apache.commons.lang.NotImplementedException;
 import org.bson.Document;
-import we.github.mcdevstudios.betterbansystem.database.Database;
-import we.github.mcdevstudios.betterbansystem.database.IDatabase;
+import org.jetbrains.annotations.NotNull;
+import we.github.mcdevstudios.betterbansystem.api.database.Database;
+import we.github.mcdevstudios.betterbansystem.api.database.IDatabase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ public class MongoDBDatabase extends Database {
      * @apiNote {@code connectionString = host+":"+port+"/"+database;}
      */
     @Override
-    public void connect(String connectionstring, String username, String password) {
+    public void connect(@NotNull String connectionstring, String username, String password) {
         String url = "mongodb://" + username + ":" + password + "@" + connectionstring;
         mongoClient = MongoClients.create(url);
         database = mongoClient.getDatabase(connectionstring.split("/")[1]);

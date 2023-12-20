@@ -2,11 +2,12 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.database.mysql;
+package we.github.mcdevstudios.betterbansystem.api.database.mysql;
 
+import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
-import we.github.mcdevstudios.betterbansystem.database.Database;
-import we.github.mcdevstudios.betterbansystem.database.IDatabase;
+import we.github.mcdevstudios.betterbansystem.api.database.Database;
+import we.github.mcdevstudios.betterbansystem.api.database.IDatabase;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class MySQLDatabase extends Database {
      * @param tableName String
      * @param data      Map
      */
-    public void insert(String tableName, Map<String, Object> data) {
+    public void insert(String tableName, @NotNull Map<String, Object> data) {
         StringBuilder coloumns = new StringBuilder();
         StringBuilder values = new StringBuilder();
 
@@ -91,7 +92,7 @@ public class MySQLDatabase extends Database {
      * @param newData         Map
      */
     @Override
-    public void update(String tableName, String primaryKey, Object primaryKeyValue, Map<String, Object> newData) {
+    public void update(String tableName, String primaryKey, Object primaryKeyValue, @NotNull Map<String, Object> newData) {
         StringBuilder setClause = new StringBuilder();
 
         for (Map.Entry<String, Object> entry : newData.entrySet()) {

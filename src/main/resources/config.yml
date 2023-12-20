@@ -12,9 +12,13 @@ chat:
 database:
   # Available Types: MYSQL, SQLITE, MONGODB
   type: none
+
+
+# The Permissionssystem the plugin should use to check for a players permissions
+# NOTE: Spigot & BungeeCord does not support offline user checks for permissions!
 permissions:
-  # Available Types: DEFAULT, PERMISSIONSEX, LUCKPERMS
-  system: DEFAULT
+  # Available Types: SPIGOT, PERMISSIONSEX, LUCKPERMS, BUNGEECORD, CLOUDNET
+  system: SPIGOT
 
 logging:
   # Should we write the logs in a seperate file?

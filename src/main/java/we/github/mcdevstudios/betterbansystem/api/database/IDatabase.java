@@ -2,7 +2,7 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.database;
+package we.github.mcdevstudios.betterbansystem.api.database;
 
 import java.util.List;
 import java.util.Map;

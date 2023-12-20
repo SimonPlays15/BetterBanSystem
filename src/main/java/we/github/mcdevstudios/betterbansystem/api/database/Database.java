@@ -2,22 +2,20 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.database;
+package we.github.mcdevstudios.betterbansystem.api.database;
 
-import we.github.mcdevstudios.betterbansystem.database.mongodb.MongoDBDatabase;
-import we.github.mcdevstudios.betterbansystem.database.mysql.MySQLDatabase;
-import we.github.mcdevstudios.betterbansystem.database.sqlite.SQLiteDatabase;
+import org.jetbrains.annotations.NotNull;
+import we.github.mcdevstudios.betterbansystem.api.database.mongodb.MongoDBDatabase;
+import we.github.mcdevstudios.betterbansystem.api.database.mysql.MySQLDatabase;
+import we.github.mcdevstudios.betterbansystem.api.database.sqlite.SQLiteDatabase;
 
 public abstract class Database implements IDatabase {
-
-    public Database() {
-    }
 
     /**
      * @param driver DriverType
      * @see DriverType
      */
-    public IDatabase getDatabaseDriver(DriverType driver) {
+    public IDatabase getDatabaseDriver(@NotNull DriverType driver) {
         IDatabase h = null;
 
         switch (driver) {

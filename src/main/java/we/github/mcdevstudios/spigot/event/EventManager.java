@@ -2,7 +2,7 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.event;
+package we.github.mcdevstudios.spigot.event;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;

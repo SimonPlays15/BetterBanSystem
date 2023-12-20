@@ -10,9 +10,9 @@ import org.bukkit.entity.Player;
 
 import java.util.Objects;
 
-public class DefaultPermissionsHandler extends PermissionsManager {
+public class SpigotPermissionsHandler extends PermissionsManager {
 
-    public DefaultPermissionsHandler() {
+    public SpigotPermissionsHandler() {
     }
 
     private boolean lookUp(String playerName, String permission) {
@@ -29,7 +29,6 @@ public class DefaultPermissionsHandler extends PermissionsManager {
         return lookUp(playername, permission);
     }
 
-    @Override
     public boolean hasPermission(Player player, String permission) {
         return lookUp(player.getName(), permission);
     }
@@ -40,7 +39,6 @@ public class DefaultPermissionsHandler extends PermissionsManager {
      * @return boolean
      * @apiNote Default {@link PermissionsManager} cannot look up {@link OfflinePlayer} for {@link org.bukkit.permissions.Permission} | Looking if {@link OfflinePlayer#hasPlayedBefore()} and {@link OfflinePlayer#isOp()}
      */
-    @Override
     public boolean hasPermission(OfflinePlayer player, String permission) {
         return player.hasPlayedBefore() && player.isOp();
     }

@@ -4,11 +4,12 @@
 
 package we.github.mcdevstudios.betterbansystem;
 
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-import we.github.mcdevstudios.betterbansystem.command.CommandHandler;
-import we.github.mcdevstudios.betterbansystem.event.EventManager;
-import we.github.mcdevstudios.betterbansystem.utils.GlobalLogger;
-import we.github.mcdevstudios.betterbansystem.utils.language.LanguageFile;
+import we.github.mcdevstudios.betterbansystem.api.language.LanguageFile;
+import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
+import we.github.mcdevstudios.spigot.command.CommandHandler;
+import we.github.mcdevstudios.spigot.event.EventManager;
 
 public class BetterBanSystem extends JavaPlugin {
     private static BetterBanSystem instance;
@@ -29,7 +30,7 @@ public class BetterBanSystem extends JavaPlugin {
     }
 
     public static String getPrefix() {
-        return prefix;
+        return ChatColor.translateAlternateColorCodes('&', prefix);
     }
 
     public void onEnable() {

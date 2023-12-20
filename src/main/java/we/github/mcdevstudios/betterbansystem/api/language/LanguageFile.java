@@ -2,7 +2,7 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.utils.language;
+package we.github.mcdevstudios.betterbansystem.api.language;
 
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;

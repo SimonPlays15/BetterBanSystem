@@ -52,12 +52,10 @@ public class LuckPermsManager extends PermissionsManager {
         return lookUp(playername, permission);
     }
 
-    @Override
     public boolean hasPermission(Player player, String permission) {
         return hasPermission(player.getName(), permission);
     }
 
-    @Override
     public boolean hasPermission(OfflinePlayer player, String permission) {
         return hasPermission(player.getName(), permission);
     }

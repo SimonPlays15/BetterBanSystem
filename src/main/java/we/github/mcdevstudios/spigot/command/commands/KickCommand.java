@@ -2,14 +2,14 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.command.commands;
+package we.github.mcdevstudios.spigot.command.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
-import we.github.mcdevstudios.betterbansystem.command.BaseCommand;
+import we.github.mcdevstudios.spigot.command.BaseCommand;
 
 import java.util.Map;
 
@@ -19,8 +19,8 @@ public class KickCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(CommandSender sender, String[] args) throws Exception {
-        if (args.length < 1) {
+    public boolean execute(CommandSender sender, String[] args) {
+        if (args.length == 0) {
             this.sendUsage(sender);
             return true;
         }

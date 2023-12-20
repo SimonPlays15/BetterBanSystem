@@ -4,12 +4,18 @@
 
 package we.github.mcdevstudios.betterbansystem.api.permissions;
 
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import we.github.mcdevstudios.betterbansystem.BetterBanSystem;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
+import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
+
+import java.util.List;
 
 public abstract class PermissionsManager {
 
+    private static List<PermissionsHandlerType> availableTypes = List.of(PermissionsHandlerType.values());
+
+    @Contract(pure = true)
     public PermissionsManager() {
     }
 
@@ -18,30 +24,41 @@ public abstract class PermissionsManager {
      * @return {@link PermissionsManager}
      */
     public static PermissionsManager getHandler(PermissionsHandlerType type) throws Exception {
+        if (type == PermissionsHandlerType.BUNGEECORD && RuntimeService.isBungeeCord()) {
+            return new BungeeCordDefaultHandler();
+        }
         PermissionsManager manager = null;
         switch (type) {
             case LUCKPERMS -> manager = new LuckPermsManager();
             case PERMISSIONSEX -> manager = new PermissionsExHandler();
-            case DEFAULT -> manager = new DefaultPermissionsHandler();
+            case SPIGOT -> manager = new SpigotPermissionsHandler();
+            case CLOUDNET -> new CloudNetPermissionsHandler();
         }
 
         return manager;
     }
 
-    public static PermissionsManager getAvailableManager() {
-        try {
-            return new PermissionsExHandler();
-        } catch (Exception ex) {
-            BetterBanSystem.getGlobalLogger().debug("Failed to load PermissionsExHandler ... trying LuckPerms now", ex.getCause());
+    /**
+     * @return Available {@link PermissionsManager} | If nothing is available:<br>{@link RuntimeService#isBungeeCord()} ? {@link BungeeCordDefaultHandler}<br>{@link RuntimeService#isSpigot()} ? {@link SpigotPermissionsHandler}
+     * @see PermissionsHandlerType
+     */
+    public static @Nullable PermissionsManager getAvailableManager() {
+        for (PermissionsHandlerType type : availableTypes) {
+            GlobalLogger.getLogger().debug("Trying " + type.name() + " as PermissionManager...");
+            try {
+                GlobalLogger.getLogger().debug("Trying " + type.name() + " as PermissionManager...OK");
+                return getHandler(type);
+            } catch (Exception ex) {
+                GlobalLogger.getLogger().debug("Trying " + type.name() + " as PermissionManager...FAILED");
+                availableTypes.remove(type);
+                return getAvailableManager();
+            }
         }
-
-        try {
-            return new LuckPermsManager();
-        } catch (Exception ex) {
-            BetterBanSystem.getGlobalLogger().debug("Failed to load LuckPermsManager ... falling back to default PermissionsHandler", ex.getCause());
+        availableTypes = List.of(PermissionsHandlerType.values());
+        if (RuntimeService.isBungeeCord()) {
+            return new BungeeCordDefaultHandler();
         }
-
-        return new DefaultPermissionsHandler();
+        return new SpigotPermissionsHandler();
     }
 
     /**
@@ -50,19 +67,5 @@ public abstract class PermissionsManager {
      * @return boolean
      */
     public abstract boolean hasPermission(String playername, String permission);
-
-    /**
-     * @param player     {@link Player}
-     * @param permission String
-     * @return boolean
-     */
-    public abstract boolean hasPermission(Player player, String permission);
-
-    /**
-     * @param player     {@link OfflinePlayer}
-     * @param permission String
-     * @return boolean
-     */
-    public abstract boolean hasPermission(OfflinePlayer player, String permission);
 
 }
