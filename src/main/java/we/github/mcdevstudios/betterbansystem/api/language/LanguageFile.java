@@ -7,7 +7,7 @@ package we.github.mcdevstudios.betterbansystem.api.language;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
-import we.github.mcdevstudios.spigot.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
 
 import java.io.FileInputStream;
 import java.io.IOException;

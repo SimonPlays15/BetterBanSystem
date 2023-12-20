@@ -7,7 +7,7 @@ package we.github.mcdevstudios.betterbansystem.api.database.mysql;
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.database.Database;
 import we.github.mcdevstudios.betterbansystem.api.database.IDatabase;
-import we.github.mcdevstudios.spigot.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
 
 import java.sql.*;
 import java.util.ArrayList;

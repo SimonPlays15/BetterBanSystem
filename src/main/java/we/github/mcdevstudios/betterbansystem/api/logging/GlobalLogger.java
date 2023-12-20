@@ -7,7 +7,7 @@ package we.github.mcdevstudios.betterbansystem.api.logging;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import we.github.mcdevstudios.spigot.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
 
 import java.io.IOException;
 import java.nio.file.Files;

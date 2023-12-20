@@ -2,12 +2,12 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.spigot.event;
+package we.github.mcdevstudios.betterbansystem.spigot.event;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-import we.github.mcdevstudios.spigot.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
 
 import java.io.File;
 import java.lang.reflect.Constructor;

@@ -2,14 +2,14 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.spigot.command.commands;
+package we.github.mcdevstudios.betterbansystem.spigot.command.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import we.github.mcdevstudios.spigot.BetterBanSystem;
-import we.github.mcdevstudios.spigot.command.BaseCommand;
+import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.spigot.command.BaseCommand;
 
 import java.util.Map;
 

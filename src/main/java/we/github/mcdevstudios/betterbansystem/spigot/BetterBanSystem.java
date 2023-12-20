@@ -2,14 +2,14 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.spigot;
+package we.github.mcdevstudios.betterbansystem.spigot;
 
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import we.github.mcdevstudios.betterbansystem.api.language.LanguageFile;
 import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
-import we.github.mcdevstudios.spigot.command.CommandHandler;
-import we.github.mcdevstudios.spigot.event.EventManager;
+import we.github.mcdevstudios.betterbansystem.spigot.command.CommandHandler;
+import we.github.mcdevstudios.betterbansystem.spigot.event.EventManager;
 
 public class BetterBanSystem extends JavaPlugin {
     private static BetterBanSystem instance;

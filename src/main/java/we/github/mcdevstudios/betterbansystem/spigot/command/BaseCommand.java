@@ -2,13 +2,13 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.spigot.command;
+package we.github.mcdevstudios.betterbansystem.spigot.command;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.permissions.PermissionsManager;
-import we.github.mcdevstudios.spigot.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
 
 import java.util.Map;
 
