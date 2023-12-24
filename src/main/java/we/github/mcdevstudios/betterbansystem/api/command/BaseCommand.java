@@ -2,28 +2,38 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.spigot.command;
+package we.github.mcdevstudios.betterbansystem.api.command;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
+import we.github.mcdevstudios.betterbansystem.api.files.BasePluginDescription;
+import we.github.mcdevstudios.betterbansystem.api.files.ResourceFile;
+import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 import we.github.mcdevstudios.betterbansystem.api.permissions.PermissionsManager;
-import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 
+import java.io.InvalidObjectException;
 import java.util.Map;
 
 public abstract class BaseCommand {
 
     private final String commandName;
-    private final PermissionsManager manager = PermissionsManager.getAvailableManager();
+    private final PermissionsManager manager;
     private String permission;
     private String description;
     private String usage;
     private String label;
 
     public BaseCommand(String commandName) {
+        this.manager = BetterBanSystem.getInstance().getPermissionsManager();
         commandName = commandName.toLowerCase();
-        PluginDescriptionFile pluginDescriptionFile = BetterBanSystem.getInstance().getDescription();
+        // TODO (Core.getDataFolder())
+        BasePluginDescription pluginDescriptionFile;
+        try {
+            pluginDescriptionFile = new BasePluginDescription(new ResourceFile(BetterBanSystem.getInstance().getDataFolder()).getResource("plugin.yml"));
+        } catch (InvalidObjectException e) {
+            GlobalLogger.getLogger().error("Failed to load pluginDescription file (plugin.yml)", e);
+            throw new RuntimeException(e);
+        }
         if (!pluginDescriptionFile.getCommands().containsKey(commandName)) {
             throw new NullPointerException("Failed to find command " + commandName + " inside the plugin.yml (PluginDescriptionFile)");
         }
@@ -35,15 +45,21 @@ public abstract class BaseCommand {
         this.label = commandName;
     }
 
-    public boolean testPermission(@NotNull CommandSender sender) {
+    public boolean testPermission(@NotNull BaseCommandSender sender) {
+        if (sender.isConsole()) {
+            return true;
+        }
         return manager.hasPermission(sender.getName(), this.permission);
     }
 
-    public boolean testPermission(CommandSender sender, String permission) {
+    public boolean testPermission(BaseCommandSender sender, String permission) {
+        if (sender.isConsole()) {
+            return true;
+        }
         return manager.hasPermission(sender.getName(), permission);
     }
 
-    public abstract boolean execute(CommandSender sender, String[] args);
+    public abstract boolean runCommand(BaseCommandSender sender, String[] args);
 
     public String getCommandName() {
         return commandName;
@@ -65,8 +81,9 @@ public abstract class BaseCommand {
         this.usage = usage;
     }
 
-    public void sendUsage(CommandSender sender) {
-        sender.sendMessage(BetterBanSystem.getPrefix() + getUsage());
+    public void sendUsage(BaseCommandSender sender) {
+        //TODO
+        sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + getUsage());
     }
 
     public void setLabel(String label) {
@@ -79,5 +96,9 @@ public abstract class BaseCommand {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public PermissionsManager getManager() {
+        return manager;
     }
 }

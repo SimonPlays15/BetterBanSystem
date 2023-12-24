@@ -5,15 +5,20 @@
 package we.github.mcdevstudios.betterbansystem.api.permissions;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
-import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
+import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class PermissionsManager {
 
-    private static List<PermissionsHandlerType> availableTypes = List.of(PermissionsHandlerType.values());
+    static List<PermissionsHandlerType> availableTypes = new ArrayList<>();
+
+    static {
+        Collections.addAll(availableTypes, PermissionsHandlerType.values());
+    }
 
     @Contract(pure = true)
     public PermissionsManager() {
@@ -23,16 +28,14 @@ public abstract class PermissionsManager {
      * @param type {@link PermissionsHandlerType}
      * @return {@link PermissionsManager}
      */
-    public static PermissionsManager getHandler(PermissionsHandlerType type) throws Exception {
-        if (type == PermissionsHandlerType.BUNGEECORD && RuntimeService.isBungeeCord()) {
-            return new BungeeCordDefaultHandler();
-        }
+    public static PermissionsManager getHandler(@NotNull PermissionsHandlerType type) throws Exception {
         PermissionsManager manager = null;
+
         switch (type) {
             case LUCKPERMS -> manager = new LuckPermsManager();
-            case PERMISSIONSEX -> manager = new PermissionsExHandler();
             case SPIGOT -> manager = new SpigotPermissionsHandler();
-            case CLOUDNET -> new CloudNetPermissionsHandler();
+            case CLOUDNET -> manager = new CloudNetPermissionsHandler();
+            case BUNGEECORD -> manager = new BungeeCordDefaultHandler();
         }
 
         return manager;
@@ -42,19 +45,20 @@ public abstract class PermissionsManager {
      * @return Available {@link PermissionsManager} | If nothing is available:<br>{@link RuntimeService#isBungeeCord()} ? {@link BungeeCordDefaultHandler}<br>{@link RuntimeService#isSpigot()} ? {@link SpigotPermissionsHandler}
      * @see PermissionsHandlerType
      */
-    public static @Nullable PermissionsManager getAvailableManager() {
+    public static @NotNull PermissionsManager getAvailableManager() {
+        List<PermissionsHandlerType> toRemove = new ArrayList<>();
         for (PermissionsHandlerType type : availableTypes) {
-            GlobalLogger.getLogger().debug("Trying " + type.name() + " as PermissionManager...");
+            if (type == PermissionsHandlerType.SPIGOT || type == PermissionsHandlerType.BUNGEECORD)
+                continue;
             try {
-                GlobalLogger.getLogger().debug("Trying " + type.name() + " as PermissionManager...OK");
                 return getHandler(type);
             } catch (Exception ex) {
-                GlobalLogger.getLogger().debug("Trying " + type.name() + " as PermissionManager...FAILED");
-                availableTypes.remove(type);
-                return getAvailableManager();
+                toRemove.add(type);
             }
         }
-        availableTypes = List.of(PermissionsHandlerType.values());
+        for (PermissionsHandlerType permissionsHandlerType : toRemove) {
+            availableTypes.remove(permissionsHandlerType);
+        }
         if (RuntimeService.isBungeeCord()) {
             return new BungeeCordDefaultHandler();
         }

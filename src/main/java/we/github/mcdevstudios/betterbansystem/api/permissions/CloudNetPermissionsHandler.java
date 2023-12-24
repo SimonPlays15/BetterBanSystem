@@ -4,8 +4,8 @@
 
 package we.github.mcdevstudios.betterbansystem.api.permissions;
 
+import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
-import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -21,7 +21,7 @@ public class CloudNetPermissionsHandler extends PermissionsManager {
             getUserMethod = cloudnetPermManagement.getMethod("getUser", UUID.class);
             INSTANCE = cloudnetPermManagement.getMethod("getInstance").invoke(null);
         } catch (NoClassDefFoundError | NoSuchMethodException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to load CloudNet Manager.", ex);
+            GlobalLogger.getLogger().error("Failed to load CloudNet Manager.");
             throw new Exception(ex);
         }
     }
@@ -41,7 +41,7 @@ public class CloudNetPermissionsHandler extends PermissionsManager {
 
             return (boolean) hasPermissionMethod.invoke(cloudNetPlayer, permission);
         } catch (Exception ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to invoke CloudNet hasPermission method. Return false for safety reasons", ex);
+            GlobalLogger.getLogger().error("Failed to invoke CloudNet hasPermission method. Return false for safety reasons", ex);
         }
         return false;
     }

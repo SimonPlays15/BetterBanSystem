@@ -7,7 +7,7 @@ package we.github.mcdevstudios.betterbansystem.api.database.mysql;
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.database.Database;
 import we.github.mcdevstudios.betterbansystem.api.database.IDatabase;
-import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class MySQLDatabase extends Database {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(url, username, password);
         } catch (ClassNotFoundException | SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("An error occurred while connecting to database", ex);
+            GlobalLogger.getLogger().error("An error occurred while connecting to database", ex);
         }
     }
 
@@ -47,7 +47,7 @@ public class MySQLDatabase extends Database {
             if (connection != null && !connection.isClosed())
                 connection.close();
         } catch (SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to close the database connection", ex);
+            GlobalLogger.getLogger().error("Failed to close the database connection", ex);
         }
     }
 
@@ -79,7 +79,7 @@ public class MySQLDatabase extends Database {
 
             statement.executeUpdate();
         } catch (SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
+            GlobalLogger.getLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
     }
 
@@ -112,7 +112,7 @@ public class MySQLDatabase extends Database {
 
             statement.executeUpdate();
         } catch (SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
+            GlobalLogger.getLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
 
     }
@@ -132,7 +132,7 @@ public class MySQLDatabase extends Database {
 
             statement.executeUpdate();
         } catch (SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
+            GlobalLogger.getLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
     }
 
@@ -165,7 +165,7 @@ public class MySQLDatabase extends Database {
             }
 
         } catch (SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
+            GlobalLogger.getLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
 
         return result;
@@ -199,7 +199,7 @@ public class MySQLDatabase extends Database {
             }
 
         } catch (SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
+            GlobalLogger.getLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
 
         return result;
@@ -227,7 +227,7 @@ public class MySQLDatabase extends Database {
                 result.add(row);
             }
         } catch (SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", queryString, ex);
+            GlobalLogger.getLogger().error("Failed to execute SQLStatement:", queryString, ex);
         }
 
         return result;
@@ -257,7 +257,7 @@ public class MySQLDatabase extends Database {
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to execute SQLStatement:", sql, ex);
+            GlobalLogger.getLogger().error("Failed to execute SQLStatement:", sql, ex);
         }
     }
 
@@ -269,7 +269,7 @@ public class MySQLDatabase extends Database {
         try {
             connection.setAutoCommit(false);
         } catch (SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to start transaction", ex);
+            GlobalLogger.getLogger().error("Failed to start transaction", ex);
         }
     }
 
@@ -282,7 +282,7 @@ public class MySQLDatabase extends Database {
             connection.commit();
             connection.setAutoCommit(true);
         } catch (SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to commit transaction", ex);
+            GlobalLogger.getLogger().error("Failed to commit transaction", ex);
         }
     }
 
@@ -295,7 +295,7 @@ public class MySQLDatabase extends Database {
             connection.rollback();
             connection.setAutoCommit(true);
         } catch (SQLException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to rollback transaction", ex);
+            GlobalLogger.getLogger().error("Failed to rollback transaction", ex);
         }
     }
 }

@@ -2,15 +2,17 @@
  * Copyright (c) MCDevStudios 2023. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.api.language;
+package we.github.mcdevstudios.betterbansystem.api.files;
 
-import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
-import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.api.chat.ChatColor;
+import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
+import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,15 +24,18 @@ public class LanguageFile {
     }
 
     private Map<String, String> loadLanguageFile(String languagePath) {
+        if (languagePath == null || languagePath.isEmpty()) {
+            throw new NullPointerException("languagePath cannot be empty or null");
+        }
         Yaml yaml = new Yaml();
         try (FileInputStream input = new FileInputStream(languagePath)) {
             return yaml.load(input);
         } catch (IOException ex) {
-            BetterBanSystem.getGlobalLogger().error("Failed to load language File", languagePath, "falling back to default language file", ex);
-            try (FileInputStream input = new FileInputStream("en_US.yml")) {
+            GlobalLogger.getLogger().error("Failed to load language File", languagePath, "falling back to default language file", ex);
+            try (InputStream input = new ResourceFile(BetterBanSystem.getInstance().getDataFolder()).getResource("language/en_US.yml")) {
                 return yaml.load(input);
             } catch (IOException e) {
-                BetterBanSystem.getGlobalLogger().error("Failed to load default Language File", languagePath, e);
+                GlobalLogger.getLogger().error("Failed to load default Language File", languagePath, e);
             }
         }
         return new HashMap<>();
@@ -51,6 +56,6 @@ public class LanguageFile {
             message = message.replace(placeholder, replacement);
         }
 
-        return BetterBanSystem.getPrefix() + ChatColor.translateAlternateColorCodes('&', message);
+        return BetterBanSystem.getInstance().getPrefix() + ChatColor.translateAlternateColorCodes('&', message);
     }
 }

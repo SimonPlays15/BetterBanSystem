@@ -8,7 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -25,7 +25,7 @@ public record IPBanEntry(String bannedIP, String bannerName, Date creationDate, 
         try (FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(ipBanEntryToJson(ipBanEntry), writer);
         } catch (IOException e) {
-            BetterBanSystem.getGlobalLogger().error("Failed to load save Object", e);
+            GlobalLogger.getLogger().error("Failed to load save Object", e);
         }
     }
 
@@ -35,7 +35,7 @@ public record IPBanEntry(String bannedIP, String bannerName, Date creationDate, 
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             return jsonToIPBanEntry(jsonObject);
         } catch (IOException e) {
-            BetterBanSystem.getGlobalLogger().error("Failed to load IPBan Object", e);
+            GlobalLogger.getLogger().error("Failed to load IPBan Object", e);
             return null;
         }
     }
@@ -71,7 +71,7 @@ public record IPBanEntry(String bannedIP, String bannerName, Date creationDate, 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             return dateFormat.parse(dateString);
         } catch (ParseException e) {
-            BetterBanSystem.getGlobalLogger().error("Failed to parse date:", dateString, e);
+            GlobalLogger.getLogger().error("Failed to parse date:", dateString, e);
             return null;
         }
     }

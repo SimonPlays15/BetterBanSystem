@@ -30,9 +30,17 @@ public class UUIDFetcher {
             String uuidString = json.get("id").getAsString();
             reader.close();
 
-            return UUID.fromString(uuidString);
+            StringBuilder realUuid = new StringBuilder();
+            for (int i = 0; i <= 31; i++) {
+                realUuid.append(uuidString.charAt(i));
+                if (i == 7 || i == 11 || i == 15 || i == 19) {
+                    realUuid.append("-");
+                }
+            }
+
+            return UUID.fromString(realUuid.toString());
         } catch (Exception ex) {
-            GlobalLogger.getLogger().error("Failed call mojang API for uuid fetching. Are the servers unavailable?", ex);
+            GlobalLogger.getLogger().error("Failed to call mojang API for uuid fetching. Are the servers unavailable?", ex);
         }
         return null;
     }

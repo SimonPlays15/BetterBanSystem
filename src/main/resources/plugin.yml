@@ -1,8 +1,14 @@
 name: ${project.artifactId}
 authors: [ SimonPlays15, Blubo ]
 version: ${project.version}
-main: ${project.groupId.spigot.BetterBanSystem
+main: ${project.groupId}.spigot.SpigotCore
 description: It got never easier to ban a user
+loadbefore:
+  - LuckPerms
+  - PermissionsEx
+softdepend:
+  - LuckPerms
+  - PermissionsEx
 commands:
   kick:
     description: Kicks a specific player

@@ -34,12 +34,11 @@ public class SpigotPermissionsHandler extends PermissionsManager {
     }
 
     /**
-     * @param player     {@link OfflinePlayer}
-     * @param permission String
+     * @param player {@link OfflinePlayer}
      * @return boolean
      * @apiNote Default {@link PermissionsManager} cannot look up {@link OfflinePlayer} for {@link org.bukkit.permissions.Permission} | Looking if {@link OfflinePlayer#hasPlayedBefore()} and {@link OfflinePlayer#isOp()}
      */
-    public boolean hasPermission(OfflinePlayer player, String permission) {
+    public boolean hasPermission(OfflinePlayer player) {
         return player.hasPlayedBefore() && player.isOp();
     }
 }

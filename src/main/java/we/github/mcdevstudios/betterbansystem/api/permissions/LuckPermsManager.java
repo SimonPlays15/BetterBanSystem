@@ -4,45 +4,42 @@
 
 package we.github.mcdevstudios.betterbansystem.api.permissions;
 
-import org.bukkit.Bukkit;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.model.user.UserManager;
+import net.luckperms.api.node.NodeType;
+import net.luckperms.api.node.types.PermissionNode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import we.github.mcdevstudios.betterbansystem.spigot.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
+import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 public class LuckPermsManager extends PermissionsManager {
 
-    private final Method luckPermsGetUserManagerMethod;
-    private final Method luckPermsUserManagerCheckPermissionMethod;
+    private final LuckPerms luckPerms;
 
     public LuckPermsManager() throws Exception {
         try {
-            Class<?> luckPermsClass = Class.forName("net.luckperms.api.LuckPerms");
-            luckPermsGetUserManagerMethod = luckPermsClass.getMethod("getUserManager");
-            Class<?> userManagerClass = Class.forName("net.luckperms.api.UserManager");
-            luckPermsUserManagerCheckPermissionMethod = userManagerClass.getMethod("checkPermission", String.class);
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
-            BetterBanSystem.getGlobalLogger().error("Failed to load LuckPerms Manager. Is the plugin enabled?", e);
+            Class.forName("net.luckperms.api.LuckPerms");
+        } catch (ClassNotFoundException e) {
+            GlobalLogger.getLogger().error("Failed to load LuckPerms Manager. Is the plugin enabled?");
             throw new Exception(e);
         }
+        luckPerms = LuckPermsProvider.get();
+
     }
 
     private boolean lookUp(String playername, String permission) {
-        try {
-            Object userManager = luckPermsGetUserManagerMethod.invoke(null);
-            Object user = userManager.getClass().getMethod("getUser", String.class).invoke(userManager, playername);
+        UserManager userManager = luckPerms.getUserManager();
+        if (UUIDFetcher.getUUID(playername) != null) {
+            CompletableFuture<User> userFuture = userManager.loadUser(Objects.requireNonNull(UUIDFetcher.getUUID(playername)));
+            User user = userFuture.join();
 
-            return (boolean) luckPermsUserManagerCheckPermissionMethod.invoke(user, permission);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            BetterBanSystem.getGlobalLogger().error("Failed to invoke luckperms \"has\" method. Falling back to default Player#hasPermission Method", e);
-            if (Bukkit.getPlayer(playername) != null) {
-                return Objects.requireNonNull(Bukkit.getPlayer(playername)).hasPermission(permission);
-            } else {
-                BetterBanSystem.getGlobalLogger().warn("Failed to get online player:", playername);
-            }
+            return user.getNodes(NodeType.PERMISSION).contains(PermissionNode.builder(permission).build());
         }
         return false;
     }
@@ -53,10 +50,20 @@ public class LuckPermsManager extends PermissionsManager {
     }
 
     public boolean hasPermission(Player player, String permission) {
-        return hasPermission(player.getName(), permission);
+        UserManager userManager = luckPerms.getUserManager();
+        User user = userManager.getUser(player.getUniqueId());
+        if (user == null) {
+            GlobalLogger.getLogger().error("Failed to load user from LuckPerms UserManager", new NullPointerException("user is null"));
+            return false;
+        }
+        return user.getNodes(NodeType.PERMISSION).contains(PermissionNode.builder(permission).build());
     }
 
     public boolean hasPermission(OfflinePlayer player, String permission) {
-        return hasPermission(player.getName(), permission);
+        UserManager userManager = luckPerms.getUserManager();
+        CompletableFuture<User> userFuture = userManager.loadUser(player.getUniqueId());
+        User user = userFuture.join();
+
+        return user.getNodes(NodeType.PERMISSION).contains(PermissionNode.builder(permission).build());
     }
 }

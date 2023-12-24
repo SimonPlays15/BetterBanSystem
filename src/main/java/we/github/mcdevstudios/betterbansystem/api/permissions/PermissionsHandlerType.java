@@ -6,6 +6,6 @@ package we.github.mcdevstudios.betterbansystem.api.permissions;
 
 public enum PermissionsHandlerType {
 
-    SPIGOT, PERMISSIONSEX, LUCKPERMS, BUNGEECORD, CLOUDNET
+    SPIGOT, LUCKPERMS, BUNGEECORD, CLOUDNET
 
 }
