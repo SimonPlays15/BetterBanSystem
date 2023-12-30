@@ -25,3 +25,6 @@ logging:
   logfile: true
   # Do you want to see debugging messages from this plugin?
   debug: false
+# Exempted players (without giving the betterbansystem.exempt.ban permission)
+exempted-players: [ ]
+exempted-ips: [ ]

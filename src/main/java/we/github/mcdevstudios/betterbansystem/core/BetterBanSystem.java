@@ -4,9 +4,11 @@
 
 package we.github.mcdevstudios.betterbansystem.core;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.chat.ChatColor;
 import we.github.mcdevstudios.betterbansystem.api.files.BaseConfig;
+import we.github.mcdevstudios.betterbansystem.api.files.BasePluginDescription;
 import we.github.mcdevstudios.betterbansystem.api.files.LanguageFile;
 import we.github.mcdevstudios.betterbansystem.api.files.ResourceFile;
 import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
@@ -18,12 +20,13 @@ import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
 
 import java.io.File;
 
-public abstract class BetterBanSystem {
+public class BetterBanSystem {
 
     private static BetterBanSystem instance;
 
     private final File dataFolder;
     private final File configFile;
+    private final BasePluginDescription basePluginDescription;
     public String prefix;
     public BaseConfig config;
     private LanguageFile languageFile;
@@ -33,6 +36,14 @@ public abstract class BetterBanSystem {
         instance = this;
         this.dataFolder = dataFolder;
         ResourceFile resourceFile = new ResourceFile(this.dataFolder);
+
+        if (RuntimeService.isSpigot())
+            this.basePluginDescription = new BasePluginDescription(resourceFile.getResource("plugin.yml"));
+        else if (RuntimeService.isBungeeCord())
+            this.basePluginDescription = new BasePluginDescription(resourceFile.getResource("bungee.yml"));
+        else
+            throw new RuntimeException("Failed to load the correct runtime service. Is this plugin runnin on an Spigot or BungeeCord Server?");
+
         this.configFile = new File(this.dataFolder, "config.yml");
         resourceFile.saveResource("config.yml", true);
         resourceFile.saveResource("language/de_DE.yml", true);
@@ -50,15 +61,10 @@ public abstract class BetterBanSystem {
         this.loadPermissionsSystem(PermissionsHandlerType.valueOf(this.config.getString("permissions.system", "SPIGOT").toUpperCase()));
     }
 
+    @Contract(pure = true)
     public static BetterBanSystem getInstance() {
         return instance;
     }
-
-    public abstract void onEnable();
-
-    public abstract void onDisable();
-
-    public abstract void onLoad();
 
     public String getPrefix() {
         if (this.prefix == null) {
@@ -111,5 +117,9 @@ public abstract class BetterBanSystem {
 
     public PermissionsManager getPermissionsManager() {
         return manager;
+    }
+
+    public BasePluginDescription getPluginDescription() {
+        return basePluginDescription;
     }
 }

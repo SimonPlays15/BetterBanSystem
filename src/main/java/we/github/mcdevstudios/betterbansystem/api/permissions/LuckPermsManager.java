@@ -12,6 +12,7 @@ import net.luckperms.api.node.NodeType;
 import net.luckperms.api.node.types.PermissionNode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import we.github.mcdevstudios.betterbansystem.api.exceptions.PermissionManagerLoadException;
 import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
 
@@ -22,12 +23,12 @@ public class LuckPermsManager extends PermissionsManager {
 
     private final LuckPerms luckPerms;
 
-    public LuckPermsManager() throws Exception {
+    public LuckPermsManager() throws PermissionManagerLoadException {
         try {
             Class.forName("net.luckperms.api.LuckPerms");
         } catch (ClassNotFoundException e) {
             GlobalLogger.getLogger().error("Failed to load LuckPerms Manager. Is the plugin enabled?");
-            throw new Exception(e);
+            throw new PermissionManagerLoadException(e.getMessage());
         }
         luckPerms = LuckPermsProvider.get();
 

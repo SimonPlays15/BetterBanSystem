@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 public class ChatColor {
 
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '§' + "[0-9A-FK-ORX]");
+    private static final String VALID_CHARS = "0123456789AaBbCcDdEeFfKkLlMmNnOoRrXx";
 
     /**
      * @param altColorChar    char
@@ -26,7 +27,7 @@ public class ChatColor {
         char[] b = textToTranslate.toCharArray();
 
         for (int i = 0; i < b.length - 1; ++i) {
-            if (b[i] == altColorChar && "0123456789AaBbCcDdEeFfKkLlMmNnOoRrXx".indexOf(b[i + 1]) > -1) {
+            if (b[i] == altColorChar && VALID_CHARS.indexOf(b[i + 1]) > -1) {
                 b[i] = 167;
                 b[i + 1] = Character.toLowerCase(b[i + 1]);
             }

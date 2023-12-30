@@ -8,9 +8,8 @@ public class RuntimeService {
 
     public static boolean isSpigot() {
         try {
-            Class<?> serverClass = Class.forName("org.bukkit.craftbukkit.CraftServer");
-            org.bukkit.Server server = org.bukkit.Bukkit.getServer();
-            return serverClass.isInstance(server);
+            Class.forName("org.bukkit.Server");
+            return true;
         } catch (ClassNotFoundException e) {
             return false;
         }

@@ -5,5 +5,18 @@
 package we.github.mcdevstudios.betterbansystem.api.database;
 
 public enum DriverType {
-    MySQL, SQLite, MongoDB
+    /**
+     * Represents the MySQL driver type.
+     */
+    MySQL,
+    /**
+     * Represents the SQLite driver type for connecting to a SQLite database.
+     */
+    SQLite,
+    /**
+     * Represents the MongoDB driver type in the system.
+     *
+     * @since 1.0.0
+     */
+    MongoDB
 }

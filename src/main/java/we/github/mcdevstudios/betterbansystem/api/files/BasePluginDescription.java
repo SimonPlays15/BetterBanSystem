@@ -9,9 +9,9 @@ import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
+import we.github.mcdevstudios.betterbansystem.api.exceptions.InvalidDescriptionException;
 
 import java.io.InputStream;
-import java.io.InvalidObjectException;
 import java.io.Reader;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -25,33 +25,33 @@ public class BasePluginDescription {
     private Map<String, Map<String, Object>> commands;
     private String description;
 
-    public BasePluginDescription(@NotNull InputStream stream) throws InvalidObjectException {
+    public BasePluginDescription(@NotNull InputStream stream) throws InvalidDescriptionException {
         loadMap(asMap(this.yaml.load(stream)));
     }
 
-    public BasePluginDescription(@NotNull Reader reader) throws InvalidObjectException {
+    public BasePluginDescription(@NotNull Reader reader) throws InvalidDescriptionException {
         loadMap(asMap(this.yaml.load(reader)));
     }
 
     @Contract(value = "null -> fail", pure = true)
-    private @NotNull Map<?, ?> asMap(Object object) throws InvalidObjectException {
+    private @NotNull Map<?, ?> asMap(Object object) throws InvalidDescriptionException {
         if (object instanceof Map<?, ?>)
             return (Map<?, ?>) object;
 
-        throw new InvalidObjectException(object + " is not properly structured");
+        throw new InvalidDescriptionException(object + " is not properly structured");
     }
 
     /**
      * @param map Map<?, ?>
-     * @throws InvalidObjectException if {@link BasePluginDescription#VALID_NAME} does not match
-     * @throws NullPointerException   if {@link Map#get(Object)} values not exists
+     * @throws InvalidDescriptionException if {@link BasePluginDescription#VALID_NAME} does not match
+     * @throws NullPointerException        if {@link Map#get(Object)} values not exists
      * @see org.bukkit.plugin.PluginDescriptionFile
      */
-    private void loadMap(Map<?, ?> map) throws InvalidObjectException, NullPointerException {
+    private void loadMap(Map<?, ?> map) throws InvalidDescriptionException, NullPointerException {
         //TODO Throws NullPointer
         this.name = map.get("name").toString();
         if (!VALID_NAME.matcher(this.name).matches()) {
-            throw new InvalidObjectException("name '" + this.name + "' contains invalid characters.");
+            throw new InvalidDescriptionException("name '" + this.name + "' contains invalid characters.");
         }
         this.name = this.name.replace(' ', '_');
         this.version = map.get("version").toString();
@@ -82,7 +82,7 @@ public class BasePluginDescription {
                     commandsBuilder.put(command.getKey().toString(), commandBuilder.build());
                 }
             } catch (Exception ex) {
-                throw new InvalidObjectException("commands are of wrong type");
+                throw new InvalidDescriptionException("commands are of wrong type");
             }
             this.commands = commandsBuilder.build();
         }

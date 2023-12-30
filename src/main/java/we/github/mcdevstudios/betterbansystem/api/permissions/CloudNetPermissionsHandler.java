@@ -4,9 +4,11 @@
 
 package we.github.mcdevstudios.betterbansystem.api.permissions;
 
+import we.github.mcdevstudios.betterbansystem.api.exceptions.PermissionManagerLoadException;
 import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
@@ -15,14 +17,15 @@ public class CloudNetPermissionsHandler extends PermissionsManager {
     private final Method getUserMethod;
     private final Object INSTANCE;
 
-    public CloudNetPermissionsHandler() throws Exception {
+    public CloudNetPermissionsHandler() throws PermissionManagerLoadException {
         try {
             Class<?> cloudnetPermManagement = Class.forName("de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement");
             getUserMethod = cloudnetPermManagement.getMethod("getUser", UUID.class);
             INSTANCE = cloudnetPermManagement.getMethod("getInstance").invoke(null);
-        } catch (NoClassDefFoundError | NoSuchMethodException ex) {
+        } catch (NoClassDefFoundError | NoSuchMethodException | ClassNotFoundException | IllegalAccessException |
+                 InvocationTargetException ex) {
             GlobalLogger.getLogger().error("Failed to load CloudNet Manager.");
-            throw new Exception(ex);
+            throw new PermissionManagerLoadException(ex.getMessage());
         }
     }
 

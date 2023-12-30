@@ -5,37 +5,60 @@
 package we.github.mcdevstudios.betterbansystem.api.command;
 
 import org.jetbrains.annotations.NotNull;
+import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
+import we.github.mcdevstudios.betterbansystem.api.exceptions.InvalidDescriptionException;
 import we.github.mcdevstudios.betterbansystem.api.files.BasePluginDescription;
-import we.github.mcdevstudios.betterbansystem.api.files.ResourceFile;
-import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 import we.github.mcdevstudios.betterbansystem.api.permissions.PermissionsManager;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 
-import java.io.InvalidObjectException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public abstract class BaseCommand {
 
+    /**
+     * The name of the command.
+     */
     private final String commandName;
+    /**
+     * Represents a private final variable for managing permissions.
+     *
+     * @see BetterBanSystem
+     */
     private final PermissionsManager manager;
+    /**
+     * Represents the permission associated with a command.
+     */
     private String permission;
+    /**
+     * private variable to store the description.
+     */
     private String description;
+    /**
+     * Returns the usage information of the command.
+     */
     private String usage;
+    /**
+     * Represents the label of a command.
+     * The label is a string that identifies a command.
+     * It can be used to match a command with its corresponding functionality.
+     */
     private String label;
 
+    /**
+     * Represents a base command.
+     * Constructor initializes the command properties based on the provided command name.
+     *
+     * @param commandName The name of the command.
+     * @throws InvalidDescriptionException If the command name is not found in the plugin.yml (PluginDescriptionFile).
+     */
     public BaseCommand(String commandName) {
         this.manager = BetterBanSystem.getInstance().getPermissionsManager();
         commandName = commandName.toLowerCase();
-        // TODO (Core.getDataFolder())
-        BasePluginDescription pluginDescriptionFile;
-        try {
-            pluginDescriptionFile = new BasePluginDescription(new ResourceFile(BetterBanSystem.getInstance().getDataFolder()).getResource("plugin.yml"));
-        } catch (InvalidObjectException e) {
-            GlobalLogger.getLogger().error("Failed to load pluginDescription file (plugin.yml)", e);
-            throw new RuntimeException(e);
-        }
+        BasePluginDescription pluginDescriptionFile = BetterBanSystem.getInstance().getPluginDescription();
         if (!pluginDescriptionFile.getCommands().containsKey(commandName)) {
-            throw new NullPointerException("Failed to find command " + commandName + " inside the plugin.yml (PluginDescriptionFile)");
+            throw new InvalidDescriptionException("Failed to find command " + commandName + " inside the plugin.yml (PluginDescriptionFile)");
         }
         Map<String, Object> commandData = pluginDescriptionFile.getCommands().get(commandName.toLowerCase());
         this.commandName = commandName;
@@ -45,21 +68,48 @@ public abstract class BaseCommand {
         this.label = commandName;
     }
 
+    /**
+     * Tests the permission of a given command sender.
+     *
+     * @param sender The CommandSender to test the permission for. Must not be null.
+     * @return true if the command sender has the required permission, otherwise false.
+     */
     public boolean testPermission(@NotNull BaseCommandSender sender) {
-        if (sender.isConsole()) {
-            return true;
-        }
-        return manager.hasPermission(sender.getName(), this.permission);
+        return this.testPermission(sender, this.permission);
     }
 
-    public boolean testPermission(BaseCommandSender sender, String permission) {
+    /**
+     * This method tests if a given sender has a specific permission.
+     *
+     * @param sender     The CommandSender
+     * @param permission The permission to check
+     * @return true if the sender has the permission, false otherwise
+     */
+    public boolean testPermission(@NotNull BaseCommandSender sender, String permission) {
+        if (permission.isEmpty())
+            return true;
         if (sender.isConsole()) {
             return true;
         }
         return manager.hasPermission(sender.getName(), permission);
     }
 
-    public abstract boolean runCommand(BaseCommandSender sender, String[] args);
+    /**
+     * @param sender The CommandSender {@link BaseCommandSender}
+     * @param args   the argument of the command
+     * @return boolean if command was successfully or not
+     * @throws CommandException if an error inside a command class occurred
+     */
+    public abstract boolean runCommand(BaseCommandSender sender, String[] args) throws CommandException;
+
+    /**
+     * @param sender The CommandSender {@link BaseCommandSender}
+     * @param args   the arguments of the commands
+     * @return a {@link List<String>}
+     */
+    public List<String> onTabComplete(BaseCommandSender sender, String[] args) {
+        return new ArrayList<>();
+    }
 
     public String getCommandName() {
         return commandName;
@@ -82,7 +132,6 @@ public abstract class BaseCommand {
     }
 
     public void sendUsage(BaseCommandSender sender) {
-        //TODO
         sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + getUsage());
     }
 
@@ -98,7 +147,19 @@ public abstract class BaseCommand {
         this.description = description;
     }
 
-    public PermissionsManager getManager() {
+    public PermissionsManager getPermManager() {
         return manager;
+    }
+
+    @Override
+    public String toString() {
+        return "BaseCommand{" +
+                "commandName='" + commandName + '\'' +
+                ", manager=" + manager +
+                ", permission='" + permission + '\'' +
+                ", description='" + description + '\'' +
+                ", usage='" + usage + '\'' +
+                ", label='" + label + '\'' +
+                '}';
     }
 }

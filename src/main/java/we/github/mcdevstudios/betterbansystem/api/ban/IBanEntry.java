@@ -9,18 +9,16 @@ import java.util.UUID;
 
 public interface IBanEntry {
 
-    UUID bannedPlayerUUID();
+    UUID uuid();
 
-    String bannedPlayerName();
+    String name();
 
-    String banningPlayerName();
+    String source();
 
-    Date creationDate();
+    Date created();
 
-    Date expirationDate();
+    Object expires();
 
     String reason();
-
-    boolean isPermanent();
 
 }

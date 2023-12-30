@@ -80,7 +80,8 @@ public class ResourceFile {
      * Tries to find the resource from the given fileName inside the jar File
      *
      * @param fileName {@link String}
-     * @return {@link InputStream} | null
+     * @return {@link InputStream}
+     * @throws RuntimeException if the given resource fileName does not exist
      */
     public InputStream getResource(@NotNull String fileName) {
         try {
@@ -92,7 +93,7 @@ public class ResourceFile {
             connection.setUseCaches(false);
             return connection.getInputStream();
         } catch (IOException ex) {
-            return null;
+            throw new RuntimeException("Failed to find resource " + fileName);
         }
     }
 

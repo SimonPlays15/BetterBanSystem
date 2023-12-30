@@ -8,16 +8,14 @@ import java.util.Date;
 
 public interface IIPBanEntry {
 
-    String bannedIP();
+    String ip();
 
-    String bannerName();
+    String source();
 
-    Date creationDate();
+    Date created();
 
-    Date expirationDate();
+    Object expires();
 
     String reason();
-
-    boolean isPermanent();
 
 }

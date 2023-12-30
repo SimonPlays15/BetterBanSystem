@@ -6,6 +6,7 @@ package we.github.mcdevstudios.betterbansystem.api.permissions;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import we.github.mcdevstudios.betterbansystem.api.exceptions.PermissionManagerLoadException;
 import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public abstract class PermissionsManager {
      * @param type {@link PermissionsHandlerType}
      * @return {@link PermissionsManager}
      */
-    public static PermissionsManager getHandler(@NotNull PermissionsHandlerType type) throws Exception {
+    public static PermissionsManager getHandler(@NotNull PermissionsHandlerType type) throws PermissionManagerLoadException {
         PermissionsManager manager = null;
 
         switch (type) {
@@ -52,7 +53,7 @@ public abstract class PermissionsManager {
                 continue;
             try {
                 return getHandler(type);
-            } catch (Exception ex) {
+            } catch (PermissionManagerLoadException ex) {
                 toRemove.add(type);
             }
         }
@@ -72,4 +73,8 @@ public abstract class PermissionsManager {
      */
     public abstract boolean hasPermission(String playername, String permission);
 
+    @Override
+    public String toString() {
+        return "PermissionsManager{}";
+    }
 }

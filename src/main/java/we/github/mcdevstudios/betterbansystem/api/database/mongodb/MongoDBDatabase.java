@@ -28,12 +28,11 @@ public class MongoDBDatabase extends Database {
     private MongoDatabase database;
 
     /**
-     * Connect to a specific database
+     * Connects to a specific database using the MongoDB driver.
      *
-     * @param connectionstring String
-     * @param username         String
-     * @param password         String
-     * @apiNote {@code connectionString = host+":"+port+"/"+database;}
+     * @param connectionstring the connection string for the MongoDB database
+     * @param username         the username for authentication (optional)
+     * @param password         the password for authentication (optional)
      */
     @Override
     public void connect(@NotNull String connectionstring, String username, String password) {
@@ -43,7 +42,7 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Disconnect from the database
+     * Disconnects from the database. Closes the MongoClient if it is not null.
      */
     @Override
     public void disconnect() {
@@ -52,10 +51,10 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Insert (KEY) with VALUES (VALUE) into Database
+     * Inserts a new document into the specified table in the MongoDB database.
      *
-     * @param tableName String
-     * @param data      Map
+     * @param tableName the name of the table to insert the document into
+     * @param data      a map containing the data to be inserted, with the field names as keys and the field values as values
      */
     public void insert(String tableName, Map<String, Object> data) {
         MongoCollection<Document> collection = database.getCollection(tableName);
@@ -64,12 +63,12 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Update (KEY) with VALUES (VALUE) in database
+     * Updates a document in the specified MongoDB collection.
      *
-     * @param tableName       String
-     * @param primaryKey      String
-     * @param primaryKeyValue String
-     * @param newData         Map
+     * @param tableName       the name of the collection
+     * @param primaryKey      the name of the primary key field
+     * @param primaryKeyValue the value of the primary key for the document to update
+     * @param newData         a {@link Map} of field names and their updated values
      */
     @Override
     public void update(String tableName, String primaryKey, Object primaryKeyValue, Map<String, Object> newData) {
@@ -81,11 +80,11 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Delete (KEY) with specific "VALUE"
+     * Deletes a record from the specified table based on the primary key value.
      *
-     * @param tableName       String
-     * @param primaryKey      String
-     * @param primaryKeyValue Object
+     * @param tableName       the name of the table
+     * @param primaryKey      the name of the primary key column
+     * @param primaryKeyValue the value of the primary key to match
      */
     @Override
     public void delete(String tableName, String primaryKey, Object primaryKeyValue) {
@@ -94,11 +93,11 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Select a value from table with condition
+     * Retrieves a list of rows from a database table based on the given condition.
      *
-     * @param tableName String
-     * @param condition String
-     * @return List
+     * @param tableName the name of the table to select from
+     * @param condition the condition to use for selecting rows
+     * @return a list of maps representing the selected rows, where each map contains column names as keys and column values as values
      */
     @Override
     public List<Map<String, Object>> select(String tableName, String condition) {
@@ -115,10 +114,10 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Select everything from a table name
+     * Selects all records from the specified table in the MongoDB database.
      *
-     * @param tableName String
-     * @return List
+     * @param tableName the name of the table to select from
+     * @return a list of maps representing the selected records
      */
     @Override
     public List<Map<String, Object>> selectAll(String tableName) {
@@ -134,10 +133,10 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Execute a query
+     * Executes the specified MongoDB query and returns a list of maps representing the query result.
      *
-     * @param queryString String
-     * @return List
+     * @param queryString the MongoDB query string to execute
+     * @return a list of maps, where each map represents a row in the query result and contains column names mapped to their respective values
      */
     @Override
     public List<Map<String, Object>> executeQuery(String queryString) {
@@ -153,9 +152,9 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * @param queryString String
-     * @apiNote same like {@link  IDatabase#executeQuery} but without returning anything
-     * @see IDatabase#executeQuery(String)
+     * Executes a query on the MongoDB database.
+     *
+     * @param queryString the query string to execute
      */
     @Override
     public void query(String queryString) {
@@ -163,9 +162,11 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * @param collectionName String
-     * @param fieldName      String
-     * @param unique         boolean
+     * Creates an index in the specified collection on the given field.
+     *
+     * @param collectionName the name of the collection where the index is to be created
+     * @param fieldName      the name of the field on which the index is to be created
+     * @param unique         true if the index should enforce a unique constraint, false otherwise
      */
     @Override
     public void createIndex(String collectionName, String fieldName, boolean unique) {
@@ -175,7 +176,12 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Transaction start
+     * This method is used to start a transaction in the database.
+     * It is implemented by classes that represent specific database drivers.
+     * Once a transaction is started, any changes made to the database will not be saved until the transaction is committed.
+     *
+     * @see IDatabase#commitTransaction()
+     * @see IDatabase#rollbackTransaction()
      */
     @Override
     public void startTransaction() {
@@ -183,7 +189,7 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Transaction commit
+     * Commits the current transaction.
      */
     @Override
     public void commitTransaction() {
@@ -191,7 +197,7 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Transaction Rollback
+     * Rollbacks the current transaction.
      */
     @Override
     public void rollbackTransaction() {

@@ -6,7 +6,6 @@ package we.github.mcdevstudios.betterbansystem.api.database.sqlite;
 
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.database.Database;
-import we.github.mcdevstudios.betterbansystem.api.database.IDatabase;
 import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 
 import java.sql.*;
@@ -20,11 +19,11 @@ public class SQLiteDatabase extends Database {
     private Connection connection;
 
     /**
-     * Connect to a specific database
+     * Connects to the database using the specified connection string, username, and password.
      *
-     * @param connectionstring string
-     * @param username         string
-     * @param password         string
+     * @param connectionstring the connection string to the database
+     * @param username         the username for the database connection
+     * @param password         the password for the database connection
      */
     @Override
     public void connect(String connectionstring, String username, String password) {
@@ -37,7 +36,9 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Disconnect from the database
+     * Closes the database connection.
+     * If the connection is not null and not closed, it will be closed.
+     * If an SQLException occurs while closing the connection, an error message will be logged.
      */
     @Override
     public void disconnect() {
@@ -50,10 +51,10 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Insert (KEY) with VALUES (VALUE) into Database
+     * Inserts data into the specified table.
      *
-     * @param tableName String
-     * @param data      Map
+     * @param tableName the name of the table
+     * @param data      a Map containing the column names and their corresponding values
      */
     public void insert(String tableName, @NotNull Map<String, Object> data) {
         StringBuilder coloumns = new StringBuilder();
@@ -65,9 +66,9 @@ public class SQLiteDatabase extends Database {
         }
 
         coloumns.delete(coloumns.length() - 2, coloumns.length());
-        values.delete(coloumns.length() - 2, values.length());
+        values.delete(values.length() - 2, values.length());
 
-        String sql = "INSERT INTO " + tableName + " (" + coloumns + ") VALUES (" + values + ")";
+        String sql = "INSERT INTO %s (%s) VALUES (%s)".formatted(tableName, coloumns, values);
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             int index = 1;
@@ -82,12 +83,12 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Update (KEY) with VALUES (VALUE) in database
+     * Updates a record in the specified table with new data based on the primary key.
      *
-     * @param tableName       String
-     * @param primaryKey      String
-     * @param primaryKeyValue String
-     * @param newData         Map
+     * @param tableName       the name of the table to update
+     * @param primaryKey      the name of the primary key column
+     * @param primaryKeyValue the value of the primary key of the record to update
+     * @param newData         a map containing the new column-value pairs to update
      */
     @Override
     public void update(String tableName, String primaryKey, Object primaryKeyValue, @NotNull Map<String, Object> newData) {
@@ -98,7 +99,7 @@ public class SQLiteDatabase extends Database {
         }
 
         setClause.delete(setClause.length() - 2, setClause.length());
-        String sql = "UPDATE " + tableName + " SET " + setClause + " WHERE " + primaryKey + " = ?";
+        String sql = "UPDATE %s SET %s WHERE %s = ?".formatted(tableName, setClause, primaryKey);
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             int index = 2;
@@ -116,15 +117,15 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Delete (KEY) with specific "VALUE"
+     * Deletes a record from the specified table based on the primary key.
      *
-     * @param tableName       String
-     * @param primaryKey      String
-     * @param primaryKeyValue Object
+     * @param tableName       the name of the table where the record will be deleted
+     * @param primaryKey      the name of the primary key column
+     * @param primaryKeyValue the value of the primary key for the record to be deleted
      */
     @Override
     public void delete(String tableName, String primaryKey, Object primaryKeyValue) {
-        String sql = "DELETE FROM " + tableName + " WHERE " + primaryKey + " = ?";
+        String sql = "DELETE FROM %s WHERE %s = ?".formatted(tableName, primaryKey);
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setObject(1, primaryKeyValue);
 
@@ -135,17 +136,19 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Select a value from table with condition
+     * Executes a SELECT query on the specified table with the given condition.
+     * Returns a list of maps, where each map represents a row of the result set
+     * with column names as keys and column values as values.
      *
-     * @param tableName String
-     * @param condition String
-     * @return List
+     * @param tableName the name of the table to query
+     * @param condition the condition to apply in the WHERE clause of the query
+     * @return a list of maps representing the result set of the SELECT query
      */
     @Override
     public List<Map<String, Object>> select(String tableName, String condition) {
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String sql = "SELECT * FROM " + tableName + " WHERE " + condition;
+        String sql = "SELECT * FROM %s WHERE %s".formatted(tableName, condition);
 
         try (Statement statement = connection.createStatement()) {
             ResultSet set = statement.executeQuery(sql);
@@ -170,16 +173,16 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Select everything from a table name
+     * Retrieves all records from the specified table.
      *
-     * @param tableName String
-     * @return List
+     * @param tableName the name of the table
+     * @return a list of maps representing each record in the table
      */
     @Override
     public List<Map<String, Object>> selectAll(String tableName) {
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String sql = "SELECT * FROM " + tableName;
+        String sql = "SELECT * FROM %s".formatted(tableName);
 
         try (Statement statement = connection.createStatement()) {
             ResultSet set = statement.executeQuery(sql);
@@ -204,10 +207,12 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Execute a query
+     * Executes the given SQL query string and returns the result as a list of maps,
+     * where each map represents a row and contains column names as keys and
+     * corresponding column values as values.
      *
-     * @param queryString String
-     * @return List
+     * @param queryString the SQL query string to execute
+     * @return a list of maps representing the result of the query
      */
     @Override
     public List<Map<String, Object>> executeQuery(String queryString) {
@@ -232,9 +237,9 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * @param queryString String
-     * @apiNote same like {@link  IDatabase#executeQuery} but without returning anything
-     * @see IDatabase#executeQuery(String)
+     * Executes a database query with the given query string.
+     *
+     * @param queryString The SQL query string to execute
      */
     @Override
     public void query(String queryString) {
@@ -242,15 +247,17 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * @param collectionName String
-     * @param fieldName      String
-     * @param unique         boolean
+     * Creates an index on a specified field in a given collection.
+     *
+     * @param collectionName The name of the collection on which to create the index.
+     * @param fieldName      The name of the field on which to create the index.
+     * @param unique         Indicates whether the index should enforce uniqueness.
      */
     @Override
     public void createIndex(String collectionName, String fieldName, boolean unique) {
         String indexType = unique ? "UNIQUE" : "";
         String indexName = "idx_" + collectionName + "_" + fieldName;
-        String sql = "CREATE " + indexType + " INDEX " + indexName + " ON " + collectionName + " (" + fieldName + ")";
+        String sql = "CREATE %s INDEX %s ON %s (%s)".formatted(indexType, indexName, collectionName, fieldName);
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
@@ -260,7 +267,7 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Transaction start
+     *
      */
     @Override
     public void startTransaction() {
@@ -272,7 +279,8 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Transaction commit
+     * Commits the current transaction and sets auto-commit to true.
+     * If an SQLException occurs during the commit, it will be logged with the GlobalLogger.
      */
     @Override
     public void commitTransaction() {
@@ -285,7 +293,7 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Transaction Rollback
+     * Rolls back the current transaction.
      */
     @Override
     public void rollbackTransaction() {

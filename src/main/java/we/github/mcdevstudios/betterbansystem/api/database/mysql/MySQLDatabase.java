@@ -6,7 +6,6 @@ package we.github.mcdevstudios.betterbansystem.api.database.mysql;
 
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.database.Database;
-import we.github.mcdevstudios.betterbansystem.api.database.IDatabase;
 import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 
 import java.sql.*;
@@ -20,12 +19,11 @@ public class MySQLDatabase extends Database {
     private Connection connection;
 
     /**
-     * Connect to a specific database
+     * Connects to the database using the given connection string, username, and password.
      *
-     * @param connectionstring String
-     * @param username         String
-     * @param password         String
-     * @apiNote connectionstring example: {@snippet String connectionString = host+":"+port+"/"+database}
+     * @param connectionstring the connection string for the database
+     * @param username         the username for the database connection
+     * @param password         the password for the database connection
      */
     @Override
     public void connect(String connectionstring, String username, String password) {
@@ -39,7 +37,7 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Disconnect from the database
+     * Closes the database connection if it is open.
      */
     @Override
     public void disconnect() {
@@ -52,10 +50,10 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Insert (KEY) with VALUES (VALUE) into Database
+     * Inserts data into the specified table.
      *
-     * @param tableName String
-     * @param data      Map
+     * @param tableName the name of the table
+     * @param data      a map containing the column names and their corresponding values to be inserted
      */
     public void insert(String tableName, @NotNull Map<String, Object> data) {
         StringBuilder coloumns = new StringBuilder();
@@ -67,9 +65,9 @@ public class MySQLDatabase extends Database {
         }
 
         coloumns.delete(coloumns.length() - 2, coloumns.length());
-        values.delete(coloumns.length() - 2, values.length());
+        values.delete(values.length() - 2, values.length());
 
-        String sql = "INSERT INTO " + tableName + " (" + coloumns + ") VALUES (" + values + ")";
+        String sql = "INSERT INTO %s (%s) VALUES (%s)".formatted(tableName, coloumns, values);
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             int index = 1;
@@ -84,12 +82,13 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Update (KEY) with VALUES (VALUE) in database
+     * Updates a record in the specified table with the given primary key and new data.
      *
-     * @param tableName       String
-     * @param primaryKey      String
-     * @param primaryKeyValue String
-     * @param newData         Map
+     * @param tableName       the name of the table to update
+     * @param primaryKey      the name of the primary key column
+     * @param primaryKeyValue the value of the primary key for the record to update
+     * @param newData         a map of column names to new values for the record
+     * @throws SQLException if a database error occurs
      */
     @Override
     public void update(String tableName, String primaryKey, Object primaryKeyValue, @NotNull Map<String, Object> newData) {
@@ -100,7 +99,7 @@ public class MySQLDatabase extends Database {
         }
 
         setClause.delete(setClause.length() - 2, setClause.length());
-        String sql = "UPDATE " + tableName + " SET " + setClause + " WHERE " + primaryKey + " = ?";
+        String sql = "UPDATE %s SET %s WHERE %s = ?".formatted(tableName, setClause, primaryKey);
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             int index = 2;
@@ -118,15 +117,15 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Delete (KEY) with specific "VALUE"
+     * Deletes a record from the specified table based on the primary key and its value.
      *
-     * @param tableName       String
-     * @param primaryKey      String
-     * @param primaryKeyValue Object
+     * @param tableName       the name of the table
+     * @param primaryKey      the primary key column name
+     * @param primaryKeyValue the value of the primary key to match for deletion
      */
     @Override
     public void delete(String tableName, String primaryKey, Object primaryKeyValue) {
-        String sql = "DELETE FROM " + tableName + " WHERE " + primaryKey + " = ?";
+        String sql = "DELETE FROM %s WHERE %s = ?".formatted(tableName, primaryKey);
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setObject(1, primaryKeyValue);
 
@@ -137,17 +136,18 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Select a value from table with condition
+     * Executes a SELECT query on a specified table with a provided condition.
      *
-     * @param tableName String
-     * @param condition String
-     * @return List
+     * @param tableName the name of the table to select from
+     * @param condition the condition to apply in the WHERE clause
+     * @return a List of Map objects where each Map represents a row in the result set,
+     * with column names as keys and column values as values
      */
     @Override
     public List<Map<String, Object>> select(String tableName, String condition) {
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String sql = "SELECT * FROM " + tableName + " WHERE " + condition;
+        String sql = "SELECT * FROM %s WHERE %s".formatted(tableName, condition);
 
         try (Statement statement = connection.createStatement()) {
             ResultSet set = statement.executeQuery(sql);
@@ -172,16 +172,16 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Select everything from a table name
+     * Retrieves all rows from the specified table in the database.
      *
-     * @param tableName String
-     * @return List
+     * @param tableName the name of the table to select from
+     * @return a list of maps containing the rows from the table
      */
     @Override
     public List<Map<String, Object>> selectAll(String tableName) {
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String sql = "SELECT * FROM " + tableName;
+        String sql = "SELECT * FROM %s".formatted(tableName);
 
         try (Statement statement = connection.createStatement()) {
             ResultSet set = statement.executeQuery(sql);
@@ -206,10 +206,11 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Execute a query
+     * Executes a SQL query and returns the result as a list of maps.
+     * Each map represents a row from the query result with column names as the keys and column values as the values.
      *
-     * @param queryString String
-     * @return List
+     * @param queryString the SQL query string to be executed
+     * @return a list of maps representing the result of the query
      */
     @Override
     public List<Map<String, Object>> executeQuery(String queryString) {
@@ -234,9 +235,9 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * @param queryString String
-     * @apiNote same like {@link  IDatabase#executeQuery} but without returning anything
-     * @see IDatabase#executeQuery(String)
+     * Executes the given query string.
+     *
+     * @param queryString the query string to execute
      */
     @Override
     public void query(String queryString) {
@@ -244,15 +245,17 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * @param collectionName String
-     * @param fieldName      String
-     * @param unique         boolean
+     * Creates an index on a specified field in a collection.
+     *
+     * @param collectionName the name of the collection on which to create the index
+     * @param fieldName      the name of the field on which to create the index
+     * @param unique         {@code true} if the index should be unique, {@code false} otherwise
      */
     @Override
     public void createIndex(String collectionName, String fieldName, boolean unique) {
         String indexType = unique ? "UNIQUE" : "";
-        String indexName = "idx_" + collectionName + "_" + fieldName;
-        String sql = "CREATE " + indexType + " INDEX " + indexName + " ON " + collectionName + " (" + fieldName + ")";
+        String indexName = "idx_%s_%s".formatted(collectionName, fieldName);
+        String sql = "CREATE %s INDEX %s ON %s (%s)".formatted(indexType, indexName, collectionName, fieldName);
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
@@ -262,7 +265,8 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Transaction start
+     * Starts a transaction by disabling auto-commit mode for the connection.
+     * If an SQLException occurs, it will be logged using the GlobalLogger.
      */
     @Override
     public void startTransaction() {
@@ -274,7 +278,8 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Transaction commit
+     * Commits the current transaction and sets the auto-commit mode of the connection to true.
+     * If an SQLException occurs during the commit, it is logged as an error.
      */
     @Override
     public void commitTransaction() {
@@ -287,7 +292,9 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Transaction Rollback
+     * Rollbacks the current transaction and sets the auto-commit mode to true.
+     * If an exception occurs during the rollback, it will be logged using the GlobalLogger.
+     * This method does not return any value.
      */
     @Override
     public void rollbackTransaction() {

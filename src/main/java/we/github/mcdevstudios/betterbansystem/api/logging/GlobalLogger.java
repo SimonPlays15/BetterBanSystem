@@ -112,7 +112,7 @@ public class GlobalLogger extends Logger {
         String toDayString = dateFormat.format(this.currentDate);
         String currentLogFileName = LOG_FOLDER + toDayString + "-%g.log";
         fileHandler = new FileHandler(currentLogFileName, true);
-        fileHandler.setFormatter(new SimpleFormatter());
+        fileHandler.setFormatter(new LogFormatter());
         fileHandler.setLevel(Level.ALL);
         this.addHandler(fileHandler);
     }
@@ -133,6 +133,7 @@ public class GlobalLogger extends Logger {
         this.log(LogLevel.INFO, args);
     }
 
+    @Override
     public void info(String msg) {
         this.log(LogLevel.INFO, msg);
     }
@@ -150,7 +151,12 @@ public class GlobalLogger extends Logger {
     }
 
     public void warn(Object... args) {
-        log(LogLevel.WARNING, args);
+        this.log(LogLevel.WARNING, args);
+    }
+
+    @Override
+    public void warning(String string) {
+        this.warn(string);
     }
 
     public void log(LogLevel level, Object... args) {
@@ -167,7 +173,7 @@ public class GlobalLogger extends Logger {
             message.append(arg).append(" ");
         }
         LogRecord record = new LogRecord(level.realLevel, message.toString());
-        record.setLoggerName(getName());
+        record.setLoggerName(this.getName());
         this.log(record);
         // TODO check if database logging is enabled
         // Database.saveLogToDatabase(level, message.toString());
@@ -225,5 +231,4 @@ public class GlobalLogger extends Logger {
             return String.format("%s [%s] [%s] %s%n", new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date()), record.getLoggerName(), record.getLevel(), ChatColor.stripColor(record.getMessage()));
         }
     }
-
 }

@@ -6,73 +6,159 @@ package we.github.mcdevstudios.betterbansystem.api.ban;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
-public record IPBanEntry(String bannedIP, String bannerName, Date creationDate, Date expirationDate, String reason,
-                         boolean isPermanent) implements IIPBanEntry {
+public record IPBanEntry(String ip, String source, Date created,
+                         Object expires, String reason)
+        implements IIPBanEntry {
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss Z").registerTypeAdapter(IIPBanEntry.class, new IIPBanEntryAdapter()).create();
 
-    public static void saveToJson(IIPBanEntry ipBanEntry, String filePath) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try (FileWriter writer = new FileWriter(filePath)) {
-            gson.toJson(ipBanEntryToJson(ipBanEntry), writer);
+    public static void saveToJson(IIPBanEntry entry, String filename) {
+        List<IIPBanEntry> entries = new ArrayList<>();
+        File file = new File(filename);
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    GlobalLogger.getLogger().info("File " + filename + " created.");
+                }
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+                return;
+            }
+        }
+        try (Reader reader = new FileReader(filename)) {
+            Type listType = new TypeToken<ArrayList<IIPBanEntry>>() {
+            }.getType();
+            entries = gson.fromJson(reader, listType);
         } catch (IOException e) {
-            GlobalLogger.getLogger().error("Failed to load save Object", e);
+            GlobalLogger.getLogger().error(e);
         }
-    }
-
-    public static IPBanEntry loadFromJson(String filePath) {
-        Gson gson = new Gson();
-        try (FileReader reader = new FileReader(filePath)) {
-            JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
-            return jsonToIPBanEntry(jsonObject);
+        if (entries == null)
+            entries = new ArrayList<>();
+        entries.add(entry);
+        try (Writer writer = new FileWriter(filename)) {
+            gson.toJson(entries, writer);
         } catch (IOException e) {
-            GlobalLogger.getLogger().error("Failed to load IPBan Object", e);
-            return null;
+            GlobalLogger.getLogger().error(e);
         }
     }
 
-    private static JsonObject ipBanEntryToJson(IIPBanEntry ipBanEntry) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("ip", ipBanEntry.bannedIP());
-        jsonObject.addProperty("source", ipBanEntry.bannerName());
-        jsonObject.addProperty("created", formatDate(ipBanEntry.creationDate()));
-        jsonObject.addProperty("expires", formatDate(ipBanEntry.expirationDate()));
-        jsonObject.addProperty("reason", ipBanEntry.reason());
-        jsonObject.addProperty("isPermanent", ipBanEntry.isPermanent());
-        return jsonObject;
-    }
+    public static void removeFromJson(String ipAddress, String filename) {
+        List<IIPBanEntry> entries = new ArrayList<>();
+        try (Reader reader = new FileReader(filename)) {
+            Type listType = new TypeToken<ArrayList<IIPBanEntry>>() {
+            }.getType();
+            entries = gson.fromJson(reader, listType);
+        } catch (IOException e) {
+            GlobalLogger.getLogger().error(e);
+        }
 
-    private static IPBanEntry jsonToIPBanEntry(JsonObject jsonObject) {
-        String bannedIP = jsonObject.get("ip").getAsString();
-        String bannerName = jsonObject.get("source").getAsString();
-        Date creationDate = parseDate(jsonObject.get("created").getAsString());
-        Date expirationDate = parseDate(jsonObject.get("expires").getAsString());
-        String reason = jsonObject.get("reason").getAsString();
-        boolean isPermanent = jsonObject.get("isPermanent").getAsBoolean();
-        return new IPBanEntry(bannedIP, bannerName, creationDate, expirationDate, reason, isPermanent);
-    }
-
-    private static String formatDate(Date date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return dateFormat.format(date);
-    }
-
-    private static Date parseDate(String dateString) {
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            return dateFormat.parse(dateString);
-        } catch (ParseException e) {
-            GlobalLogger.getLogger().error("Failed to parse date:", dateString, e);
-            return null;
+        entries.removeIf(entry -> entry.ip().equals(ipAddress));
+        try (Writer writer = new FileWriter(filename)) {
+            gson.toJson(entries, writer);
+        } catch (IOException e) {
+            GlobalLogger.getLogger().error(e);
         }
     }
+
+    public static List<IIPBanEntry> getAllEntries(String filename) {
+        List<IIPBanEntry> entries = new ArrayList<>();
+        try (Reader reader = new FileReader(filename)) {
+            Type listType = new TypeToken<ArrayList<IIPBanEntry>>() {
+            }.getType();
+            entries = gson.fromJson(reader, listType);
+        } catch (IOException e) {
+            GlobalLogger.getLogger().error(e);
+        }
+        return entries;
+    }
+
+    public static IIPBanEntry findEntry(String ipAddress, String filename) {
+        List<IIPBanEntry> entries = getAllEntries(filename);
+        return entries.stream()
+                .filter(entry -> entry.ip().equals(ipAddress))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public boolean isPermanent() {
+        return Objects.equals(this.expires.toString(), "forever");
+    }
+
+    public static class IIPBanEntryAdapter extends TypeAdapter<IIPBanEntry> {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
+
+        @Override
+        public void write(@NotNull JsonWriter writer, @NotNull IIPBanEntry entry) throws IOException {
+            writer.beginObject();
+            writer.name("ip").value(entry.ip());
+            writer.name("source").value(entry.source());
+            writer.name("created").value(format.format(entry.created()));
+            if (entry.expires() instanceof Date) {
+                writer.name("expires").value(format.format(entry.expires()));
+            } else {
+                writer.name("expires").value(entry.expires().toString());
+            }
+            writer.name("reason").value(entry.reason());
+            writer.endObject();
+        }
+
+        @Override
+        public IIPBanEntry read(@NotNull JsonReader reader) throws IOException {
+            String ip = null;
+            String source = null;
+            Date created = null;
+            Object expires = null;
+            String reason = null;
+
+            reader.beginObject();
+            while (reader.hasNext()) {
+                String propName = reader.nextName();
+                switch (propName) {
+                    case "ip":
+                        ip = reader.nextString();
+                        break;
+                    case "source":
+                        source = reader.nextString();
+                        break;
+                    case "created":
+                        try {
+                            created = format.parse(reader.nextString());
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
+                    case "expires":
+                        String g = reader.nextString();
+                        try {
+                            expires = format.parse(g);
+                        } catch (ParseException e) {
+                            expires = g;
+                        }
+                        break;
+                    case "reason":
+                        reason = reader.nextString();
+                        break;
+                    default:
+                        reader.skipValue();  // ignore unexpected property
+                        break;
+                }
+            }
+            reader.endObject();
+
+            return new IPBanEntry(ip, source, created, expires, reason);
+        }
+    }
+
 }

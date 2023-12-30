@@ -6,76 +6,176 @@ package we.github.mcdevstudios.betterbansystem.api.ban;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
-public record BanEntry(UUID bannedPlayerUUID, String bannedPlayerName, String banningPlayerName, Date creationDate,
-                       Date expirationDate, String reason, boolean isPermanent) implements IBanEntry {
+public record BanEntry(UUID uuid, String name, String source, Date created,
+                       Object expires, String reason)
+        implements IBanEntry {
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss Z").registerTypeAdapter(IBanEntry.class, new IBanEntryAdapter()).create();
 
-    public static void saveToJson(IBanEntry banEntry, String filePath) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try (FileWriter writer = new FileWriter(filePath)) {
-            gson.toJson(banEntryToJson(banEntry), writer);
+    public static void saveToJson(IBanEntry entry, String filename) {
+        File file = new File(filename);
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    GlobalLogger.getLogger().info("File " + filename + " created.");
+                }
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+                return;
+            }
+        }
+        List<IBanEntry> entries;
+        if (file.length() != 0) {
+            try (Reader reader = new FileReader(filename)) {
+                Type listType = new TypeToken<ArrayList<IBanEntry>>() {
+                }.getType();
+                entries = gson.fromJson(reader, listType);
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+                return;
+            }
+        } else {
+            entries = new ArrayList<>();
+        }
+
+        List<IBanEntry> tempEntries = new ArrayList<>(entries);
+        tempEntries.add(entry);
+
+        try (Writer writer = new FileWriter(filename)) {
+            gson.toJson(tempEntries, writer);
         } catch (IOException e) {
-            GlobalLogger.getLogger().error("Failed to save ban-entry", e);
+            GlobalLogger.getLogger().error(e);
         }
     }
 
-    public static BanEntry loadFromJson(String filePath) {
-        Gson gson = new Gson();
-        try (FileReader reader = new FileReader(filePath)) {
-            JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
-            return jsonToBanEntry(jsonObject);
+    public static void removeFromJson(UUID targetUUID, String filename) {
+        List<IBanEntry> entries;
+        List<IBanEntry> tempEntries;
+        try (Reader reader = new FileReader(filename)) {
+            Type listType = new TypeToken<ArrayList<IBanEntry>>() {
+            }.getType();
+            entries = gson.fromJson(reader, listType);
+            tempEntries = new ArrayList<>(entries);
         } catch (IOException e) {
-            GlobalLogger.getLogger().error("Failed to load ban-entry", e);
-            return null;
+            GlobalLogger.getLogger().error(e);
+            return;
+        }
+        tempEntries.removeIf(entry -> entry.uuid().equals(targetUUID));
+        if (entries.size() != tempEntries.size()) {
+            entries.clear();
+            entries.addAll(tempEntries);
+            try (Writer writer = new FileWriter(filename)) {
+                gson.toJson(entries, writer);
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+            }
         }
     }
 
-    private static JsonObject banEntryToJson(IBanEntry banEntry) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("uuid", banEntry.bannedPlayerUUID().toString());
-        jsonObject.addProperty("name", banEntry.bannedPlayerName());
-        jsonObject.addProperty("source", banEntry.banningPlayerName());
-        jsonObject.addProperty("created", formatDate(banEntry.creationDate()));
-        jsonObject.addProperty("expires", formatDate(banEntry.expirationDate()));
-        jsonObject.addProperty("reason", banEntry.reason());
-        jsonObject.addProperty("isPermanent", banEntry.isPermanent());
-        return jsonObject;
+    public static List<IBanEntry> getAllEntries(String filename) {
+        List<IBanEntry> entries = new ArrayList<>();
+        try (Reader reader = new FileReader(filename)) {
+            Type listType = new TypeToken<ArrayList<IBanEntry>>() {
+            }.getType();
+            entries = gson.fromJson(reader, listType);
+        } catch (IOException e) {
+            GlobalLogger.getLogger().error(e);
+        }
+        return entries;
     }
 
-    private static BanEntry jsonToBanEntry(JsonObject jsonObject) {
-        String bannedPlayerUUID = jsonObject.get("uuid").getAsString();
-        String bannedPlayerName = jsonObject.get("name").getAsString();
-        String banningPlayerName = jsonObject.get("source").getAsString();
-        Date creationDate = parseDate(jsonObject.get("created").getAsString());
-        Date expirationDate = parseDate(jsonObject.get("expires").getAsString());
-        String reason = jsonObject.get("reason").getAsString();
-        boolean isPermanent = jsonObject.get("isPermanent").getAsBoolean();
-        return new BanEntry(UUID.fromString(bannedPlayerUUID), bannedPlayerName, banningPlayerName, creationDate, expirationDate, reason, isPermanent);
+    public static IBanEntry findEntry(UUID targetUUID, String filename) {
+        List<IBanEntry> entries = getAllEntries(filename);
+        return entries.stream()
+                .filter(entry -> entry.uuid().equals(targetUUID))
+                .findFirst()
+                .orElse(null);
     }
 
-    private static String formatDate(Date date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return dateFormat.format(date);
+    public boolean isPermanent() {
+        return Objects.equals(this.expires.toString(), "forever");
     }
 
-    private static Date parseDate(String dateString) {
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            return dateFormat.parse(dateString);
-        } catch (ParseException e) {
-            GlobalLogger.getLogger().error("Failed to Parse date:", dateString, e);
-            return null;
+    public static class IBanEntryAdapter extends TypeAdapter<IBanEntry> {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
+
+        @Override
+        public void write(@NotNull JsonWriter writer, @NotNull IBanEntry entry) throws IOException {
+            writer.beginObject();
+            writer.name("uuid").value(entry.uuid().toString());
+            writer.name("name").value(entry.name());
+            writer.name("source").value(entry.source());
+            writer.name("created").value(format.format(entry.created()));
+            if (entry.expires() instanceof Date) {
+                writer.name("expires").value(format.format(entry.expires()));
+            } else {
+                writer.name("expires").value(entry.expires().toString());
+            }
+            writer.name("reason").value(entry.reason());
+            writer.endObject();
+        }
+
+        @Override
+        public IBanEntry read(@NotNull JsonReader reader) throws IOException {
+            UUID uuid = null;
+            String name = null;
+            String source = null;
+            Date created = null;
+            Object expires = null;
+            String reason = null;
+
+            reader.beginObject();
+            while (reader.hasNext()) {
+                String propName = reader.nextName();
+                switch (propName) {
+                    case "uuid":
+                        uuid = UUID.fromString(reader.nextString());
+                        break;
+                    case "name":
+                        name = reader.nextString();
+                        break;
+                    case "source":
+                        source = reader.nextString();
+                        break;
+                    case "created":
+                        String dateString = reader.nextString();
+                        try {
+                            created = format.parse(dateString);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
+                    case "expires":
+                        String expiredString = reader.nextString();
+                        try {
+                            expires = format.parse(expiredString);
+                        } catch (ParseException e) {
+                            expires = expiredString;
+                        }
+                        break;
+                    case "reason":
+                        reason = reader.nextString();
+                        break;
+                    default:
+                        reader.skipValue();  // ignore unexpected property
+                        break;
+                }
+            }
+            reader.endObject();
+
+            return new BanEntry(uuid, name, source, created, expires, reason);
         }
     }
 }
