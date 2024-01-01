@@ -1,5 +1,5 @@
 /*
- * Copyright (c) MCDevStudios 2023. All Rights Reserved
+ * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
 package we.github.mcdevstudios.betterbansystem.spigot.command.commands;
@@ -7,12 +7,13 @@ package we.github.mcdevstudios.betterbansystem.spigot.command.commands;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import we.github.mcdevstudios.betterbansystem.api.ban.BanHandler;
-import we.github.mcdevstudios.betterbansystem.api.command.BaseCommand;
-import we.github.mcdevstudios.betterbansystem.api.command.BaseCommandSender;
+import org.jetbrains.annotations.Nullable;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
 import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.core.ban.BanHandler;
+import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
+import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -28,7 +29,7 @@ public class TimeBanCommand extends BaseCommand {
         super("timeban");
     }
 
-    private Date futureDate(Date now, String timeString) {
+    private @Nullable Date futureDate(Date now, String timeString) {
 
         Pattern pattern = Pattern.compile("(\\d+y)?(\\d+m)?(\\d+d)?(\\d+h)?(\\d+min)?(\\d+s)?");
         Matcher matcher = pattern.matcher(timeString);
@@ -71,21 +72,21 @@ public class TimeBanCommand extends BaseCommand {
         String target = args[0];
 
         if (BanHandler.findBanEntry(target) != null) {
-            sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "§4The player " + target + " is already banned.");
+            sender.sendMessage("§4The player " + target + " is already banned.");
             return true;
         }
 
         String reason = args.length < 3 ? "You have been banned from the server" : Arrays.stream(args).skip(2).collect(Collectors.joining(" "));
 
         if (sender.isPlayer() && (this.getPermManager().hasPermission(target, "betterbansystem.exempt.ban") || BetterBanSystem.getInstance().getConfig().getStringList("exempted-players").contains(target))) {
-            sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "§4The player is exempted from bans. If you really want to ban the user, please use the console to execute the ban.");
+            sender.sendMessage("§4The player is exempted from bans. If you really want to ban the user, please use the console to execute the ban.");
             return true;
         }
 
         String time = args[1];
         Date parsed = this.futureDate(new Date(), time);
         if (parsed == null) {
-            sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "§cWrong time pattern. Example Timepattern: 1h3min (for 1 Hour and 3 minutes)");
+            sender.sendMessage("§cWrong time pattern. Example Timepattern: 1h3min (for 1 Hour and 3 minutes)");
             return true;
         }
 
@@ -95,11 +96,11 @@ public class TimeBanCommand extends BaseCommand {
         }
 
         if (!Bukkit.getOfflinePlayer(UUIDFetcher.getUUIDOrOfflineUUID(target)).hasPlayedBefore()) {
-            sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "§4Warning: The player " + target + " never visited the server.");
+            sender.sendMessage("§4Warning: The player " + target + " never visited the server.");
         }
 
         BanHandler.addBan(sender, target, reason, parsed);
-        sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "§aPlayer " + target + " has been banned from the server until " + new SimpleDateFormat("HH:mm:ss dd.MM.yyyy").format(parsed));
+        sender.sendMessage("§aPlayer " + target + " has been banned from the server until " + new SimpleDateFormat("HH:mm:ss dd.MM.yyyy").format(parsed));
 
         return true;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) MCDevStudios 2023. All Rights Reserved
+ * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
 package we.github.mcdevstudios.betterbansystem.api.uuid;
@@ -9,15 +9,18 @@ import com.google.gson.JsonParser;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
+import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class UUIDFetcher {
     private static final String API_URL = "https://api.mojang.com/users/profiles/minecraft/";
+    private static final ConcurrentMap<String, UUID> uuidCache = new ConcurrentHashMap<>();
 
     /**
      * Retrieves the UUID of a player from the Mojang API.
@@ -27,6 +30,12 @@ public class UUIDFetcher {
      */
     @Contract(pure = true)
     public static @Nullable UUID getUUID(String playername) {
+
+        UUID uuidFromCache = uuidCache.get(playername);
+        if (uuidFromCache != null) {
+            return uuidFromCache;
+        }
+
         try {
             URL url = new URL(API_URL + playername);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -44,8 +53,9 @@ public class UUIDFetcher {
                     realUuid.append("-");
                 }
             }
-
-            return UUID.fromString(realUuid.toString());
+            UUID uuid = UUID.fromString(realUuid.toString());
+            uuidCache.put(playername, uuid);
+            return uuid;
         } catch (Exception ex) {
             GlobalLogger.getLogger().error("Failed to call mojang API for uuid fetching. Are the servers unavailable?", ex);
         }
@@ -60,6 +70,10 @@ public class UUIDFetcher {
      */
     @Contract(pure = true)
     public static @NotNull UUID getUUIDOrOfflineUUID(String playername) {
+        UUID uuidFromCache = uuidCache.get(playername);
+        if (uuidFromCache != null) {
+            return uuidFromCache;
+        }
         try {
             URL url = new URL(API_URL + playername);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -78,9 +92,11 @@ public class UUIDFetcher {
                 }
             }
 
-            return UUID.fromString(realUuid.toString());
+            UUID uuid = UUID.fromString(realUuid.toString());
+            uuidCache.put(playername, uuid);
+            return uuid;
         } catch (Exception ex) {
-            UUID g = UUID.fromString(playername);
+            UUID g = UUID.nameUUIDFromBytes(playername.getBytes());
             StringBuilder realUuid = new StringBuilder();
             for (int i = 0; i <= 31; i++) {
                 realUuid.append(g.toString().charAt(i));
@@ -88,7 +104,9 @@ public class UUIDFetcher {
                     realUuid.append("-");
                 }
             }
-            return UUID.fromString(realUuid.toString());
+            UUID uuid = UUID.fromString(realUuid.toString());
+            uuidCache.put(playername, uuid);
+            return uuid;
         }
     }
 

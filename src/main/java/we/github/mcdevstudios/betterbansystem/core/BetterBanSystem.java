@@ -1,22 +1,23 @@
 /*
- * Copyright (c) MCDevStudios 2023. All Rights Reserved
+ * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
 package we.github.mcdevstudios.betterbansystem.core;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import we.github.mcdevstudios.betterbansystem.api.chat.ChatColor;
 import we.github.mcdevstudios.betterbansystem.api.files.BaseConfig;
 import we.github.mcdevstudios.betterbansystem.api.files.BasePluginDescription;
 import we.github.mcdevstudios.betterbansystem.api.files.LanguageFile;
 import we.github.mcdevstudios.betterbansystem.api.files.ResourceFile;
-import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
-import we.github.mcdevstudios.betterbansystem.api.permissions.BungeeCordDefaultHandler;
-import we.github.mcdevstudios.betterbansystem.api.permissions.PermissionsHandlerType;
-import we.github.mcdevstudios.betterbansystem.api.permissions.PermissionsManager;
-import we.github.mcdevstudios.betterbansystem.api.permissions.SpigotPermissionsHandler;
 import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
+import we.github.mcdevstudios.betterbansystem.core.ban.BanManager;
+import we.github.mcdevstudios.betterbansystem.core.chat.ChatColor;
+import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
+import we.github.mcdevstudios.betterbansystem.core.permissions.BungeeCordDefaultHandler;
+import we.github.mcdevstudios.betterbansystem.core.permissions.PermissionsHandlerType;
+import we.github.mcdevstudios.betterbansystem.core.permissions.PermissionsManager;
+import we.github.mcdevstudios.betterbansystem.core.permissions.SpigotPermissionsHandler;
 
 import java.io.File;
 
@@ -42,7 +43,7 @@ public class BetterBanSystem {
         else if (RuntimeService.isBungeeCord())
             this.basePluginDescription = new BasePluginDescription(resourceFile.getResource("bungee.yml"));
         else
-            throw new RuntimeException("Failed to load the correct runtime service. Is this plugin runnin on an Spigot or BungeeCord Server?");
+            throw new RuntimeException("Failed to load the correct runtime service. Is this plugin running on an Spigot or BungeeCord Server?");
 
         this.configFile = new File(this.dataFolder, "config.yml");
         resourceFile.saveResource("config.yml", true);
@@ -50,7 +51,6 @@ public class BetterBanSystem {
         resourceFile.saveResource("language/en_US.yml", true);
         this.config = new BaseConfig();
         this.config.load(this.configFile);
-        GlobalLogger.getLogger().info(this.getConfig().getString("chat.prefix"));
         if (this.config.getBoolean("chat.usePrefix")) {
             this.prefix = ChatColor.translateAlternateColorCodes('&', this.config.getString("chat.prefix", "§6[§$cBetterBanSystem§$6]§r "));
         } else {
@@ -59,6 +59,8 @@ public class BetterBanSystem {
 
         this.loadLanguage(this.config.getString("chat.language", "en_US"));
         this.loadPermissionsSystem(PermissionsHandlerType.valueOf(this.config.getString("permissions.system", "SPIGOT").toUpperCase()));
+
+        new BanManager().start();
     }
 
     @Contract(pure = true)

@@ -1,15 +1,15 @@
 /*
- * Copyright (c) MCDevStudios 2023. All Rights Reserved
+ * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
 package we.github.mcdevstudios.betterbansystem.spigot.command.commands;
 
 import org.jetbrains.annotations.NotNull;
-import we.github.mcdevstudios.betterbansystem.api.ban.BanHandler;
-import we.github.mcdevstudios.betterbansystem.api.command.BaseCommand;
-import we.github.mcdevstudios.betterbansystem.api.command.BaseCommandSender;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.core.ban.BanHandler;
+import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
+import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
 
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -33,13 +33,13 @@ public class IpBanCommand extends BaseCommand {
 
         Matcher matcher = pattern.matcher(target);
         if (!matcher.matches()) {
-            sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "§4Invalid IP address.");
+            sender.sendMessage("§4Invalid IP address.");
             return true;
         }
 
 
         if (BanHandler.findIPBanEntry(target) != null) {
-            sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "§4The IP " + target + " is already banned.");
+            sender.sendMessage("§4The IP " + target + " is already banned.");
             return true;
         }
 
@@ -47,12 +47,12 @@ public class IpBanCommand extends BaseCommand {
 
 
         if (sender.isPlayer() && BetterBanSystem.getInstance().getConfig().getStringList("exempted-ips").contains(target)) {
-            sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "§4The IP-Address is exempted from bans. If you really want to ban the IP-Address, please use the console to execute the ban.");
+            sender.sendMessage("§4The IP-Address is exempted from bans. If you really want to ban the IP-Address, please use the console to execute the ban.");
             return true;
         }
 
         BanHandler.addIpBan(sender, target, reason, null);
-        sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "§aIP " + target + " has been banned from the server.");
+        sender.sendMessage("§aIP " + target + " has been banned from the server.");
 
         return true;
     }

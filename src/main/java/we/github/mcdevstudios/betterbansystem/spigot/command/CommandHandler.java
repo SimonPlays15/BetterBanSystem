@@ -1,5 +1,5 @@
 /*
- * Copyright (c) MCDevStudios 2023. All Rights Reserved
+ * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
 package we.github.mcdevstudios.betterbansystem.spigot.command;
@@ -9,10 +9,11 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import we.github.mcdevstudios.betterbansystem.api.command.BaseCommand;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
-import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
+import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
+import we.github.mcdevstudios.betterbansystem.core.player.SpigotCommandSender;
 import we.github.mcdevstudios.betterbansystem.spigot.command.commands.*;
 
 import java.util.*;
@@ -32,6 +33,8 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
         registerCommand(new LookUpCommand());
         registerCommand(new IpBanCommand());
         registerCommand(new TimeBanCommand());
+        registerCommand(new WarnCommand());
+        registerCommand(new DelWarnCommand());
 
         for (String s : BetterBanSystem.getInstance().getPluginDescription().getCommands().keySet()) {
             PluginCommand g = Bukkit.getPluginCommand(s);
@@ -63,16 +66,11 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
         GlobalLogger.getLogger().debug(sender.getName(), "executed command", command.getName() + "/" + label + "[" + String.join(", ", args) + "]");
         try {
             if (getCommands().containsKey(command.getName())) {
-                if (sender instanceof BlockCommandSender) {
-                    GlobalLogger.getLogger().log(Level.SEVERE, "Failed to execute command " + command.getName() + " by user " + sender.getName(), new CommandException("Sender is an instanceof BlockCommandSender"));
-                    sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "Failed to execute command. See log for more details.");
-                    return true;
-                }
-                SpigotCommandSender commandSender = SpigotCommandSender.of(sender);
+                SpigotCommandSender commandSender = new SpigotCommandSender(sender);
                 BaseCommand baseCommand = getCommands().get(command.getName().toLowerCase());
                 baseCommand.setLabel(label);
                 if (sender instanceof Player && !baseCommand.testPermission(commandSender)) {
-                    sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("permissions_message"));
+                    commandSender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("permissions_message"));
                     GlobalLogger.getLogger().debug(sender.getName(), "tried to execute command " + command.getName() + " but has no permissions");
                     return true;
                 }
@@ -81,21 +79,20 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                 try {
                     commandSuccess = baseCommand.runCommand(commandSender, args);
                 } catch (Throwable thr) {
-                    sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "Failed to execute the command. Please see the console log for more informations");
+                    commandSender.sendMessage("Failed to execute the command. Please see the console log for more informations");
                     GlobalLogger.getLogger().error("Failed to execute the command", sender.getName() + ":" + command.getName() + "/" + label + "[" + String.join(", ", args) + "]", thr);
                     return true;
                 }
 
                 if (!commandSuccess)
-                    sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + baseCommand.getUsage());
+                    commandSender.sendMessage(baseCommand.getUsage());
 
                 return true;
-            } else {
-                sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "Sorry but we didn't found the command in our system §c\"" + label + "\"");
             }
         } catch (CommandException ex) {
             GlobalLogger.getLogger().log(Level.SEVERE, "Failed to execute command " + command.getName() + " by user " + sender.getName(), ex);
             sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "Failed to execute command. See log for more details.");
+            return true;
         }
 
         GlobalLogger.getLogger().log(Level.SEVERE, "Failed to execute command " + command.getName() + " by user " + sender.getName());
@@ -106,7 +103,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (commands.containsKey(command.getName())) {
-            SpigotCommandSender commandSender = SpigotCommandSender.of(sender);
+            SpigotCommandSender commandSender = new SpigotCommandSender(sender);
             BaseCommand baseCommand = getCommands().get(command.getName().toLowerCase());
             baseCommand.setLabel(label);
             if (sender instanceof Player && !baseCommand.testPermission(commandSender, baseCommand.getPermission())) {

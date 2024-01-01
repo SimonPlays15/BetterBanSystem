@@ -1,16 +1,15 @@
 /*
- * Copyright (c) MCDevStudios 2023. All Rights Reserved
+ * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
 package we.github.mcdevstudios.betterbansystem.spigot.command.commands;
 
 import org.jetbrains.annotations.NotNull;
-import we.github.mcdevstudios.betterbansystem.api.ban.BanEntry;
-import we.github.mcdevstudios.betterbansystem.api.ban.IPBanEntry;
-import we.github.mcdevstudios.betterbansystem.api.command.BaseCommand;
-import we.github.mcdevstudios.betterbansystem.api.command.BaseCommandSender;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
-import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.core.ban.BanEntry;
+import we.github.mcdevstudios.betterbansystem.core.ban.IPBanEntry;
+import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
+import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,20 +29,20 @@ public class BanListCommand extends BaseCommand {
         }
         if (!Objects.equals(type, "players") && !Objects.equals(type, "ips")) {
             type = "players";
-            sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + args[0] + " is not an correctly list parameter.");
+            sender.sendMessage(args[0] + " is not an correctly list parameter.");
         }
         List<String> banList = new ArrayList<>();
         if (type.equalsIgnoreCase("players")) {
-            BanEntry.getAllEntries("banned-players.json").forEach((iBanEntry -> {
+            BanEntry.getAllEntries().forEach((iBanEntry -> {
                 banList.add(iBanEntry.name());
             }));
         } else if (type.equalsIgnoreCase("ips")) {
-            IPBanEntry.getAllEntries("banned-ips.json").forEach((iBanEntry -> {
+            IPBanEntry.getAllEntries().forEach((iBanEntry -> {
                 banList.add(iBanEntry.ip());
             }));
         }
         if (banList.isEmpty()) {
-            sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "There are no banned " + type);
+            sender.sendMessage("There are no banned " + type);
             return true;
         }
         sender.sendMessage("§6Banlist (banned " + banList.size() + " " + type + "):");

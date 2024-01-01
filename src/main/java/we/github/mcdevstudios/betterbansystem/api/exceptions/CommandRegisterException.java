@@ -1,10 +1,10 @@
 /*
- * Copyright (c) MCDevStudios 2023. All Rights Reserved
+ * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
 package we.github.mcdevstudios.betterbansystem.api.exceptions;
 
-import we.github.mcdevstudios.betterbansystem.api.command.BaseCommand;
+import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
 
 public class CommandRegisterException extends RuntimeException {
 

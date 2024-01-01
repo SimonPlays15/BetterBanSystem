@@ -1,14 +1,14 @@
 /*
- * Copyright (c) MCDevStudios 2023. All Rights Reserved
+ * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
 package we.github.mcdevstudios.betterbansystem.api.files;
 
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
-import we.github.mcdevstudios.betterbansystem.api.chat.ChatColor;
-import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.core.chat.ChatColor;
+import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -56,6 +56,6 @@ public class LanguageFile {
             message = message.replace(placeholder, replacement);
         }
 
-        return BetterBanSystem.getInstance().getPrefix() + ChatColor.translateAlternateColorCodes('&', message);
+        return ChatColor.translateAlternateColorCodes('&', message);
     }
 }

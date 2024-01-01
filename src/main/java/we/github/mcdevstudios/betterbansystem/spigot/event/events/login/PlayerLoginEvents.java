@@ -1,5 +1,5 @@
 /*
- * Copyright (c) MCDevStudios 2023. All Rights Reserved
+ * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
 package we.github.mcdevstudios.betterbansystem.spigot.event.events.login;
@@ -9,8 +9,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.jetbrains.annotations.NotNull;
-import we.github.mcdevstudios.betterbansystem.api.ban.BanHandler;
-import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
+import we.github.mcdevstudios.betterbansystem.core.ban.BanHandler;
+import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 
 import java.net.InetAddress;
 

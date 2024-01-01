@@ -27,18 +27,14 @@ commands:
     description: Ban a specific IP-Address
     permission: betterbansystem.commands.banip
     usage: /<command> [IP-Address] (reason...)
-  delwarn:
-    description: "Remove a warn from a specific player"
-    permission: betterbansystem.commands.delwarn
-    usage: "/<command> [player] (reason...)"
   kick:
     description: Kicks a specific player
     permission: betterbansystem.commands.kick
     usage: "/<command> [player] (reason...)"
   lookup:
-    description: "Get information about yourself or other players"
+    description: "Get information about yourself or other players or a players warns"
     permission: betterbansystem.commands.lookup
-    usage: "/<command> (player)"
+    usage: "/<command> (player) (listwarns)"
   timeban:
     description: Ban a player for a specific time
     permission: betterbansystem.commands.timeban
@@ -63,6 +59,10 @@ commands:
     description: Warn a specific player
     permission: betterbansystem.commands.warn
     usage: "/<command> [player] [reason]"
+  delwarn:
+    description: "Remove a warn from a specific player"
+    permission: betterbansystem.commands.delwarn
+    usage: "/<command> [player] [WarnID]"
 permissions:
   betterbansystem.*:
     default: op

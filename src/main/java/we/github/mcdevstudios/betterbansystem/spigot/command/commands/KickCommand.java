@@ -1,5 +1,5 @@
 /*
- * Copyright (c) MCDevStudios 2023. All Rights Reserved
+ * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
 package we.github.mcdevstudios.betterbansystem.spigot.command.commands;
@@ -7,11 +7,11 @@ package we.github.mcdevstudios.betterbansystem.spigot.command.commands;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import we.github.mcdevstudios.betterbansystem.api.chat.StringFormatter;
-import we.github.mcdevstudios.betterbansystem.api.command.BaseCommand;
-import we.github.mcdevstudios.betterbansystem.api.command.BaseCommandSender;
-import we.github.mcdevstudios.betterbansystem.api.logging.GlobalLogger;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
+import we.github.mcdevstudios.betterbansystem.core.chat.StringFormatter;
+import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
+import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
+import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
 
 import java.util.ArrayList;
 import java.util.Arrays;
