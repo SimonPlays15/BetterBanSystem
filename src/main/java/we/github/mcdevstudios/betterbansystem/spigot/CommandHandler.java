@@ -24,7 +24,6 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 
     public CommandHandler() {
         registerCommands();
-        // TODO
         for (String s : BetterBanSystem.getInstance().getPluginDescription().getCommands().keySet()) {
             PluginCommand g = Bukkit.getPluginCommand(s);
             if (g != null && g.getExecutor() != this) {

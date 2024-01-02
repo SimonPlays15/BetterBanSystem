@@ -53,7 +53,6 @@ public class UUIDFetcher {
                 }
             }
         } catch (Exception e) {
-            GlobalLogger.getLogger().error(e.getMessage().trim().substring(0, 60) + "...");
         }
         return null;
     }
