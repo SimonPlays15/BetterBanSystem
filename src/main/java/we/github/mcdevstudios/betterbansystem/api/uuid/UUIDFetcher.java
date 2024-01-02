@@ -4,10 +4,10 @@
 
 package we.github.mcdevstudios.betterbansystem.api.uuid;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 
@@ -41,7 +41,9 @@ public class UUIDFetcher {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            Gson gson = new Gson();
+            JsonElement element = gson.fromJson(reader, JsonElement.class);
+            JsonObject json = element.getAsJsonObject();
 
             String uuidString = json.get("id").getAsString();
             reader.close();
@@ -69,32 +71,13 @@ public class UUIDFetcher {
      * @return the UUID of the player if it is found, otherwise the offline UUID
      */
     @Contract(pure = true)
-    public static @NotNull UUID getUUIDOrOfflineUUID(String playername) {
+    public static UUID getUUIDOrOfflineUUID(String playername) {
         UUID uuidFromCache = uuidCache.get(playername);
         if (uuidFromCache != null) {
             return uuidFromCache;
         }
         try {
-            URL url = new URL(API_URL + playername);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-
-            String uuidString = json.get("id").getAsString();
-            reader.close();
-
-            StringBuilder realUuid = new StringBuilder();
-            for (int i = 0; i <= 31; i++) {
-                realUuid.append(uuidString.charAt(i));
-                if (i == 7 || i == 11 || i == 15 || i == 19) {
-                    realUuid.append("-");
-                }
-            }
-
-            UUID uuid = UUID.fromString(realUuid.toString());
-            uuidCache.put(playername, uuid);
-            return uuid;
+            return getUUID(playername);
         } catch (Exception ex) {
             UUID g = UUID.nameUUIDFromBytes(playername.getBytes());
             StringBuilder realUuid = new StringBuilder();

@@ -63,6 +63,14 @@ commands:
     description: "Remove a warn from a specific player"
     permission: betterbansystem.commands.delwarn
     usage: "/<command> [player] [WarnID]"
+  mute:
+    description: "Mutes a player so he cannot chat anymore"
+    permission: betterbansystem.commands.mute
+    usage: "/<command> [player] [TIME] (reason...)"
+  unmute:
+    description: "Unmute a player so he can chat again"
+    permission: betterbansystem.commands.unmute
+    usage: "/<command> [player]"
 permissions:
   betterbansystem.*:
     default: op
@@ -70,6 +78,10 @@ permissions:
     children:
       betterbansystem.commands.*: true
       betterbansystem.exempt.ban: true
+      betterbansystem.exempt.mute: true
+  betterbansystem.exempt.mute:
+    default: op
+    description: "Exempts player from mutes"
   betterbansytem.exempt.ban:
     default: op
     description: "Exempts player from player bans"
@@ -87,6 +99,8 @@ permissions:
       betterbansystem.commands.unban: true
       betterbansystem.commands.unbanip: true
       betterbansystem.commands.warn: true
+      betterbansystem.commands.mute: true
+      betterbansystem.commands.unmute: true
   betterbansystem.commands.lookup:
     default: true
     description: "Get Informations about yourself (like warns etc.)"

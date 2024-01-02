@@ -2,7 +2,7 @@
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.core.ban;
+package we.github.mcdevstudios.betterbansystem.core.mute;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,7 +10,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 
@@ -18,18 +17,15 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
-public record IPBanEntry(String ip, String source, Date created,
-                         Object expires, String reason)
-        implements IIPBanEntry {
-    private static final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss Z").registerTypeAdapter(IIPBanEntry.class, new IIPBanEntryAdapter()).create();
-    private static final File file = new File("banned-ips.json");
+public record MuteEntry(UUID uuid, String name, String source, Date created,
+                        Object expires, String reason)
+        implements IMuteEntry {
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss Z").registerTypeAdapter(IMuteEntry.class, new IMuteEntryAdapter()).create();
+    private static final File file = new File("muted-players.json");
 
-    public IPBanEntry {
+    public MuteEntry {
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -41,52 +37,63 @@ public record IPBanEntry(String ip, String source, Date created,
         }
     }
 
-    public static void saveToJson(IIPBanEntry entry) {
-        List<IIPBanEntry> entries = new ArrayList<>();
-
-        try (Reader reader = new FileReader(file.getName())) {
-            Type listType = new TypeToken<ArrayList<IIPBanEntry>>() {
-            }.getType();
-            entries = gson.fromJson(reader, listType);
-        } catch (IOException e) {
-            GlobalLogger.getLogger().error(e);
-        }
-        if (entries == null)
+    public static void saveToJson(IMuteEntry entry) {
+        List<IMuteEntry> entries;
+        if (file.length() != 0) {
+            try (Reader reader = new FileReader(file.getName())) {
+                Type listType = new TypeToken<ArrayList<IMuteEntry>>() {
+                }.getType();
+                entries = gson.fromJson(reader, listType);
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+                return;
+            }
+        } else {
             entries = new ArrayList<>();
-        entries.add(entry);
+        }
+
+        List<IMuteEntry> tempEntries = new ArrayList<>(entries);
+        tempEntries.add(entry);
+
         try (Writer writer = new FileWriter(file.getName())) {
-            gson.toJson(entries, writer);
+            gson.toJson(tempEntries, writer);
         } catch (IOException e) {
             GlobalLogger.getLogger().error(e);
         }
     }
 
-    public static void removeEntry(@NotNull IIPBanEntry entry) {
-        removeFromJson(entry.ip());
+    public static void removeEntry(IMuteEntry entry) {
+        removeFromJson(entry.uuid());
     }
 
-    public static void removeFromJson(String ipAddress) {
-        List<IIPBanEntry> entries = new ArrayList<>();
+    public static void removeFromJson(UUID targetUUID) {
+        List<IMuteEntry> entries;
+        List<IMuteEntry> tempEntries;
         try (Reader reader = new FileReader(file.getName())) {
-            Type listType = new TypeToken<ArrayList<IIPBanEntry>>() {
+            Type listType = new TypeToken<ArrayList<IMuteEntry>>() {
             }.getType();
             entries = gson.fromJson(reader, listType);
+            tempEntries = new ArrayList<>(entries);
         } catch (IOException e) {
             GlobalLogger.getLogger().error(e);
+            return;
         }
-
-        entries.removeIf(entry -> entry.ip().equals(ipAddress));
-        try (Writer writer = new FileWriter(file.getName())) {
-            gson.toJson(entries, writer);
-        } catch (IOException e) {
-            GlobalLogger.getLogger().error(e);
+        tempEntries.removeIf(entry -> entry.uuid().equals(targetUUID));
+        if (entries.size() != tempEntries.size()) {
+            entries.clear();
+            entries.addAll(tempEntries);
+            try (Writer writer = new FileWriter(file.getName())) {
+                gson.toJson(entries, writer);
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+            }
         }
     }
 
-    public static @NotNull List<IIPBanEntry> getAllEntries() {
-        List<IIPBanEntry> entries = new ArrayList<>();
+    public static @NotNull List<IMuteEntry> getAllEntries() {
+        List<IMuteEntry> entries = new ArrayList<>();
         try (Reader reader = new FileReader(file.getName())) {
-            Type listType = new TypeToken<ArrayList<IIPBanEntry>>() {
+            Type listType = new TypeToken<ArrayList<IMuteEntry>>() {
             }.getType();
             entries = gson.fromJson(reader, listType);
         } catch (IOException e) {
@@ -97,19 +104,19 @@ public record IPBanEntry(String ip, String source, Date created,
         return entries;
     }
 
-    public static IIPBanEntry findEntry(String ipAddress) {
-        List<IIPBanEntry> entries = getAllEntries();
+    public static IMuteEntry findEntry(UUID targetUUID) {
+        List<IMuteEntry> entries = getAllEntries();
         return entries.stream()
-                .filter(entry -> entry.ip().equals(ipAddress))
+                .filter(entry -> entry.uuid().equals(targetUUID))
                 .findFirst()
                 .orElse(null);
     }
 
-    @Contract(pure = true)
     @Override
-    public @NotNull String toString() {
-        return "IPBanEntry{" +
-                "ip='" + ip + '\'' +
+    public String toString() {
+        return "MuteEntry{" +
+                "uuid=" + uuid +
+                ", name='" + name + '\'' +
                 ", source='" + source + '\'' +
                 ", created=" + created +
                 ", expires=" + expires +
@@ -117,13 +124,14 @@ public record IPBanEntry(String ip, String source, Date created,
                 '}';
     }
 
-    public static class IIPBanEntryAdapter extends TypeAdapter<IIPBanEntry> {
+    public static class IMuteEntryAdapter extends TypeAdapter<IMuteEntry> {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
 
         @Override
-        public void write(@NotNull JsonWriter writer, @NotNull IIPBanEntry entry) throws IOException {
+        public void write(@NotNull JsonWriter writer, @NotNull IMuteEntry entry) throws IOException {
             writer.beginObject();
-            writer.name("ip").value(entry.ip());
+            writer.name("uuid").value(entry.uuid().toString());
+            writer.name("name").value(entry.name());
             writer.name("source").value(entry.source());
             writer.name("created").value(format.format(entry.created()));
             if (entry.expires() instanceof Date) {
@@ -136,8 +144,9 @@ public record IPBanEntry(String ip, String source, Date created,
         }
 
         @Override
-        public IIPBanEntry read(@NotNull JsonReader reader) throws IOException {
-            String ip = null;
+        public IMuteEntry read(@NotNull JsonReader reader) throws IOException {
+            UUID uuid = null;
+            String name = null;
             String source = null;
             Date created = null;
             Object expires = null;
@@ -147,25 +156,29 @@ public record IPBanEntry(String ip, String source, Date created,
             while (reader.hasNext()) {
                 String propName = reader.nextName();
                 switch (propName) {
-                    case "ip":
-                        ip = reader.nextString();
+                    case "uuid":
+                        uuid = UUID.fromString(reader.nextString());
+                        break;
+                    case "name":
+                        name = reader.nextString();
                         break;
                     case "source":
                         source = reader.nextString();
                         break;
                     case "created":
+                        String dateString = reader.nextString();
                         try {
-                            created = format.parse(reader.nextString());
+                            created = format.parse(dateString);
                         } catch (ParseException e) {
                             throw new RuntimeException(e);
                         }
                         break;
                     case "expires":
-                        String g = reader.nextString();
+                        String expiredString = reader.nextString();
                         try {
-                            expires = format.parse(g);
+                            expires = format.parse(expiredString);
                         } catch (ParseException e) {
-                            expires = g;
+                            expires = expiredString;
                         }
                         break;
                     case "reason":
@@ -178,8 +191,7 @@ public record IPBanEntry(String ip, String source, Date created,
             }
             reader.endObject();
 
-            return new IPBanEntry(ip, source, created, expires, reason);
+            return new MuteEntry(uuid, name, source, created, expires, reason);
         }
     }
-
 }

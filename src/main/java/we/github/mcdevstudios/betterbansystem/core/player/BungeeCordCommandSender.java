@@ -57,9 +57,7 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     @Override
     public void sendMessage(BaseComponent... baseComponents) {
         for (BaseComponent baseComponent : baseComponents) {
-            TextComponent g = new TextComponent();
-            g.setText(BetterBanSystem.getInstance().getPrefix() + baseComponent.toLegacyText());
-            this.base.sendMessage(g);
+            this.sendMessage(baseComponent);
         }
     }
 

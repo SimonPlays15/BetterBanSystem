@@ -25,7 +25,7 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss Z").registerTypeAdapter(IWarnEntry.class, new IWarnEntryAdapter()).create();
     private static final File file = new File("player-warns.json");
 
-    public static void saveToJson(IWarnEntry entry) {
+    public WarnEntry {
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -33,10 +33,11 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
                 }
             } catch (IOException e) {
                 GlobalLogger.getLogger().error(e);
-                return;
             }
         }
+    }
 
+    public static void saveToJson(IWarnEntry entry) {
         List<IWarnEntry> entries;
         if (file.length() != 0) {
             try (Reader reader = new FileReader(file.getName())) {
@@ -64,7 +65,7 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
         }
     }
 
-    public static void removeEntry(IWarnEntry entry) {
+    public static void removeEntry(@NotNull IWarnEntry entry) {
         removeFromJson(entry.uuid());
     }
 
@@ -92,7 +93,7 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
         }
     }
 
-    public static List<IWarnEntry> getAllEntries() {
+    public static @NotNull List<IWarnEntry> getAllEntries() {
         List<IWarnEntry> entries = new ArrayList<>();
         try (Reader reader = new FileReader(file.getName())) {
             Type listType = new TypeToken<ArrayList<IWarnEntry>>() {
@@ -101,6 +102,8 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
         } catch (IOException e) {
             GlobalLogger.getLogger().error(e);
         }
+        if (entries == null)
+            entries = new ArrayList<>();
         return entries;
     }
 

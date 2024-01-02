@@ -25,8 +25,7 @@ public record BanEntry(UUID uuid, String name, String source, Date created,
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss Z").registerTypeAdapter(IBanEntry.class, new IBanEntryAdapter()).create();
     private static final File file = new File("banned-players.json");
 
-    public static void saveToJson(IBanEntry entry) {
-
+    public BanEntry {
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -34,9 +33,11 @@ public record BanEntry(UUID uuid, String name, String source, Date created,
                 }
             } catch (IOException e) {
                 GlobalLogger.getLogger().error(e);
-                return;
             }
         }
+    }
+
+    public static void saveToJson(IBanEntry entry) {
         List<IBanEntry> entries;
         if (file.length() != 0) {
             try (Reader reader = new FileReader(file.getName())) {
@@ -89,7 +90,7 @@ public record BanEntry(UUID uuid, String name, String source, Date created,
         }
     }
 
-    public static List<IBanEntry> getAllEntries() {
+    public static @NotNull List<IBanEntry> getAllEntries() {
         List<IBanEntry> entries = new ArrayList<>();
         try (Reader reader = new FileReader(file.getName())) {
             Type listType = new TypeToken<ArrayList<IBanEntry>>() {
@@ -98,6 +99,8 @@ public record BanEntry(UUID uuid, String name, String source, Date created,
         } catch (IOException e) {
             GlobalLogger.getLogger().error(e);
         }
+        if (entries == null)
+            entries = new ArrayList<>();
         return entries;
     }
 

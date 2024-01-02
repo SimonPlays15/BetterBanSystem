@@ -17,7 +17,7 @@ database:
 # The Permissionssystem the plugin should use to check for a players permissions
 # NOTE: Spigot & BungeeCord does not support offline user checks for permissions!
 permissions:
-  # Available Types: SPIGOT, PERMISSIONSEX, LUCKPERMS, BUNGEECORD, CLOUDNET
+  # Available Types: SPIGOT, LUCKPERMS, BUNGEECORD, CLOUDNET
   system: SPIGOT
 
 logging:
@@ -27,4 +27,9 @@ logging:
   debug: false
 # Exempted players (without giving the betterbansystem.exempt.ban permission)
 exempted-players: [ ]
+exempted-mute-players: [ ]
 exempted-ips: [ ]
+
+mute:
+  blocked-commands:
+    - me

@@ -85,11 +85,9 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
      * @param strings the message(s) to be sent
      */
     @Override
-    public void sendMessage(@NotNull String... strings) {
-        for (int i = 0; i < strings.length; i++) {
-            strings[i] = BetterBanSystem.getInstance().getPrefix() + strings[i];
-        }
-        this.base.sendMessage(strings);
+    public void sendMessage(@NotNull String @NotNull ... strings) {
+        for (String string : strings)
+            this.sendMessage(string);
     }
 
     /**
@@ -112,10 +110,8 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
      */
     @Override
     public void sendMessage(@Nullable UUID uuid, @NotNull String... strings) {
-        for (int i = 0; i < strings.length; i++) {
-            strings[i] = BetterBanSystem.getInstance().getPrefix() + strings[i];
-        }
-        this.base.sendMessage(uuid, strings);
+        for (String string : strings)
+            this.sendMessage(uuid, string);
     }
 
     /**

@@ -15,7 +15,12 @@ public class BungeeCore extends Plugin {
     @Override
     public void onEnable() {
         GlobalLogger.getLogger().info("Enabling BetterBanSystem for BungeeCord");
-        BetterBanSystem betterBanSystem = new BetterBanSystem(this.getDataFolder());
+        BetterBanSystem betterBanSystem;
+        try {
+            betterBanSystem = new BetterBanSystem(this.getDataFolder());
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
         betterBanSystem.saveConfig();
 
         new CommandHandler(this);

@@ -43,7 +43,9 @@ public class CommandHandler {
 
             @Override
             public void execute(CommandSender commandSender, String[] strings) {
-                onCommand(commandSender, this, strings[0], strings);
+                if (onCommand(commandSender, this, strings[0], strings)) {
+                    GlobalLogger.getLogger().trace(commandSender.getName(), "run command", this.getName() + "/" + this.getName() + "[" + String.join(", ", strings) + "]", "successfully");
+                }
             }
 
         });
