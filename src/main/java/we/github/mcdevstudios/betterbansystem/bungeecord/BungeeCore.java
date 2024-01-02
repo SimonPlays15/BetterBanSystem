@@ -5,7 +5,6 @@
 package we.github.mcdevstudios.betterbansystem.bungeecord;
 
 import net.md_5.bungee.api.plugin.Plugin;
-import we.github.mcdevstudios.betterbansystem.bungeecord.command.CommandHandler;
 import we.github.mcdevstudios.betterbansystem.bungeecord.event.EventManager;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
@@ -14,7 +13,7 @@ public class BungeeCore extends Plugin {
 
     @Override
     public void onEnable() {
-        GlobalLogger.getLogger().info("Enabling BetterBanSystem for BungeeCord");
+        GlobalLogger.getLogger().info("Enabling BetterBanSystem for Spigot");
         BetterBanSystem betterBanSystem;
         try {
             betterBanSystem = new BetterBanSystem(this.getDataFolder());

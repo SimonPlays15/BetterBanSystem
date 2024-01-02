@@ -2,11 +2,11 @@
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.spigot.command.commands;
+package we.github.mcdevstudios.betterbansystem.core.command.commands;
 
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
+import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
 import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.ban.BanHandler;
@@ -41,7 +41,6 @@ public class LookUpCommand extends BaseCommand {
         }
         String target = args.length >= 1 ? args[0] : sender.getName();
         UUID uuid = UUIDFetcher.getUUIDOrOfflineUUID(target);
-        boolean hasPlayedBefore = Bukkit.getOfflinePlayer(uuid).hasPlayedBefore();
         IWarnEntry warnEntry = WarnEntry.findEntry(uuid);
         int warns = 0;
         if (warnEntry != null)
@@ -66,7 +65,10 @@ public class LookUpCommand extends BaseCommand {
         lines.add("§8====§c Player Lookup §8====");
         lines.add("§7UUID: §a" + uuid);
         lines.add("§7Username: §a" + target);
-        lines.add("§aHas played before: " + (hasPlayedBefore ? "§a" : "§c") + hasPlayedBefore);
+        if (RuntimeService.isSpigot()) {
+            boolean hasPlayedBefore = BetterBanSystem.hasPlayedBefore(BetterBanSystem.getOfflinePlayer(uuid));
+            lines.add("§aHas played before: " + (hasPlayedBefore ? "§a" : "§c") + hasPlayedBefore);
+        }
         lines.add("§aIs Banned: " + (BanHandler.findBanEntry(uuid) != null ? "§atrue" : "§cfalse"));
         lines.add("§aWarns: " + (warns <= 5 ? "§a" : warns <= 9 ? "§c" : "§4") + warns);
         lines.add("§8====§c Player Lookup §8====");

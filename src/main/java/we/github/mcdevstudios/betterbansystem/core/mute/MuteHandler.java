@@ -22,7 +22,7 @@ public class MuteHandler {
 
     public static void addMute(@NotNull BaseCommandSender sender, @NotNull String target, String reason, Date expires) {
         UUID targetUUID = UUIDFetcher.getUUIDOrOfflineUUID(target);
-        IMuteEntry banEntry = new MuteEntry(targetUUID, target, sender.getName(), new Date(), getExpiryDate(expires), reason);
+        MuteEntry banEntry = new MuteEntry(targetUUID, target, sender.getName(), new Date(), getExpiryDate(expires), reason);
         addMuteEntry(banEntry);
     }
 

@@ -2,7 +2,7 @@
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.spigot.command;
+package we.github.mcdevstudios.betterbansystem.spigot;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
@@ -14,28 +14,17 @@ import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
 import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 import we.github.mcdevstudios.betterbansystem.core.player.SpigotCommandSender;
-import we.github.mcdevstudios.betterbansystem.spigot.command.commands.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 
 public class CommandHandler implements CommandExecutor, TabCompleter {
 
-    private final Map<String, BaseCommand> commands = new HashMap<>();
-
     public CommandHandler() {
+        registerCommands();
         // TODO
-        registerCommand(new KickCommand());
-        registerCommand(new BanListCommand());
-        registerCommand(new BanCommand());
-        registerCommand(new UnbanIpCommand());
-        registerCommand(new UnbanCommand());
-        registerCommand(new LookUpCommand());
-        registerCommand(new IpBanCommand());
-        registerCommand(new TimeBanCommand());
-        registerCommand(new WarnCommand());
-        registerCommand(new DelWarnCommand());
-
         for (String s : BetterBanSystem.getInstance().getPluginDescription().getCommands().keySet()) {
             PluginCommand g = Bukkit.getPluginCommand(s);
             if (g != null && g.getExecutor() != this) {
@@ -48,26 +37,20 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void registerCommand(@NotNull BaseCommand command) {
-        if (commands.containsKey(command.getCommandName()))
-            return;
-
-        Objects.requireNonNull(Bukkit.getPluginCommand(command.getCommandName())).setExecutor(this);
-        commands.put(command.getCommandName(), command);
-        GlobalLogger.getLogger().debug("Registering Command:", command.getCommandName() + ":" + command.getPermission(), command.getDescription());
-    }
-
-    public Map<String, BaseCommand> getCommands() {
-        return commands;
+    private void registerCommands() {
+        for (BaseCommand value : BetterBanSystem.getInstance().getCommandHandler().getCommands().values()) {
+            Objects.requireNonNull(Bukkit.getPluginCommand(value.getCommandName())).setExecutor(this);
+            GlobalLogger.getLogger().trace("Bukkit Plugin command registration for command: " + value.getCommandName());
+        }
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         GlobalLogger.getLogger().debug(sender.getName(), "executed command", command.getName() + "/" + label + "[" + String.join(", ", args) + "]");
         try {
-            if (getCommands().containsKey(command.getName())) {
+            if (BetterBanSystem.getInstance().getCommandHandler().getCommands().containsKey(command.getName())) {
                 SpigotCommandSender commandSender = new SpigotCommandSender(sender);
-                BaseCommand baseCommand = getCommands().get(command.getName().toLowerCase());
+                BaseCommand baseCommand = BetterBanSystem.getInstance().getCommandHandler().getCommands().get(command.getName().toLowerCase());
                 baseCommand.setLabel(label);
                 if (sender instanceof Player && !baseCommand.testPermission(commandSender)) {
                     commandSender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("permissions_message"));
@@ -78,7 +61,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                 boolean commandSuccess;
                 try {
                     commandSuccess = baseCommand.runCommand(commandSender, args);
-                } catch (Throwable thr) {
+                } catch (CommandException thr) {
                     commandSender.sendMessage("Failed to execute the command. Please see the console log for more informations");
                     GlobalLogger.getLogger().error("Failed to execute the command", sender.getName() + ":" + command.getName() + "/" + label + "[" + String.join(", ", args) + "]", thr);
                     return true;
@@ -89,22 +72,24 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 
                 return true;
             }
-        } catch (CommandException ex) {
+        } catch (Throwable ex) {
             GlobalLogger.getLogger().log(Level.SEVERE, "Failed to execute command " + command.getName() + " by user " + sender.getName(), ex);
             sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "Failed to execute command. See log for more details.");
+            ex.printStackTrace(System.err);
             return true;
         }
 
-        GlobalLogger.getLogger().log(Level.SEVERE, "Failed to execute command " + command.getName() + " by user " + sender.getName());
+        GlobalLogger.getLogger().log(Level.SEVERE, "Failed to execute command " + command.getName() + " by user " + sender.getName(), new CommandException("Command is not registered inside the CommandHandler"));
+        sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + "§4Command is not registered inside the default CommandHandler. See the console log for more informations and provide the error please to the Developers.");
         return true;
     }
 
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (commands.containsKey(command.getName())) {
+        if (BetterBanSystem.getInstance().getCommandHandler().getCommands().containsKey(command.getName())) {
             SpigotCommandSender commandSender = new SpigotCommandSender(sender);
-            BaseCommand baseCommand = getCommands().get(command.getName().toLowerCase());
+            BaseCommand baseCommand = BetterBanSystem.getInstance().getCommandHandler().getCommands().get(command.getName().toLowerCase());
             baseCommand.setLabel(label);
             if (sender instanceof Player && !baseCommand.testPermission(commandSender, baseCommand.getPermission())) {
                 return new ArrayList<>();

@@ -2,7 +2,7 @@
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.bungeecord.command;
+package we.github.mcdevstudios.betterbansystem.bungeecord;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -18,51 +18,48 @@ import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
 import we.github.mcdevstudios.betterbansystem.core.player.BungeeCordCommandSender;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 
 public class CommandHandler {
-    private final Map<String, BaseCommand> commands = new HashMap<>();
     private final Plugin plugin;
 
     public CommandHandler(Plugin plugin) {
         this.plugin = plugin;
-
-        // TODO
+        this.registerCommands();
     }
 
-    private void registerCommand(@NotNull BaseCommand command) {
-        if (commands.containsKey(command.getCommandName())) return;
-        plugin.getProxy().getPluginManager().registerCommand(plugin, new TabCompleterAndCommand(command.getCommandName(), command.getPermission(), String.valueOf(command.getAliases())) {
+    private void registerCommands() {
+        for (BaseCommand command : BetterBanSystem.getInstance().getCommandHandler().getCommands().values()) {
+            plugin.getProxy().getPluginManager().registerCommand(plugin, new TabCompleterAndCommand(command.getCommandName(), command.getPermission(), String.valueOf(command.getAliases())) {
 
-            @Override
-            public Iterable<String> onTabComplete(CommandSender commandSender, String[] strings) {
-                return command.onTabComplete(BungeeCordCommandSender.of(commandSender), strings);
-            }
+                @Override
+                public Iterable<String> onTabComplete(CommandSender commandSender, String[] strings) {
+                    BungeeCordCommandSender sender = BungeeCordCommandSender.of(commandSender);
 
-            @Override
-            public void execute(CommandSender commandSender, String[] strings) {
-                if (onCommand(commandSender, this, strings[0], strings)) {
-                    GlobalLogger.getLogger().trace(commandSender.getName(), "run command", this.getName() + "/" + this.getName() + "[" + String.join(", ", strings) + "]", "successfully");
+                    if (sender.isPlayer() && !command.testPermission(sender, command.getPermission()))
+                        return new ArrayList<>();
+
+                    return command.onTabComplete(BungeeCordCommandSender.of(commandSender), strings);
                 }
-            }
 
-        });
-        commands.put(command.getCommandName(), command);
-        GlobalLogger.getLogger().debug("Registering Command:", command.getCommandName() + ":" + command.getPermission(), command.getDescription());
-    }
+                @Override
+                public void execute(CommandSender commandSender, String[] strings) {
+                    if (onCommand(commandSender, this, strings[0], strings)) {
+                        GlobalLogger.getLogger().trace(commandSender.getName(), "run command", this.getName() + "/" + this.getName() + "[" + String.join(", ", strings) + "]", "successfully");
+                    }
+                }
 
-    public Map<String, BaseCommand> getCommands() {
-        return commands;
+            });
+            GlobalLogger.getLogger().trace("BungeeCord Plugin command registration for command: " + command.getCommandName());
+        }
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         GlobalLogger.getLogger().debug(sender.getName(), "executed command", command.getName() + "/" + label + "[" + String.join(", ", args) + "]");
         try {
-            if (getCommands().containsKey(command.getName())) {
+            if (BetterBanSystem.getInstance().getCommandHandler().getCommands().containsKey(command.getName())) {
                 BaseCommandSender commandSender = BungeeCordCommandSender.of(sender);
-                BaseCommand baseCommand = getCommands().get(command.getName().toLowerCase());
+                BaseCommand baseCommand = BetterBanSystem.getInstance().getCommandHandler().getCommands().get(command.getName().toLowerCase());
                 baseCommand.setLabel(label);
                 if (!baseCommand.testPermission(commandSender)) {
                     commandSender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("permissions_message"));
@@ -76,6 +73,7 @@ public class CommandHandler {
                 } catch (Throwable thr) {
                     commandSender.sendMessage("Failed to execute the command. Please see the console log for more informations");
                     GlobalLogger.getLogger().error("Failed to execute the command", sender.getName() + ":" + command.getName() + "/" + label + "[" + String.join(", ", args) + "]", thr);
+                    thr.printStackTrace(System.err);
                     return true;
                 }
 
@@ -93,9 +91,9 @@ public class CommandHandler {
     }
 
     public Iterable<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String[] args) {
-        if (commands.containsKey(command.getName())) {
+        if (BetterBanSystem.getInstance().getCommandHandler().getCommands().containsKey(command.getName())) {
             BaseCommandSender commandSender = BungeeCordCommandSender.of(sender);
-            BaseCommand baseCommand = getCommands().get(command.getName().toLowerCase());
+            BaseCommand baseCommand = BetterBanSystem.getInstance().getCommandHandler().getCommands().get(command.getName().toLowerCase());
             if (!baseCommand.testPermission(commandSender)) {
                 return new ArrayList<>();
             }
@@ -105,10 +103,6 @@ public class CommandHandler {
     }
 
     private abstract static class TabCompleterAndCommand extends Command implements TabExecutor {
-
-        public TabCompleterAndCommand(String name) {
-            super(name);
-        }
 
         public TabCompleterAndCommand(String name, String permission, String... aliases) {
             super(name, permission, aliases);

@@ -38,6 +38,15 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
     }
 
     public static void saveToJson(IWarnEntry entry) {
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    GlobalLogger.getLogger().info("File " + file.getName() + " created.");
+                }
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+            }
+        }
         List<IWarnEntry> entries;
         if (file.length() != 0) {
             try (Reader reader = new FileReader(file.getName())) {
@@ -70,6 +79,15 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
     }
 
     public static void removeFromJson(UUID target) {
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    GlobalLogger.getLogger().info("File " + file.getName() + " created.");
+                }
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+            }
+        }
         List<IWarnEntry> entries;
         List<IWarnEntry> tempEntries;
         try (Reader reader = new FileReader(file.getName())) {
@@ -94,6 +112,15 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
     }
 
     public static @NotNull List<IWarnEntry> getAllEntries() {
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    GlobalLogger.getLogger().info("File " + file.getName() + " created.");
+                }
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+            }
+        }
         List<IWarnEntry> entries = new ArrayList<>();
         try (Reader reader = new FileReader(file.getName())) {
             Type listType = new TypeToken<ArrayList<IWarnEntry>>() {

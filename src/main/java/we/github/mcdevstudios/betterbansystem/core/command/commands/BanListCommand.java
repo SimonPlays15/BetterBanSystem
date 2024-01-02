@@ -2,7 +2,7 @@
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.spigot.command.commands;
+package we.github.mcdevstudios.betterbansystem.core.command.commands;
 
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;

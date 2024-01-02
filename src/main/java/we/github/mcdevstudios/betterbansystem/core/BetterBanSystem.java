@@ -4,8 +4,10 @@
 
 package we.github.mcdevstudios.betterbansystem.core;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import we.github.mcdevstudios.betterbansystem.api.files.BaseConfig;
 import we.github.mcdevstudios.betterbansystem.api.files.BasePluginDescription;
 import we.github.mcdevstudios.betterbansystem.api.files.LanguageFile;
@@ -13,6 +15,7 @@ import we.github.mcdevstudios.betterbansystem.api.files.ResourceFile;
 import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
 import we.github.mcdevstudios.betterbansystem.core.ban.BanManager;
 import we.github.mcdevstudios.betterbansystem.core.chat.ChatColor;
+import we.github.mcdevstudios.betterbansystem.core.command.BaseCommandHandler;
 import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 import we.github.mcdevstudios.betterbansystem.core.mute.MuteManager;
 import we.github.mcdevstudios.betterbansystem.core.permissions.BungeeCordDefaultHandler;
@@ -21,6 +24,7 @@ import we.github.mcdevstudios.betterbansystem.core.permissions.PermissionsManage
 import we.github.mcdevstudios.betterbansystem.core.permissions.SpigotPermissionsHandler;
 
 import java.io.File;
+import java.util.UUID;
 
 public class BetterBanSystem {
 
@@ -51,6 +55,29 @@ public class BetterBanSystem {
      * This class represents the plugin description for the base plugin.
      */
     private final BasePluginDescription basePluginDescription;
+    /**
+     * The `commandHandler` variable is an instance of the `BaseCommandHandler` class.
+     * It represents a command handler that manages registered commands.
+     * <p>
+     * The `BaseCommandHandler` class has the following methods:
+     * <p>
+     * - `registerCommand(BaseCommand)`:
+     * This method is used to register a new command with the command handler.
+     * It takes a `BaseCommand` object as a parameter and adds it to the internal map of commands.
+     * If a command with the same name is already registered, the method does nothing.
+     * <p>
+     * - `getCommands()`:
+     * This method returns a map containing all registered commands.
+     * <p>
+     * Example usage:
+     * ```
+     * BaseCommandHandler commandHandler = new BaseCommandHandler();
+     * BaseCommand myCommand = new MyCommand();
+     * commandHandler.registerCommand(myCommand);
+     * Map<String, BaseCommand> commands = commandHandler.getCommands();
+     * ```
+     */
+    private final BaseCommandHandler commandHandler;
     /**
      * The prefix variable represents the prefix used in the BetterBanSystem class.
      * It is a string that is used to prefix messages or log statements in the system.
@@ -181,6 +208,8 @@ public class BetterBanSystem {
         this.loadLanguage(this.config.getString("chat.language", "en_US"));
         this.loadPermissionsSystem(PermissionsHandlerType.valueOf(this.config.getString("permissions.system", "SPIGOT").toUpperCase()));
 
+        this.commandHandler = new BaseCommandHandler();
+
         new BanManager().start();
         new MuteManager().start();
     }
@@ -193,6 +222,154 @@ public class BetterBanSystem {
     @Contract(pure = true)
     public static BetterBanSystem getInstance() {
         return instance;
+    }
+
+    /**
+     * Sends a message to a player.
+     *
+     * @param player The player to send the message to. Can be an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     * @param string The message to send.
+     * @throws IllegalArgumentException If the player object is not an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     */
+    public static void sendMessage(@NotNull Object player, String string) {
+        string = getInstance().prefix + string;
+        if (player instanceof org.bukkit.entity.Player a) {
+            a.sendMessage(string);
+        } else if (player instanceof net.md_5.bungee.api.connection.ProxiedPlayer a) {
+            a.sendMessage(new TextComponent(string));
+        } else {
+            throw new IllegalArgumentException("Player object is not an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer");
+        }
+    }
+
+    /**
+     * Sends a message to a player.
+     *
+     * @param player  The player object to send the message to. Must be an instance of either {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     * @param strings Variadic parameter of strings to send as messages. Each string will be sent as a separate message.
+     * @throws IllegalArgumentException If the player object is not an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     */
+    public static void sendMessage(@NotNull Object player, String @NotNull ... strings) {
+        for (String string : strings) {
+            sendMessage(player, string);
+        }
+    }
+
+    /**
+     * Sends a message to a player.
+     *
+     * @param player    The player to send the message to. Can be an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     * @param component The {@link TextComponent} message to send.
+     * @throws IllegalArgumentException If the player object is not an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     */
+    public static void sendMessage(Object player, @NotNull TextComponent component) {
+        component.setText(getInstance().getPrefix() + component.getText());
+        if (player instanceof org.bukkit.entity.Player a) {
+            a.spigot().sendMessage(component);
+        } else if (player instanceof net.md_5.bungee.api.connection.ProxiedPlayer a) {
+            a.sendMessage(component);
+        }
+    }
+
+    /**
+     * Sends a message or multiple messages to a player.
+     *
+     * @param player     The player to send the message to. Can be an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     * @param components The text components representing the messages to send.
+     * @throws IllegalArgumentException If the player object is not an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     */
+    public static void sendMessage(Object player, @NotNull TextComponent @NotNull ... components) {
+        for (TextComponent component : components) {
+            component.setText(BetterBanSystem.getInstance().getPrefix() + component.getText());
+            sendMessage(player, component);
+        }
+    }
+
+    /**
+     * Kicks a player from the server.
+     *
+     * @param player The player to kick. It can be an instance of either {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     * @param string The kick message.
+     * @throws IllegalArgumentException If the player object is not an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     */
+    public static void kickPlayer(@NotNull Object player, String string) {
+        if (player instanceof org.bukkit.entity.Player a) {
+            a.kickPlayer(string);
+        } else if (player instanceof net.md_5.bungee.api.connection.ProxiedPlayer a) {
+            a.disconnect(new TextComponent(string));
+        }
+    }
+
+    /**
+     * Returns the player with the given name.
+     *
+     * @param playername The name of the player.
+     * @return The player object if found, otherwise throws a RuntimeException.
+     * @throws RuntimeException If the correct runtime service cannot be loaded.
+     */
+    public static @Nullable Object getPlayer(@NotNull String playername) {
+        if (RuntimeService.isSpigot())
+            return org.bukkit.Bukkit.getPlayer(playername);
+        else if (RuntimeService.isBungeeCord())
+            return net.md_5.bungee.api.ProxyServer.getInstance().getPlayer(playername);
+
+        return null;
+    }
+
+    /**
+     * Gets the player object associated with the given UUID.
+     *
+     * @param uuid The UUID of the player.
+     * @return The player object.
+     * @throws RuntimeException If the correct runtime service cannot be loaded.
+     */
+    public static @Nullable Object getPlayer(@NotNull UUID uuid) {
+        if (RuntimeService.isSpigot())
+            return org.bukkit.Bukkit.getPlayer(uuid);
+        else if (RuntimeService.isBungeeCord())
+            return net.md_5.bungee.api.ProxyServer.getInstance().getPlayer(uuid);
+
+        return null;
+    }
+
+    /**
+     * Checks if the given player has played before.
+     *
+     * @param offlinePlayer The player object to check.
+     * @return true if the player has played before, false otherwise.
+     * @throws IllegalArgumentException If the player object is not an instance of org.bukkit.OfflinePlayer or
+     *                                  net.md_5.bungee.api.connection.ProxiedPlayer.
+     */
+    public static boolean hasPlayedBefore(Object offlinePlayer) {
+        if (offlinePlayer instanceof org.bukkit.OfflinePlayer a) {
+            return a.hasPlayedBefore();
+        } else if (offlinePlayer instanceof net.md_5.bungee.api.connection.ProxiedPlayer a) {
+            return true;
+        } else {
+            throw new IllegalArgumentException("Player object is not an instance of org.bukkit.OfflinePlayer or net.md_5.bungee.api.connection.ProxiedPlayer");
+        }
+    }
+
+    /**
+     * Retrieves the offline player with the given UUID.
+     *
+     * @param uuid The UUID of the player.
+     * @return The offline player object if found, otherwise null.
+     */
+    public static @Nullable Object getOfflinePlayer(UUID uuid) {
+        if (RuntimeService.isSpigot()) {
+            return org.bukkit.Bukkit.getOfflinePlayer(uuid);
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves the command handler of the BetterBanSystem instance.
+     *
+     * @return The command handler used by BetterBanSystem.
+     */
+    public BaseCommandHandler getCommandHandler() {
+        return commandHandler;
     }
 
     /**

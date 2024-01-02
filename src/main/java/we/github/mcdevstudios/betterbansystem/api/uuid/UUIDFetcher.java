@@ -8,12 +8,15 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -21,15 +24,52 @@ import java.util.concurrent.ConcurrentMap;
 public class UUIDFetcher {
     private static final String API_URL = "https://api.mojang.com/users/profiles/minecraft/";
     private static final ConcurrentMap<String, UUID> uuidCache = new ConcurrentHashMap<>();
+    private static final File BIN_FILE = new File(BetterBanSystem.getInstance().getDataFolder(), "uuids.bin");
+
+    private static void saveUUIDToBin(String playername, UUID uuid) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(BIN_FILE, true))) {
+            Map<String, UUID> map = new ConcurrentHashMap<>();
+            map.put(playername, uuid);
+            oos.writeObject(map);
+        } catch (Exception ex) {
+            GlobalLogger.getLogger().error(ex.getMessage().trim().substring(0, 60) + "...");
+        }
+    }
+
+    private static @Nullable UUID loadUUIDFromBin(String playername) {
+        if (!BIN_FILE.exists()) {
+            try {
+                BIN_FILE.createNewFile();
+            } catch (IOException ignored) {
+            }
+        }
+        Map<String, UUID> map;
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(BIN_FILE))) {
+            Object potentialMap = ois.readObject();
+            if (potentialMap instanceof ConcurrentMap<?, ?>) {
+                map = (ConcurrentMap<String, UUID>) potentialMap;
+                if (map.containsKey(playername)) {
+                    return map.get(playername);
+                }
+            }
+        } catch (Exception e) {
+            GlobalLogger.getLogger().error(e.getMessage().trim().substring(0, 60) + "...");
+        }
+        return null;
+    }
 
     /**
-     * Retrieves the UUID of a player from the Mojang API.
+     * Retrieves the UUID of a player from the Mojang API or returns the offline UUID.
      *
      * @param playername the player name for which to retrieve the UUID
-     * @return the UUID of the player, or null if the API call fails
+     * @return the UUID of the player if it is found, otherwise the offline UUID
      */
     @Contract(pure = true)
-    public static @Nullable UUID getUUID(String playername) {
+    public static @NotNull UUID getUUID(String playername) {
+        UUID bin = loadUUIDFromBin(playername);
+        if (bin != null) {
+            return bin;
+        }
 
         UUID uuidFromCache = uuidCache.get(playername);
         if (uuidFromCache != null) {
@@ -57,11 +97,12 @@ public class UUIDFetcher {
             }
             UUID uuid = UUID.fromString(realUuid.toString());
             uuidCache.put(playername, uuid);
+            saveUUIDToBin(playername, uuid);
             return uuid;
         } catch (Exception ex) {
-            GlobalLogger.getLogger().error("Failed to call mojang API for uuid fetching. Are the servers unavailable?", ex);
+            GlobalLogger.getLogger().error("Failed to call mojang API for uuid fetching. Are the servers unavailable?");
+            throw new RuntimeException(ex);
         }
-        return null;
     }
 
     /**
@@ -72,6 +113,11 @@ public class UUIDFetcher {
      */
     @Contract(pure = true)
     public static UUID getUUIDOrOfflineUUID(String playername) {
+        UUID bin = loadUUIDFromBin(playername);
+        if (bin != null) {
+            return bin;
+        }
+
         UUID uuidFromCache = uuidCache.get(playername);
         if (uuidFromCache != null) {
             return uuidFromCache;
@@ -89,6 +135,7 @@ public class UUIDFetcher {
             }
             UUID uuid = UUID.fromString(realUuid.toString());
             uuidCache.put(playername, uuid);
+            saveUUIDToBin(playername, uuid);
             return uuid;
         }
     }

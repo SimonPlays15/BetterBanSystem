@@ -2,11 +2,10 @@
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.spigot.command.commands;
+package we.github.mcdevstudios.betterbansystem.core.command.commands;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
+import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
 import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
 import we.github.mcdevstudios.betterbansystem.core.warn.WarnHandler;
@@ -31,9 +30,9 @@ public class WarnCommand extends BaseCommand {
 
         WarnHandler.addWarn(sender, target, reason);
 
-        Player targetPlayer = Bukkit.getPlayer(target);
+        Object targetPlayer = BetterBanSystem.getPlayer(target);
         if (targetPlayer != null)
-            targetPlayer.sendMessage("You have been warned");
+            BetterBanSystem.sendMessage(targetPlayer, "You have been warned");
 
         sender.sendMessage("Warned player " + target + " for reason: " + reason);
 

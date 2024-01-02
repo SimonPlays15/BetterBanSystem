@@ -38,6 +38,15 @@ public record BanEntry(UUID uuid, String name, String source, Date created,
     }
 
     public static void saveToJson(IBanEntry entry) {
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    GlobalLogger.getLogger().info("File " + file.getName() + " created.");
+                }
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+            }
+        }
         List<IBanEntry> entries;
         if (file.length() != 0) {
             try (Reader reader = new FileReader(file.getName())) {
@@ -67,6 +76,15 @@ public record BanEntry(UUID uuid, String name, String source, Date created,
     }
 
     public static void removeFromJson(UUID targetUUID) {
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    GlobalLogger.getLogger().info("File " + file.getName() + " created.");
+                }
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+            }
+        }
         List<IBanEntry> entries;
         List<IBanEntry> tempEntries;
         try (Reader reader = new FileReader(file.getName())) {
@@ -91,6 +109,15 @@ public record BanEntry(UUID uuid, String name, String source, Date created,
     }
 
     public static @NotNull List<IBanEntry> getAllEntries() {
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    GlobalLogger.getLogger().info("File " + file.getName() + " created.");
+                }
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+            }
+        }
         List<IBanEntry> entries = new ArrayList<>();
         try (Reader reader = new FileReader(file.getName())) {
             Type listType = new TypeToken<ArrayList<IBanEntry>>() {

@@ -2,10 +2,9 @@
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.spigot.command.commands;
+package we.github.mcdevstudios.betterbansystem.core.command.commands;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
 import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
@@ -42,12 +41,13 @@ public class BanCommand extends BaseCommand {
             sender.sendMessage("§4The player is exempted from bans. If you really want to ban the user, please use the console to execute the ban.");
             return true;
         }
-        Player targetPlayer = Bukkit.getPlayer(target);
+        Object targetPlayer = BetterBanSystem.getPlayer(target);
         if (targetPlayer != null) {
-            targetPlayer.kickPlayer(reason);
+            BetterBanSystem.kickPlayer(targetPlayer, reason);
         }
 
-        if (!Bukkit.getOfflinePlayer(UUIDFetcher.getUUIDOrOfflineUUID(target)).hasPlayedBefore()) {
+        Object offlinePlayer = BetterBanSystem.getOfflinePlayer(UUIDFetcher.getUUIDOrOfflineUUID(target));
+        if (offlinePlayer != null && !BetterBanSystem.hasPlayedBefore(offlinePlayer)) {
             sender.sendMessage("§4Warning: The player " + target + " never visited the server.");
         }
 

@@ -42,6 +42,15 @@ public record IPBanEntry(String ip, String source, Date created,
     }
 
     public static void saveToJson(IIPBanEntry entry) {
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    GlobalLogger.getLogger().info("File " + file.getName() + " created.");
+                }
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+            }
+        }
         List<IIPBanEntry> entries = new ArrayList<>();
 
         try (Reader reader = new FileReader(file.getName())) {
@@ -66,6 +75,15 @@ public record IPBanEntry(String ip, String source, Date created,
     }
 
     public static void removeFromJson(String ipAddress) {
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    GlobalLogger.getLogger().info("File " + file.getName() + " created.");
+                }
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+            }
+        }
         List<IIPBanEntry> entries = new ArrayList<>();
         try (Reader reader = new FileReader(file.getName())) {
             Type listType = new TypeToken<ArrayList<IIPBanEntry>>() {
@@ -84,6 +102,15 @@ public record IPBanEntry(String ip, String source, Date created,
     }
 
     public static @NotNull List<IIPBanEntry> getAllEntries() {
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    GlobalLogger.getLogger().info("File " + file.getName() + " created.");
+                }
+            } catch (IOException e) {
+                GlobalLogger.getLogger().error(e);
+            }
+        }
         List<IIPBanEntry> entries = new ArrayList<>();
         try (Reader reader = new FileReader(file.getName())) {
             Type listType = new TypeToken<ArrayList<IIPBanEntry>>() {
