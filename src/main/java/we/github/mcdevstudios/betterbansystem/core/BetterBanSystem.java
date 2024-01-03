@@ -16,6 +16,11 @@ import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
 import we.github.mcdevstudios.betterbansystem.core.ban.BanManager;
 import we.github.mcdevstudios.betterbansystem.core.chat.ChatColor;
 import we.github.mcdevstudios.betterbansystem.core.command.BaseCommandHandler;
+import we.github.mcdevstudios.betterbansystem.core.database.DriverType;
+import we.github.mcdevstudios.betterbansystem.core.database.IDatabase;
+import we.github.mcdevstudios.betterbansystem.core.database.mongodb.CachedMongoDBDatabase;
+import we.github.mcdevstudios.betterbansystem.core.database.mysql.CachedMySQLDatabase;
+import we.github.mcdevstudios.betterbansystem.core.database.sqlite.CachedSQLiteDatabase;
 import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 import we.github.mcdevstudios.betterbansystem.core.mute.MuteManager;
 import we.github.mcdevstudios.betterbansystem.core.permissions.BungeeCordDefaultHandler;
@@ -24,6 +29,7 @@ import we.github.mcdevstudios.betterbansystem.core.permissions.PermissionsManage
 import we.github.mcdevstudios.betterbansystem.core.permissions.SpigotPermissionsHandler;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.UUID;
 
 public class BetterBanSystem {
@@ -173,6 +179,11 @@ public class BetterBanSystem {
     private PermissionsManager manager;
 
     /**
+     * Private variable that holds the database object associated with the BetterBanSystem instance.
+     */
+    private IDatabase database;
+
+    /**
      * Constructs a new instance of the BetterBanSystem class.
      *
      * @param dataFolder The data folder for the plugin.
@@ -209,6 +220,26 @@ public class BetterBanSystem {
         this.loadPermissionsSystem(PermissionsHandlerType.valueOf(this.config.getString("permissions.system", "SPIGOT").toUpperCase()));
 
         this.commandHandler = new BaseCommandHandler();
+
+        if (!this.config.getString("database.type", "none").equalsIgnoreCase("none")) {
+            try {
+                DriverType type = DriverType.valueOf(Objects.requireNonNull(this.config.getString("database.type")).toUpperCase());
+                if (type == DriverType.MYSQL) {
+                    this.database = new CachedMySQLDatabase();
+                    this.database.connect(this.config.getString("database.hostname") + ":" + this.config.getInt("database.port") + "/" + this.config.getString("database.database"), this.config.getString("database.user"), this.config.getString("database.password"));
+                } else if (type == DriverType.SQLITE) {
+                    this.database = new CachedSQLiteDatabase();
+                    this.database.connect(this.config.getString("database.dbFile"), null, null);
+                } else if (type == DriverType.MONGODB) {
+                    this.database = new CachedMongoDBDatabase();
+                    this.database.connect(this.config.getString("database.hostname") + ":" + this.config.getInt("database.port") + "/" + this.config.getString("database.database"), this.config.getString("database.user"), this.config.getString("database.password"));
+                }
+                if (this.database != null)
+                    this.database.createDatabaseAndTables();
+            } catch (IllegalArgumentException ex) {
+                GlobalLogger.getLogger().error("Failed to find database type", this.config.getString("database.type", "none").toUpperCase(), "going back to default file handling.", ex);
+            }
+        }
 
         new BanManager().start();
         new MuteManager().start();
@@ -343,7 +374,7 @@ public class BetterBanSystem {
     public static boolean hasPlayedBefore(Object offlinePlayer) {
         if (offlinePlayer instanceof org.bukkit.OfflinePlayer a) {
             return a.hasPlayedBefore();
-        } else if (offlinePlayer instanceof net.md_5.bungee.api.connection.ProxiedPlayer a) {
+        } else if (offlinePlayer instanceof net.md_5.bungee.api.connection.ProxiedPlayer) {
             return true;
         } else {
             throw new IllegalArgumentException("Player object is not an instance of org.bukkit.OfflinePlayer or net.md_5.bungee.api.connection.ProxiedPlayer");
@@ -361,6 +392,15 @@ public class BetterBanSystem {
             return org.bukkit.Bukkit.getOfflinePlayer(uuid);
         }
         return null;
+    }
+
+    /**
+     * Retrieves the database object associated with the BetterBanSystem instance.
+     *
+     * @return The database object.
+     */
+    public IDatabase getDatabase() {
+        return database;
     }
 
     /**

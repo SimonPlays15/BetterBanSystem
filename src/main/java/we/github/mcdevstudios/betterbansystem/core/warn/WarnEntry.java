@@ -10,7 +10,9 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 
 import java.io.*;
@@ -24,6 +26,9 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
     public static final AtomicInteger idGenerator = new AtomicInteger(1);
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss Z").registerTypeAdapter(IWarnEntry.class, new IWarnEntryAdapter()).create();
     private static final File file = new File("player-warns.json");
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
+    private static final String WARNED_PLAYERS_TABLENAME = "warnedplayers";
+    private static final String PLAYER_WARNS_TABLENAME = "warns";
 
     public WarnEntry {
         if (!file.exists()) {
@@ -37,7 +42,45 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
         }
     }
 
+    @Contract("_ -> new")
+    private static @NotNull Warn convertMapToWarn(Map<String, Object> map) {
+        Map<String, Object> warnMap = new HashMap<>();
+        map.forEach((key, value) -> warnMap.put(key, value.toString()));
+        try {
+            return new Warn(
+                    Integer.parseInt((String) warnMap.get("id")),
+                    (String) warnMap.get("source"),
+                    format.parse((String) warnMap.get("created")),
+                    (String) warnMap.get("reason")
+            );
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void saveToJson(IWarnEntry entry) {
+        if (BetterBanSystem.getInstance().getDatabase() != null) {
+            List<Map<String, Object>> existingEntry = BetterBanSystem.getInstance().getDatabase().select(WARNED_PLAYERS_TABLENAME, "uuid = '" + entry.uuid().toString() + "'");
+            if (existingEntry == null || existingEntry.isEmpty()) {
+                BetterBanSystem.getInstance().getDatabase().insert(WARNED_PLAYERS_TABLENAME, Map.of("uuid", entry.uuid().toString(), "name", entry.name()));
+                for (Warn warn : entry.warns()) {
+                    BetterBanSystem.getInstance().getDatabase().insert(PLAYER_WARNS_TABLENAME, Map.of("source", warn.source(), "created", format.format(warn.created()), "reason", warn.reason(), "uuid", entry.uuid()));
+                }
+                return;
+            }
+            List<Map<String, Object>> existingWarnsMaps = BetterBanSystem.getInstance().getDatabase().select(PLAYER_WARNS_TABLENAME, "uuid = '" + entry.uuid().toString() + "'");
+            List<Warn> existingWarns = existingWarnsMaps.stream().map(WarnEntry::convertMapToWarn).toList();
+            for (Warn warn : entry.warns()) {
+                if (!existingWarns.contains(warn)) {
+                    BetterBanSystem.getInstance().getDatabase().insert(PLAYER_WARNS_TABLENAME, Map.of("source", warn.source(), "created", format.format(warn.created()), "reason", warn.reason(), "uuid", entry.uuid()));
+                }
+            }
+            for (Warn existing : existingWarns) {
+                if (!entry.warns().contains(existing)) {
+                    BetterBanSystem.getInstance().getDatabase().delete(PLAYER_WARNS_TABLENAME, "created", format.format(existing.created()));
+                }
+            }
+        }
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -79,6 +122,10 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
     }
 
     public static void removeFromJson(UUID target) {
+        if (BetterBanSystem.getInstance().getDatabase() != null) {
+            BetterBanSystem.getInstance().getDatabase().delete(WARNED_PLAYERS_TABLENAME, "uuid", target.toString());
+            BetterBanSystem.getInstance().getDatabase().delete(PLAYER_WARNS_TABLENAME, "uuid", target.toString());
+        }
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -112,6 +159,30 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
     }
 
     public static @NotNull List<IWarnEntry> getAllEntries() {
+        if (BetterBanSystem.getInstance().getDatabase() != null) {
+            List<Map<String, Object>> potentialEntries = BetterBanSystem.getInstance().getDatabase().selectAll(WARNED_PLAYERS_TABLENAME);
+            List<IWarnEntry> entries = new ArrayList<>();
+            potentialEntries.forEach(entry -> {
+                UUID uuid = UUID.fromString((String) entry.get("uuid"));
+                String name = (String) entry.get("name");
+                List<Map<String, Object>> warnEntries = BetterBanSystem.getInstance().getDatabase().select(PLAYER_WARNS_TABLENAME, "uuid = '" + uuid + "'");
+                List<Warn> warns = new ArrayList<>();
+                warnEntries.forEach(warnEntry -> {
+                    int id = (int) warnEntry.get("id");
+                    String source = (String) warnEntry.get("source");
+                    Date created = null;
+                    try {
+                        created = format.parse((String) warnEntry.get("created"));
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                    String reason = (String) warnEntry.get("reason");
+                    warns.add(new Warn(id, source, created, reason));
+                });
+                entries.add(new WarnEntry(uuid, name, warns));
+            });
+            return entries;
+        }
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -151,8 +222,6 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
     }
 
     public static class IWarnEntryAdapter extends TypeAdapter<IWarnEntry> {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
-
         @Override
         public void write(@NotNull JsonWriter writer, @NotNull IWarnEntry entry) throws IOException {
             writer.beginObject();

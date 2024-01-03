@@ -11,6 +11,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.jetbrains.annotations.NotNull;
+import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 
 import java.io.*;
@@ -24,20 +25,14 @@ public record BanEntry(UUID uuid, String name, String source, Date created,
         implements IBanEntry {
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss Z").registerTypeAdapter(IBanEntry.class, new IBanEntryAdapter()).create();
     private static final File file = new File("banned-players.json");
-
-    public BanEntry {
-        if (!file.exists()) {
-            try {
-                if (file.createNewFile()) {
-                    GlobalLogger.getLogger().info("File " + file.getName() + " created.");
-                }
-            } catch (IOException e) {
-                GlobalLogger.getLogger().error(e);
-            }
-        }
-    }
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
+    private static final String BANNED_PLAYERS_TABLE = "bannedplayers";
 
     public static void saveToJson(IBanEntry entry) {
+        if (BetterBanSystem.getInstance().getDatabase() != null) {
+            BetterBanSystem.getInstance().getDatabase().insert(BANNED_PLAYERS_TABLE, Map.of("uuid", entry.uuid().toString(), "name", entry.name(), "source", entry.source(), "created", format.format(entry.created()), "expires", (entry.expires() instanceof Date ? format.format(entry.expires()) : entry.expires()), "reason", entry.reason()));
+            return;
+        }
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -71,11 +66,15 @@ public record BanEntry(UUID uuid, String name, String source, Date created,
         }
     }
 
-    public static void removeEntry(IBanEntry entry) {
+    public static void removeEntry(@NotNull IBanEntry entry) {
         removeFromJson(entry.uuid());
     }
 
     public static void removeFromJson(UUID targetUUID) {
+        if (BetterBanSystem.getInstance().getDatabase() != null) {
+            BetterBanSystem.getInstance().getDatabase().delete(BANNED_PLAYERS_TABLE, "uuid", targetUUID.toString());
+            return;
+        }
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -109,6 +108,25 @@ public record BanEntry(UUID uuid, String name, String source, Date created,
     }
 
     public static @NotNull List<IBanEntry> getAllEntries() {
+        if (BetterBanSystem.getInstance().getDatabase() != null) {
+            List<Map<String, Object>> potentialEntries = BetterBanSystem.getInstance().getDatabase().selectAll(BANNED_PLAYERS_TABLE);
+            List<IBanEntry> entries = new ArrayList<>();
+            for (Map<String, Object> potentialEntry : potentialEntries) {
+                UUID uuid = UUID.fromString((String) potentialEntry.get("uuid"));
+                String name = (String) potentialEntry.get("name");
+                String source = (String) potentialEntry.get("source");
+                Date created = null;
+                try {
+                    created = format.parse((String) potentialEntry.get("created"));
+                } catch (ParseException e) {
+                    GlobalLogger.getLogger().error(e);
+                }
+                Object expires = potentialEntry.get("expires");
+                String reason = (String) potentialEntry.get("reason");
+                entries.add(new BanEntry(uuid, name, source, created, expires, reason));
+            }
+            return entries;
+        }
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -152,8 +170,6 @@ public record BanEntry(UUID uuid, String name, String source, Date created,
     }
 
     public static class IBanEntryAdapter extends TypeAdapter<IBanEntry> {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
-
         @Override
         public void write(@NotNull JsonWriter writer, @NotNull IBanEntry entry) throws IOException {
             writer.beginObject();

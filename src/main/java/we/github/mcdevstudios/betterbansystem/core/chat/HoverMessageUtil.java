@@ -20,6 +20,7 @@ public class HoverMessageUtil {
      * @apiNote {@link HoverEvent#HoverEvent(HoverEvent.Action, BaseComponent[])} is deprecated and is removed in future releases of the BungeeCord API. (Tested on 1.20.2)
      * @deprecated {@code BaseComponent[] sendMessage = new ComponentBuilder(message).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText)).create();}
      */
+    @Deprecated
     public static void sendHoverableMessage(Object player, String message, String hoverMessage) {
         BaseComponent[] hoverText = new ComponentBuilder(hoverMessage).create();
         BaseComponent[] sendMessage = new ComponentBuilder(message).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText)).create();

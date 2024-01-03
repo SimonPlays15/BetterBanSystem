@@ -7,15 +7,11 @@ package we.github.mcdevstudios.betterbansystem.api.files;
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
 public class ResourceFile {
@@ -56,7 +52,7 @@ public class ResourceFile {
             boolean created = outDIr.mkdirs();
             GlobalLogger.getLogger().debug(outDIr, "created:", created);
         }
-        if (outFile.exists() && !replace) {
+        if (outFile.exists() && replace) {
             long newResource = getResourceLastModified(resourcePath);
             long existing = outFile.lastModified();
 
@@ -69,10 +65,12 @@ public class ResourceFile {
             }
             return;
         }
-        try {
-            copyResourceToFile(resourcePath, outFile);
-        } catch (IOException ex) {
-            GlobalLogger.getLogger().error("Could not save " + outFile.getName() + " to " + outFile, ex);
+        if (!outFile.exists()) {
+            try {
+                copyResourceToFile(resourcePath, outFile);
+            } catch (IOException ex) {
+                GlobalLogger.getLogger().error("Could not save " + outFile.getName() + " to " + outFile, ex);
+            }
         }
     }
 
@@ -115,8 +113,12 @@ public class ResourceFile {
      * @throws IOException if {@link Files#copy(Path, OutputStream)} failed
      */
     private void copyResourceToFile(@NotNull String resourcePath, @NotNull File destinationFile) throws IOException {
-        try (InputStream inputStream = getResource(resourcePath)) {
-            Files.copy(inputStream, destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        try (FileWriter writer = new FileWriter(destinationFile)) {
+            InputStream inputStream = getResource(resourcePath);
+            int c;
+            while ((c = inputStream.read()) != -1) {
+                writer.write(c);
+            }
         }
     }
 }

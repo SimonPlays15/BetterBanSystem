@@ -8,15 +8,15 @@ public enum DriverType {
     /**
      * Represents the MySQL driver type.
      */
-    MySQL,
+    MYSQL,
     /**
      * Represents the SQLite driver type for connecting to a SQLite database.
      */
-    SQLite,
+    SQLITE,
     /**
      * Represents the MongoDB driver type in the system.
      *
      * @since 1.0.0
      */
-    MongoDB
+    MONGODB
 }

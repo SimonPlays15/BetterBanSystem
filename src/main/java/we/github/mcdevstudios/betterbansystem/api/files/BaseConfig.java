@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BaseConfig {
-
-    private Map<String, Object> config;
+    private Map<String, Object> config = new HashMap<>();
 
     public BaseConfig() {
     }
@@ -40,7 +39,7 @@ public class BaseConfig {
     /**
      * @param file {@link File} to load
      */
-    public void load(File file) {
+    public void load(@NotNull File file) {
         Yaml yaml = b();
         try (InputStream stream = new FileInputStream(file)) {
             this.config = yaml.load(stream);
@@ -54,6 +53,7 @@ public class BaseConfig {
     protected Yaml b() {
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        options.setPrettyFlow(true);
         options.setAllowUnicode(true);
         return new Yaml(options);
     }

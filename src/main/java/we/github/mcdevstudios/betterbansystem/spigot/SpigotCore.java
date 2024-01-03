@@ -13,7 +13,7 @@ import we.github.mcdevstudios.betterbansystem.spigot.event.EventManager;
 public class SpigotCore extends JavaPlugin {
 
     public void onEnable() {
-        GlobalLogger.getLogger().info("Enabling BetterBanSystem for BungeeCord");
+        GlobalLogger.getLogger().info("Enabling BetterBanSystem for Spigot");
         BetterBanSystem core;
         try {
             core = new BetterBanSystem(this.getDataFolder());

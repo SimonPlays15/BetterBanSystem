@@ -37,8 +37,8 @@ public class BanManager {
                 }
             }
         };
-        scheduler.scheduleAtFixedRate(checkExpiredBanEntry, 0, 1, TimeUnit.SECONDS);
-        scheduler.scheduleAtFixedRate(checkExpiredIPBanEntry, 0, 1, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(checkExpiredBanEntry, 6, 1, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(checkExpiredIPBanEntry, 6, 1, TimeUnit.SECONDS);
     }
 
     public void stop() {

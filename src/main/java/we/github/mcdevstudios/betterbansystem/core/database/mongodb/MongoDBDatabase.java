@@ -27,6 +27,16 @@ public class MongoDBDatabase extends Database {
     private MongoClient mongoClient;
     private MongoDatabase database;
 
+    @Override
+    public void createDatabaseAndTables() {
+        MongoDatabase database = mongoClient.getDatabase("betterbansystem");
+
+        database.getCollection("bannedplayers");
+        database.getCollection("bannedips");
+        database.getCollection("warnedplayers");
+        database.getCollection("mutedplayers");
+    }
+
     /**
      * Connects to a specific database using the MongoDB driver.
      *

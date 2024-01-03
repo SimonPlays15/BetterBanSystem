@@ -12,22 +12,22 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public record IPBanEntry(String ip, String source, Date created,
                          Object expires, String reason)
         implements IIPBanEntry {
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss Z").registerTypeAdapter(IIPBanEntry.class, new IIPBanEntryAdapter()).create();
     private static final File file = new File("banned-ips.json");
+    private static final String BANNED_IPS_TABLENAME = "bannedips";
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
 
     public IPBanEntry {
         if (!file.exists()) {
@@ -42,6 +42,10 @@ public record IPBanEntry(String ip, String source, Date created,
     }
 
     public static void saveToJson(IIPBanEntry entry) {
+        if (BetterBanSystem.getInstance().getDatabase() != null) {
+            BetterBanSystem.getInstance().getDatabase().insert(BANNED_IPS_TABLENAME, Map.of("ip", entry.ip(), "source", entry.source(), "created", format.format(entry.created()), "expires", (entry.expires() instanceof Date ? format.format(entry.expires()) : entry.expires()), "reason", entry.reason()));
+            return;
+        }
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -75,6 +79,10 @@ public record IPBanEntry(String ip, String source, Date created,
     }
 
     public static void removeFromJson(String ipAddress) {
+        if (BetterBanSystem.getInstance().getDatabase() != null) {
+            BetterBanSystem.getInstance().getDatabase().delete(BANNED_IPS_TABLENAME, "ip", ipAddress);
+            return;
+        }
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -102,6 +110,24 @@ public record IPBanEntry(String ip, String source, Date created,
     }
 
     public static @NotNull List<IIPBanEntry> getAllEntries() {
+        if (BetterBanSystem.getInstance().getDatabase() != null) {
+            List<Map<String, Object>> potentialEntries = BetterBanSystem.getInstance().getDatabase().selectAll(BANNED_IPS_TABLENAME);
+            List<IIPBanEntry> entries = new ArrayList<>();
+            for (Map<String, Object> potentialEntry : potentialEntries) {
+                String ip = (String) potentialEntry.get("ip");
+                String source = (String) potentialEntry.get("source");
+                Date created = null;
+                try {
+                    created = format.parse((String) potentialEntry.get("created"));
+                } catch (ParseException e) {
+                    GlobalLogger.getLogger().error(e);
+                }
+                Object expires = potentialEntry.get("expires");
+                String reason = (String) potentialEntry.get("reason");
+                entries.add(new IPBanEntry(ip, source, created, expires, reason));
+            }
+            return entries;
+        }
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
@@ -145,8 +171,6 @@ public record IPBanEntry(String ip, String source, Date created,
     }
 
     public static class IIPBanEntryAdapter extends TypeAdapter<IIPBanEntry> {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
-
         @Override
         public void write(@NotNull JsonWriter writer, @NotNull IIPBanEntry entry) throws IOException {
             writer.beginObject();

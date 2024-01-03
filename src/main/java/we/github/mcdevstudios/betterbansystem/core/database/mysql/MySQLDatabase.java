@@ -19,6 +19,79 @@ public class MySQLDatabase extends Database {
     private Connection connection;
 
     /**
+     * Creates the database and necessary tables for the BetterBanSystem.
+     * This method will execute the necessary SQL queries to create the database and tables if they do not already exist.
+     * <p>
+     * The database will be named "betterbansystem".
+     * <p>
+     * The tables that will be created include:
+     * - bannedplayers: Stores information about banned players
+     * - bannedips: Stores information about banned IPs
+     * - warnedplayers: Stores information about warned players
+     * - warns: Stores information about warns issued to players
+     * - mutedplayers: Stores information about muted players
+     */
+    @Override
+    public void createDatabaseAndTables() {
+        Statement statement = null;
+        try {
+            String createDbQuery = "CREATE DATABASE IF NOT EXISTS betterbansystem";
+            String createBannedPlayersTable = "CREATE TABLE IF NOT EXISTS bannedplayers (" +
+                    "uuid VARCHAR(36) PRIMARY KEY," +
+                    "name TEXT," +
+                    "source TEXT," +
+                    "created TEXT," +
+                    "expires TEXT," +
+                    "reason TEXT" +
+                    ");";
+            String createBannedIpsTable = "CREATE TABLE IF NOT EXISTS bannedips (" +
+                    "ip VARCHAR(15) PRIMARY KEY," +
+                    "source TEXT," +
+                    "created TEXT," + // For storing date as TEXT
+                    "expires TEXT," +
+                    "reason TEXT" +
+                    ");";
+            String createWarnedPlayersTable = "CREATE TABLE IF NOT EXISTS warnedplayers (" +
+                    "uuid VARCHAR(36) PRIMARY KEY," +
+                    "name TEXT," +
+                    ");";
+            String createWarnsTable = "CREATE TABLE IF NOT EXISTS warns (" +
+                    "id INT AUTO_INCREMENT PRIMARY KEY," +
+                    "source TEXT," +
+                    "created TEXT," +
+                    "reason TEXT," +
+                    "uuid VARCHAR(36), FOREIGN KEY (uuid) REFERENCES warnedplayers(uuid)" +
+                    ");";
+            String createMutedPlayersTable = "CREATE TABLE IF NOT EXISTS mutedplayers (" +
+                    "uuid VARCHAR(36) PRIMARY KEY," +
+                    "name TEXT," +
+                    "source TEXT," +
+                    "created TEXT," +
+                    "expires TEXT," +
+                    "reason TEXT" +
+                    ");";
+
+            // Execute table create queries
+            statement = connection.createStatement();
+            statement.executeUpdate(createDbQuery);
+            statement.executeUpdate(createBannedPlayersTable);
+            statement.executeUpdate(createBannedIpsTable);
+            statement.executeUpdate(createWarnedPlayersTable);
+            statement.executeUpdate(createWarnsTable);
+            statement.executeUpdate(createMutedPlayersTable);
+        } catch (SQLException ex) {
+            GlobalLogger.getLogger().error(ex);
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException ignored) {
+                }
+            }
+        }
+    }
+
+    /**
      * Connects to the database using the given connection string, username, and password.
      *
      * @param connectionstring the connection string for the database
@@ -156,7 +229,7 @@ public class MySQLDatabase extends Database {
             while (set.next()) {
                 Map<String, Object> row = new HashMap<>();
 
-                for (int i = 0; i <= c; i++) {
+                for (int i = 1; i <= c; i++) {
                     String a = metaData.getColumnName(i);
                     Object b = set.getObject(i);
                     row.put(a, b);
@@ -190,7 +263,7 @@ public class MySQLDatabase extends Database {
             while (set.next()) {
                 Map<String, Object> row = new HashMap<>();
 
-                for (int i = 0; i <= c; i++) {
+                for (int i = 1; i <= c; i++) {
                     String a = metaData.getColumnName(i);
                     Object b = set.getObject(i);
                     row.put(a, b);

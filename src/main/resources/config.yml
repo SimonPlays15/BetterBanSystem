@@ -13,6 +13,18 @@ database:
   # Available Types: MYSQL, SQLITE, MONGODB
   type: none
 
+# SQLite example:
+#database:
+#  type: SQLITE
+#  dbFile: "path/to/your/database_file.db"
+# MySQL & MongoDB example:
+#database:
+#  type: MYSQL | MONGODB
+#  hostname: 127.0.0.1
+#  port: 6636
+#  user: username
+#  password: yoursupersecretpassword
+#  database: datbase_name
 
 # The Permissionssystem the plugin should use to check for a players permissions
 # NOTE: Spigot & BungeeCord does not support offline user checks for permissions!

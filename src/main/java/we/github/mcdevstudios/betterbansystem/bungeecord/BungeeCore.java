@@ -13,7 +13,7 @@ public class BungeeCore extends Plugin {
 
     @Override
     public void onEnable() {
-        GlobalLogger.getLogger().info("Enabling BetterBanSystem for Spigot");
+        GlobalLogger.getLogger().info("Enabling BetterBanSystem for BungeeCord");
         BetterBanSystem betterBanSystem;
         try {
             betterBanSystem = new BetterBanSystem(this.getDataFolder());

@@ -35,6 +35,76 @@ public class SQLiteDatabase extends Database {
         }
     }
 
+
+    /**
+     * Creates the database and tables required for the BetterBanSystem application.
+     * If the database does not exist, it will be created. If the tables do not exist, they will be created.
+     * The tables include the "bannedplayers", "bannedips", "warnedplayers", "warns", and "mutedplayers" tables.
+     * Each table has its own structure and columns.
+     */
+    @Override
+    public void createDatabaseAndTables() {
+        String createBannedPlayersTable = "CREATE TABLE IF NOT EXISTS bannedplayers (" +
+                "uuid VARCHAR(36) PRIMARY KEY," +
+                "name TEXT," +
+                "source TEXT," +
+                "created TEXT," +
+                "expires TEXT," +
+                "reason TEXT" +
+                ");";
+        String createBannedIpsTable = "CREATE TABLE IF NOT EXISTS bannedips (" +
+                "ip VARCHAR(15) PRIMARY KEY," +
+                "source TEXT," +
+                "created TEXT," +
+                "expires TEXT," +
+                "reason TEXT" +
+                ");";
+        String createWarnedPlayersTable = "CREATE TABLE IF NOT EXISTS warnedplayers (" +
+                "uuid VARCHAR(36) PRIMARY KEY," +
+                "name TEXT" +
+                ");";
+        String createWarnsTable = "CREATE TABLE IF NOT EXISTS warns (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                "source TEXT," +
+                "created TEXT," +
+                "reason TEXT," +
+                "uuid VARCHAR(36), FOREIGN KEY (uuid) REFERENCES warnedplayers(uuid)" +
+                ");";
+        String createMutedPlayersTable = "CREATE TABLE IF NOT EXISTS mutedplayers (" +
+                "uuid VARCHAR(36) PRIMARY KEY," +
+                "name TEXT," +
+                "source TEXT," +
+                "created TEXT," +
+                "expires TEXT," +
+                "reason TEXT" +
+                ");";
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(createBannedPlayersTable);
+        } catch (SQLException ex) {
+            GlobalLogger.getLogger().error(createBannedPlayersTable, "|", ex.getSQLState() + ":" + ex.getErrorCode() + "/" + ex.getMessage(), ex);
+        }
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(createBannedIpsTable);
+        } catch (SQLException ex) {
+            GlobalLogger.getLogger().error(createBannedIpsTable, "|", ex.getSQLState() + ":" + ex.getErrorCode() + "/" + ex.getMessage(), ex);
+        }
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(createWarnedPlayersTable);
+        } catch (SQLException ex) {
+            GlobalLogger.getLogger().error(createWarnedPlayersTable, "|", ex.getSQLState() + ":" + ex.getErrorCode() + "/" + ex.getMessage(), ex);
+        }
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(createWarnsTable);
+        } catch (SQLException ex) {
+            GlobalLogger.getLogger().error(createWarnsTable, "|", ex.getSQLState() + ":" + ex.getErrorCode() + "/" + ex.getMessage(), ex);
+        }
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(createMutedPlayersTable);
+        } catch (SQLException ex) {
+            GlobalLogger.getLogger().error(createMutedPlayersTable, "|", ex.getSQLState() + ":" + ex.getErrorCode() + "/" + ex.getMessage(), ex);
+        }
+    }
+
     /**
      * Closes the database connection.
      * If the connection is not null and not closed, it will be closed.
@@ -157,7 +227,7 @@ public class SQLiteDatabase extends Database {
             while (set.next()) {
                 Map<String, Object> row = new HashMap<>();
 
-                for (int i = 0; i <= c; i++) {
+                for (int i = 1; i <= c; i++) {
                     String a = metaData.getColumnName(i);
                     Object b = set.getObject(i);
                     row.put(a, b);
@@ -191,7 +261,7 @@ public class SQLiteDatabase extends Database {
             while (set.next()) {
                 Map<String, Object> row = new HashMap<>();
 
-                for (int i = 0; i <= c; i++) {
+                for (int i = 1; i <= c; i++) {
                     String a = metaData.getColumnName(i);
                     Object b = set.getObject(i);
                     row.put(a, b);

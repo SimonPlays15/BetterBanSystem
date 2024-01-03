@@ -10,6 +10,8 @@ import java.util.Map;
 public interface IDatabase {
 
 
+    void createDatabaseAndTables();
+
     /**
      * Connect to a specific database
      *
