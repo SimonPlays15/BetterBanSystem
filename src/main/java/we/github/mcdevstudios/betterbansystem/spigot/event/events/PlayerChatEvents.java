@@ -2,7 +2,7 @@
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
-package we.github.mcdevstudios.betterbansystem.spigot.event.events.chat;
+package we.github.mcdevstudios.betterbansystem.spigot.event.events;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

@@ -9,27 +9,30 @@ import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.core.ban.BanHandler;
+import we.github.mcdevstudios.betterbansystem.core.ban.IBanEntry;
+import we.github.mcdevstudios.betterbansystem.core.ban.IIPBanEntry;
+import we.github.mcdevstudios.betterbansystem.core.chat.StringFormatter;
 
-import java.net.SocketAddress;
 import java.util.UUID;
 
 public class LoginEvents implements Listener {
 
     @EventHandler
-    public void loginEvent(LoginEvent event) {
+    public void loginEvent(@NotNull LoginEvent event) {
         PendingConnection connection = event.getConnection();
         UUID uuid = connection.getUniqueId();
-        SocketAddress address = connection.getSocketAddress();
-
-        if (BanHandler.findBanEntry(uuid) != null) {
+        String address = connection.getVirtualHost().getAddress().getHostAddress();
+        IBanEntry banEntry = BanHandler.findBanEntry(uuid);
+        if (banEntry != null) {
             event.setCancelled(true);
-            event.setCancelReason(new TextComponent("You have been banned from the server."));
+            event.setCancelReason(new TextComponent(StringFormatter.formatBanMessage(banEntry)));
         }
-
-        if (BanHandler.findIPBanEntry(address.toString()) != null) {
+        IIPBanEntry ipBanEntry = BanHandler.findIPBanEntry(address);
+        if (ipBanEntry != null) {
             event.setCancelled(true);
-            event.setCancelReason(new TextComponent("Your IP address has been banned from the server."));
+            event.setCancelReason(new TextComponent(StringFormatter.formatIpBanMessage(ipBanEntry)));
         }
 
     }

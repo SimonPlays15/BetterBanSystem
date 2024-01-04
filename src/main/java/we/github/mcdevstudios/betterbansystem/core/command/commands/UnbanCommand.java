@@ -5,9 +5,12 @@
 package we.github.mcdevstudios.betterbansystem.core.command.commands;
 
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
+import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.ban.BanHandler;
 import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
 import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
+
+import java.util.Map;
 
 public class UnbanCommand extends BaseCommand {
     public UnbanCommand() {
@@ -21,12 +24,12 @@ public class UnbanCommand extends BaseCommand {
         }
         String target = args[0];
         if (BanHandler.findBanEntry(target) == null) {
-            sender.sendMessage("§c" + target + " is not banned from the server.");
+            sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("defaults.notBanned", Map.of("target", target)));
             return true;
         }
 
         BanHandler.removeBan(target);
-        sender.sendMessage("§a" + target + " has been unbanned from the server.");
+        sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("unban.unbanmessage", Map.of("target", target)));
 
         return true;
     }

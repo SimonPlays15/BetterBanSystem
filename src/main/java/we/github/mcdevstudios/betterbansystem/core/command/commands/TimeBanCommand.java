@@ -10,6 +10,8 @@ import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
 import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.ban.BanHandler;
+import we.github.mcdevstudios.betterbansystem.core.ban.IBanEntry;
+import we.github.mcdevstudios.betterbansystem.core.chat.StringFormatter;
 import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
 import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
 
@@ -17,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -70,14 +73,14 @@ public class TimeBanCommand extends BaseCommand {
         String target = args[0];
 
         if (BanHandler.findBanEntry(target) != null) {
-            sender.sendMessage("§4The player " + target + " is already banned.");
+            sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("ban.alreadybanned", Map.of("target", target)));
             return true;
         }
 
-        String reason = args.length < 3 ? "You have been banned from the server" : Arrays.stream(args).skip(2).collect(Collectors.joining(" "));
+        String reason = args.length < 3 ? BetterBanSystem.getInstance().getLanguageFile().getMessage("ban.defaults.banreason") : Arrays.stream(args).skip(2).collect(Collectors.joining(" "));
 
         if (sender.isPlayer() && (this.getPermManager().hasPermission(target, "betterbansystem.exempt.ban") || BetterBanSystem.getInstance().getConfig().getStringList("exempted-players").contains(target))) {
-            sender.sendMessage("§4The player is exempted from bans. If you really want to ban the user, please use the console to execute the ban.");
+            sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("defaults.exemptMessage", Map.of("targetType", "player", "target", target, "type", "ban")));
             return true;
         }
 
@@ -88,18 +91,20 @@ public class TimeBanCommand extends BaseCommand {
             return true;
         }
 
+        IBanEntry entry = BanHandler.addBan(sender, target, reason, parsed);
+
         Object targetPlayer = BetterBanSystem.getPlayer(target);
         if (targetPlayer != null) {
-            BetterBanSystem.kickPlayer(target, reason);
+            BetterBanSystem.kickPlayer(target, StringFormatter.formatBanMessage(entry));
         }
 
         Object offlinePlayer = BetterBanSystem.getOfflinePlayer(UUIDFetcher.getUUIDOrOfflineUUID(target));
         if (offlinePlayer != null && !BetterBanSystem.hasPlayedBefore(offlinePlayer)) {
-            sender.sendMessage("§4Warning: The player " + target + " never visited the server.");
+            sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("defaults.warning", Map.of("target", target)));
         }
 
-        BanHandler.addBan(sender, target, reason, parsed);
-        sender.sendMessage("§aPlayer " + target + " has been banned from the server until " + new SimpleDateFormat("HH:mm:ss dd.MM.yyyy").format(parsed));
+
+        sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("ban.timebanSuccess", Map.of("target", target, "date", new SimpleDateFormat("HH:mm:ss dd.MM.yyyy").format(parsed))));
 
         return true;
     }

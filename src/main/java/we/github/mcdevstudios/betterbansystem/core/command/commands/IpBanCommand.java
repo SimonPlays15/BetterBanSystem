@@ -10,6 +10,8 @@ import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
 import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.ban.BanHandler;
+import we.github.mcdevstudios.betterbansystem.core.ban.IIPBanEntry;
+import we.github.mcdevstudios.betterbansystem.core.chat.StringFormatter;
 import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
 import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
 
@@ -54,13 +56,15 @@ public class IpBanCommand extends BaseCommand {
             return true;
         }
 
+        IIPBanEntry entry = BanHandler.addIpBan(sender, target, reason, null);
+
         if (RuntimeService.isSpigot()) {
-            org.bukkit.Bukkit.getOnlinePlayers().stream().filter(g -> Objects.requireNonNull(g.getAddress()).getAddress().getHostAddress().equalsIgnoreCase(target)).forEach(player -> player.kickPlayer(reason));
+            org.bukkit.Bukkit.getOnlinePlayers().stream().filter(g -> Objects.requireNonNull(g.getAddress()).getAddress().getHostAddress().equalsIgnoreCase(target)).forEach(player -> player.kickPlayer(StringFormatter.formatIpBanMessage(entry)));
         } else if (RuntimeService.isBungeeCord()) {
-            net.md_5.bungee.api.ProxyServer.getInstance().getPlayers().stream().filter(g -> g.getPendingConnection().getVirtualHost().getAddress().getHostAddress().equalsIgnoreCase(target)).forEach(player -> player.disconnect(new TextComponent(reason)));
+            net.md_5.bungee.api.ProxyServer.getInstance().getPlayers().stream().filter(g -> g.getPendingConnection().getVirtualHost().getAddress().getHostAddress().equalsIgnoreCase(target)).forEach(player -> player.disconnect(new TextComponent(StringFormatter.formatIpBanMessage(entry))));
         }
 
-        BanHandler.addIpBan(sender, target, reason, null);
+
         sender.sendMessage("§aIP " + target + " has been banned from the server.");
 
         return true;

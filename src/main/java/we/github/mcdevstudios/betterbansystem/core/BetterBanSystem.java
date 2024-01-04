@@ -13,6 +13,7 @@ import we.github.mcdevstudios.betterbansystem.api.files.BasePluginDescription;
 import we.github.mcdevstudios.betterbansystem.api.files.LanguageFile;
 import we.github.mcdevstudios.betterbansystem.api.files.ResourceFile;
 import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
+import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
 import we.github.mcdevstudios.betterbansystem.core.ban.BanManager;
 import we.github.mcdevstudios.betterbansystem.core.chat.ChatColor;
 import we.github.mcdevstudios.betterbansystem.core.command.BaseCommandHandler;
@@ -206,7 +207,6 @@ public class BetterBanSystem {
 
         this.configFile = new File(this.dataFolder, "config.yml");
         resourceFile.saveResource("config.yml", true);
-        resourceFile.saveResource("language/de_DE.yml", true);
         resourceFile.saveResource("language/en_US.yml", true);
         this.config = new BaseConfig();
         this.config.load(this.configFile);
@@ -240,7 +240,7 @@ public class BetterBanSystem {
                 GlobalLogger.getLogger().error("Failed to find database type", this.config.getString("database.type", "none").toUpperCase(), "going back to default file handling.", ex);
             }
         }
-
+        UUIDFetcher.loadUsercacheJson();
         new BanManager().start();
         new MuteManager().start();
     }

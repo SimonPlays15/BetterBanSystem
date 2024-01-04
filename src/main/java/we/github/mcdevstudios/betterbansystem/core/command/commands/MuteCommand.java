@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -69,14 +70,14 @@ public class MuteCommand extends BaseCommand {
 
         String target = args[0];
         if (MuteHandler.findMuteEntry(target) != null) {
-            sender.sendMessage("§4The player " + target + " is already muted.");
+            sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("mute.alreadyMuted", Map.of("target", target)));
             return true;
         }
 
-        String reason = args.length < 3 ? "You have been banned from the server" : Arrays.stream(args).skip(2).collect(Collectors.joining(" "));
+        String reason = args.length < 3 ? BetterBanSystem.getInstance().getLanguageFile().getMessage("mute.reason") : Arrays.stream(args).skip(2).collect(Collectors.joining(" "));
 
         if (sender.isPlayer() && (this.getPermManager().hasPermission(target, "betterbansystem.exempt.mute") || BetterBanSystem.getInstance().getConfig().getStringList("exempted-mute-players").contains(target))) {
-            sender.sendMessage("§4The player is exempted from mutes. If you really want to mute the user, please use the console to execute the ban.");
+            sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("defaults.exemptMessage", Map.of("targetType", "player", "target", target, "type", "mute")));
             return true;
         }
 
@@ -90,16 +91,16 @@ public class MuteCommand extends BaseCommand {
         Object targetPlayer = BetterBanSystem.getPlayer(target);
         SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
         if (targetPlayer != null) {
-            BetterBanSystem.sendMessage(targetPlayer, BetterBanSystem.getInstance().getPrefix() + "You have been muted until " + format.format(parsed));
+            BetterBanSystem.sendMessage(targetPlayer, BetterBanSystem.getInstance().getLanguageFile().getMessage("mute.playerMessage", Map.of("date", format.format(parsed))));
         }
 
         Object offlinePlayer = BetterBanSystem.getOfflinePlayer(UUIDFetcher.getUUIDOrOfflineUUID(target));
         if (offlinePlayer != null && !BetterBanSystem.hasPlayedBefore(offlinePlayer)) {
-            sender.sendMessage("§4Warning: The player " + target + " never visited the server.");
+            sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("defaults.warning", Map.of("target", target)));
         }
 
         MuteHandler.addMute(sender, target, reason, parsed);
-        sender.sendMessage("§aPlayer " + target + " has been muted from the server until " + format.format(parsed));
+        sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("mute.success", Map.of("target", target, "date", format.format(parsed))));
 
         return true;
     }

@@ -7,12 +7,14 @@ package we.github.mcdevstudios.betterbansystem.core.command.commands;
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
 import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
+import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.command.BaseCommand;
 import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
 import we.github.mcdevstudios.betterbansystem.core.warn.IWarnEntry;
 import we.github.mcdevstudios.betterbansystem.core.warn.WarnEntry;
 import we.github.mcdevstudios.betterbansystem.core.warn.WarnHandler;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,12 +41,12 @@ public class DelWarnCommand extends BaseCommand {
 
         IWarnEntry entry = WarnEntry.findEntry(UUIDFetcher.getUUIDOrOfflineUUID(target));
         if (entry == null) {
-            sender.sendMessage("§4There are no Entries for the Player " + target);
+            sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("delwarn.nowarns", Map.of("target", target)));
             return true;
         }
 
         WarnHandler.removeWarn(target, id);
-        sender.sendMessage("§aSuccessfully removed the WarnID " + id + " from user " + target);
+        sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("delwarn.success", Map.of("id", String.valueOf(id), "target", target)));
         return true;
     }
 }

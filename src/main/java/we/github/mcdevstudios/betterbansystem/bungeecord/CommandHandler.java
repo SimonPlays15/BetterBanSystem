@@ -50,7 +50,6 @@ public class CommandHandler {
                 }
 
             });
-            GlobalLogger.getLogger().trace("BungeeCord Plugin command registration for command: " + command.getCommandName());
         }
     }
 

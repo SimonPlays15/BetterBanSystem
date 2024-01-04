@@ -16,6 +16,7 @@ import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,18 +26,38 @@ public class UUIDFetcher {
     private static final String API_URL = "https://api.mojang.com/users/profiles/minecraft/";
     private static final ConcurrentMap<String, UUID> uuidCache = new ConcurrentHashMap<>();
     private static final File BIN_FILE = new File(BetterBanSystem.getInstance().getDataFolder(), "uuids.bin");
+    private static final File USERCACHE = new File("usercache.json");
+
+    public static void loadUsercacheJson() {
+        if (!USERCACHE.exists())
+            return;
+        Gson gson = new Gson();
+
+        try {
+            Reader reader = Files.newBufferedReader(USERCACHE.toPath());
+            Map<?, ?> map = gson.fromJson(reader, Map.class);
+            UUID uuid = UUID.fromString(map.get("uuid").toString());
+            String name = map.get("name").toString();
+            if (loadUUIDFromBin(name) == null)
+                saveUUIDToBin(name, uuid);
+        } catch (Exception ignored) {
+        }
+
+    }
 
     private static void saveUUIDToBin(String playername, UUID uuid) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(BIN_FILE, true))) {
-            Map<String, UUID> map = new ConcurrentHashMap<>();
-            map.put(playername, uuid);
-            oos.writeObject(map);
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(BIN_FILE, false))) {
+            if (!uuidCache.containsKey(playername))
+                uuidCache.put(playername, uuid);
+            oos.writeObject(uuidCache);
         } catch (Exception ex) {
             GlobalLogger.getLogger().error(ex.getMessage().trim().substring(0, 60) + "...");
         }
     }
 
     private static @Nullable UUID loadUUIDFromBin(String playername) {
+        if (uuidCache.containsKey(playername))
+            return uuidCache.get(playername);
         if (!BIN_FILE.exists()) {
             try {
                 BIN_FILE.createNewFile();
@@ -52,7 +73,7 @@ public class UUIDFetcher {
                     return map.get(playername);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return null;
     }
@@ -125,17 +146,9 @@ public class UUIDFetcher {
             return getUUID(playername);
         } catch (Exception ex) {
             UUID g = UUID.nameUUIDFromBytes(playername.getBytes());
-            StringBuilder realUuid = new StringBuilder();
-            for (int i = 0; i <= 31; i++) {
-                realUuid.append(g.toString().charAt(i));
-                if (i == 7 || i == 11 || i == 15 || i == 19) {
-                    realUuid.append("-");
-                }
-            }
-            UUID uuid = UUID.fromString(realUuid.toString());
-            uuidCache.put(playername, uuid);
-            saveUUIDToBin(playername, uuid);
-            return uuid;
+            uuidCache.put(playername, g);
+            saveUUIDToBin(playername, g);
+            return g;
         }
     }
 

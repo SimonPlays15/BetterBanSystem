@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.InvalidDescriptionException;
 import we.github.mcdevstudios.betterbansystem.api.files.BasePluginDescription;
+import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
 import we.github.mcdevstudios.betterbansystem.core.permissions.PermissionsManager;
 import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
@@ -114,7 +115,20 @@ public abstract class BaseCommand {
      * @param args   the arguments of the commands
      * @return a {@link List<String>}
      */
-    public List<String> onTabComplete(BaseCommandSender sender, String[] args) {
+    public List<String> onTabComplete(BaseCommandSender sender, String @NotNull [] args) {
+        if (args.length >= 1) {
+            List<String> a = new ArrayList<>();
+            if (RuntimeService.isSpigot()) {
+                for (org.bukkit.entity.Player onlinePlayer : org.bukkit.Bukkit.getOnlinePlayers()) {
+                    a.add(onlinePlayer.getName());
+                }
+            } else if (RuntimeService.isBungeeCord()) {
+                for (net.md_5.bungee.api.connection.ProxiedPlayer onlinePlayer : net.md_5.bungee.api.ProxyServer.getInstance().getPlayers()) {
+                    a.add(onlinePlayer.getName());
+                }
+            }
+            return a;
+        }
         return new ArrayList<>();
     }
 

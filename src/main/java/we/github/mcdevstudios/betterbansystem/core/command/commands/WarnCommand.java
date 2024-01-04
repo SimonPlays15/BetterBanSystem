@@ -11,6 +11,7 @@ import we.github.mcdevstudios.betterbansystem.core.player.BaseCommandSender;
 import we.github.mcdevstudios.betterbansystem.core.warn.WarnHandler;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class WarnCommand extends BaseCommand {
@@ -32,9 +33,9 @@ public class WarnCommand extends BaseCommand {
 
         Object targetPlayer = BetterBanSystem.getPlayer(target);
         if (targetPlayer != null)
-            BetterBanSystem.sendMessage(targetPlayer, "You have been warned");
+            BetterBanSystem.sendMessage(targetPlayer, BetterBanSystem.getInstance().getLanguageFile().getMessage("warn.playerMessage", Map.of("reason", reason)));
 
-        sender.sendMessage("Warned player " + target + " for reason: " + reason);
+        sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("warn.success", Map.of("target", target)));
 
         return true;
     }

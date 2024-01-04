@@ -39,7 +39,6 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
     private void registerCommands() {
         for (BaseCommand value : BetterBanSystem.getInstance().getCommandHandler().getCommands().values()) {
             Objects.requireNonNull(Bukkit.getPluginCommand(value.getCommandName())).setExecutor(this);
-            GlobalLogger.getLogger().trace("Bukkit Plugin command registration for command: " + value.getCommandName());
         }
     }
 
@@ -52,7 +51,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                 BaseCommand baseCommand = BetterBanSystem.getInstance().getCommandHandler().getCommands().get(command.getName().toLowerCase());
                 baseCommand.setLabel(label);
                 if (sender instanceof Player && !baseCommand.testPermission(commandSender)) {
-                    commandSender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("permissions_message"));
+                    commandSender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("defaults.permissionsMessage"));
                     GlobalLogger.getLogger().debug(sender.getName(), "tried to execute command " + command.getName() + " but has no permissions");
                     return true;
                 }

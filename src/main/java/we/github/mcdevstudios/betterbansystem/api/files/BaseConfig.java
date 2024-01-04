@@ -43,11 +43,9 @@ public class BaseConfig {
         Yaml yaml = b();
         try (InputStream stream = new FileInputStream(file)) {
             this.config = yaml.load(stream);
-            return;
         } catch (IOException ex) {
             GlobalLogger.getLogger().error("Failed to load configuration file", ex);
         }
-        this.config = new HashMap<>();
     }
 
     protected Yaml b() {

@@ -20,10 +20,11 @@ public class BanHandler {
     public BanHandler() {
     }
 
-    public static void addBan(@NotNull BaseCommandSender sender, @NotNull String target, String reason, Date expires) {
+    public static IBanEntry addBan(@NotNull BaseCommandSender sender, @NotNull String target, String reason, Date expires) {
         UUID targetUUID = UUIDFetcher.getUUIDOrOfflineUUID(target);
         IBanEntry banEntry = new BanEntry(targetUUID, target, sender.getName(), new Date(), getExpiryDate(expires), reason);
         addBanEntry(banEntry);
+        return banEntry;
     }
 
     public static void removeBan(String target) {
@@ -55,9 +56,10 @@ public class BanHandler {
      * @param reason    the reason for the ban
      * @param expires   the expiration date of the ban
      */
-    public static void addIpBan(@NotNull BaseCommandSender sender, String ipAddress, String reason, Date expires) {
+    public static IIPBanEntry addIpBan(@NotNull BaseCommandSender sender, String ipAddress, String reason, Date expires) {
         IPBanEntry entry = new IPBanEntry(ipAddress, sender.getName(), new Date(), getExpiryDate(expires), reason);
         addIpBanEntry(entry);
+        return entry;
     }
 
     private static void addIpBanEntry(IPBanEntry entry) {

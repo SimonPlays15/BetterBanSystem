@@ -1,10 +1,40 @@
-#
-# Non-specific messages
-#
-permissions_message: "&4You are not allowed to execute this command"
-player_is_offline: "The player {target} is &coffline"
-
-
+defaults:
+  exemptMessage: "&4The {targetType} {target} is exempted from {type}. If you really want to {type} the {targetType}, please use the console to execute the {type}"
+  permissionsMessage: "&4You are not allowed to execute this command"
+  playerOffline: "The player {target} is &coffline"
+  notBanned: "&c{target} is not banned"
+  warning: "&4Warning: The player {target} never visited the server before."
 # Command specific messages
-# kick command
-kick_message: "You kicked {target} from the server for: {reason}"
+ban:
+  alreadybanned: "&4The player {target} is already banned."
+  alreadyipbanned: "&4The IP {target} is already banned."
+  defaults:
+    banreason: "You have been banned from the server."
+    ipbanreason: "You have been IP-Banned from the server."
+    banSuccess: "&a{target} has been banned from the server."
+    timebanSuccess: "&a{target} has been banned from the server until {date}"
+unban:
+  unbanmessage: "&a{target} has been unbanned from the server."
+banlist:
+  nobans: "There are no banned {type}"
+mute:
+  alreadyMuted: "The player {target} is already muted."
+  playerMessage: "You have been muted until {date}"
+  reason: "No reason provided."
+  success: "Player {target} has been muted from the server until {date}"
+unmute:
+  notmuted: "{target} is not muted from the server."
+  playerMessage: "You have been unmuted"
+  success: "{target} has been unmuted from the server."
+kick:
+  success: "Kicked {target} from the server."
+  defaults:
+    reason: "No reason provided."
+warn:
+  playerMessage: "You have been warned!\nReason: {reason}"
+  success: "Player {target} warned"
+delwarn:
+  nowarns: "There are no entries for the Player {target}"
+  success: "Successfully removed the warn ID {id} from player {target}"
+# Event specific messages
+isMuted: "You cannot use commands or chat while you're muted."
