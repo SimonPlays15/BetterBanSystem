@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) MCDevStudios 2024. All Rights Reserved
+  ~ Copyright (c) SimonPlays15 2024. All Rights Reserved
   -->
 
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -8,9 +8,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>we.github.mcdevstudios.betterbansystem</groupId>
+    <groupId>me.github.simonplays15.betterbansystem</groupId>
     <artifactId>BetterBanSystem</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <developers>
         <developer>
             <name>SimonPlays15</name>
@@ -19,7 +19,6 @@
                     Head Developer
                 </role>
             </roles>
-            <organization>MCDevStudios</organization>
         </developer>
         <developer>
             <name>Blubo</name>
@@ -28,7 +27,6 @@
                     Head Developer
                 </role>
             </roles>
-            <organization>MCDevStudios</organization>
         </developer>
     </developers>
 

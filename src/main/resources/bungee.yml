@@ -1,0 +1,126 @@
+name: ${project.artifactId}
+authors: [ SimonPlays15, Blubo ]
+version: ${project.version}
+main: ${project.groupId}.bungeecord.BungeeCore
+description: It was never easier to ban a user
+prefix: ${project.artifactId}
+
+libraries:
+  - org.mongodb:mongodb-driver-sync:4.3.1
+  - org.jetbrains:annotations:23.0.0
+loadbefore:
+  - LuckPerms
+softdepend:
+  - LuckPerms
+commands:
+  banlist:
+    description: Look up the banned list of players or ips
+    permission: betterbansystem.commands.banlist
+    usage: "/<command> (players/ips)"
+  ban:
+    description: Bans a specific player
+    permission: betterbansystem.commands.ban
+    usage: "/<command> [player] (reason...)"
+  banip:
+    aliases:
+      - ban-ip
+      - ipban
+      - ip-ban
+    description: Ban a specific IP-Address
+    permission: betterbansystem.commands.banip
+    usage: /<command> [IP-Address] (reason...)
+  kick:
+    description: Kicks a specific player
+    permission: betterbansystem.commands.kick
+    usage: "/<command> [player] (reason...)"
+  lookup:
+    description: "Get information about yourself or other players or a players warns"
+    permission: betterbansystem.commands.lookup
+    usage: "/<command> (player) (listwarns)"
+  timeban:
+    description: Ban a player for a specific time
+    permission: betterbansystem.commands.timeban
+    usage: "/<command> [player] [TIME] (reason...)"
+  unban:
+    aliases:
+      - pardon
+    description: Unbans a player
+    permission: betterbansystem.commands.unban
+    usage: "/<command> [player] (reason...)"
+  unbanip:
+    aliases:
+      - ip-unban
+      - ipunban
+      - unban-ip
+      - pardon-ip
+      - pardonip
+    description: Unbans an IP-Address
+    permission: betterbansystem.commands.unbanip
+    usage: "/<command> [IP-Address] (reason...)"
+  warn:
+    description: Warn a specific player
+    permission: betterbansystem.commands.warn
+    usage: "/<command> [player] [reason]"
+  delwarn:
+    description: "Remove a warn from a specific player"
+    permission: betterbansystem.commands.delwarn
+    usage: "/<command> [player] [WarnID]"
+  mute:
+    description: "Mutes a player so he cannot chat anymore"
+    permission: betterbansystem.commands.mute
+    usage: "/<command> [player] [TIME] (reason...)"
+  unmute:
+    description: "Unmute a player so he can chat again"
+    permission: betterbansystem.commands.unmute
+    usage: "/<command> [player]"
+permissions:
+  betterbansystem.*:
+    default: op
+    description: "Gives complete access to this plugin"
+    children:
+      betterbansystem.commands.*: true
+      betterbansystem.exempt.*: true
+  betterbansystem.exempt.warn:
+    default: op
+    description: "Exempts player from warns"
+  betterbansystem.exempt.mute:
+    default: op
+    description: "Exempts player from mutes"
+  betterbansytem.exempt.ban:
+    default: op
+    description: "Exempts player from player bans"
+  betterbansystem.exempt.kick:
+    default: op
+    description: "Exempts player from kicks"
+  betterbansystem.exempt.*:
+    default: false
+    description: "Exempts player from all"
+    children:
+      betterbansystem.exempt.warn: true
+      betterbansystem.exempt.mute: true
+      betterbansystem.exempt.ban: true
+      betterbansystem.exempt.kick: true
+  betterbansystem.commands.*:
+    default: op
+    description: "Gives access to all commands that this plugin provides"
+    children:
+      betterbansystem.commands.ban: true
+      betterbansystem.commands.banip: true
+      betterbansystem.commands.delwarn: true
+      betterbansystem.commands.kick: true
+      betterbansystem.commands.lookup: true
+      betterbansystem.commands.lookup.other: true
+      betterbansystem.commands.timeban: true
+      betterbansystem.commands.unban: true
+      betterbansystem.commands.unbanip: true
+      betterbansystem.commands.warn: true
+      betterbansystem.commands.mute: true
+      betterbansystem.commands.unmute: true
+  betterbansystem.commands.lookup:
+    default: true
+    description: "Get Informations about yourself (like warns etc.)"
+  betterbansystem.commands.lookup.other:
+    default: false
+    description: "Get informations about other players with /lookup (player)"
+    children:
+      betterbansystem.commands.lookup: true
