@@ -4,24 +4,28 @@ package we.github.mcdevstudios.betterbansystem.core.permissions;
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
 
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import we.github.mcdevstudios.betterbansystem.api.exceptions.PermissionManagerLoadException;
 
-import java.util.Objects;
+public class VaultPermissionsSystem extends PermissionsManager {
 
-public class SpigotPermissionsHandler extends PermissionsManager {
+    private final Permission vaultPerms;
 
-    public SpigotPermissionsHandler() {
-        super(PermissionsHandlerType.SPIGOT);
+    public VaultPermissionsSystem() {
+        super(PermissionsHandlerType.VAULT);
+        RegisteredServiceProvider<Permission> rsp = Bukkit.getServer().getServicesManager().getRegistration(Permission.class);
+        if (rsp == null) {
+            throw new PermissionManagerLoadException("Vault permission system not found");
+        }
+        vaultPerms = rsp.getProvider();
     }
 
     private boolean lookUp(String playerName, String permission) {
-
-        if (Bukkit.getPlayer(playerName) != null) {
-            return Objects.requireNonNull(Bukkit.getPlayer(playerName)).hasPermission(permission);
-        }
-
+        vaultPerms.has(Bukkit.getPlayer(playerName), permission);
         return false;
     }
 
@@ -42,4 +46,5 @@ public class SpigotPermissionsHandler extends PermissionsManager {
     public boolean hasPermission(OfflinePlayer player) {
         return player.hasPlayedBefore() && player.isOp();
     }
+
 }

@@ -1,8 +1,8 @@
+package we.github.mcdevstudios.betterbansystem.core.permissions;
+
 /*
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
-
-package we.github.mcdevstudios.betterbansystem.core.permissions;
 
 import we.github.mcdevstudios.betterbansystem.api.exceptions.PermissionManagerLoadException;
 import we.github.mcdevstudios.betterbansystem.api.uuid.UUIDFetcher;
@@ -18,6 +18,7 @@ public class CloudNetPermissionsHandler extends PermissionsManager {
     private final Object INSTANCE;
 
     public CloudNetPermissionsHandler() throws PermissionManagerLoadException {
+        super(PermissionsHandlerType.CLOUDNET);
         try {
             Class<?> cloudnetPermManagement = Class.forName("de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement");
             getUserMethod = cloudnetPermManagement.getMethod("getUser", UUID.class);

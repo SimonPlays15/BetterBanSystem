@@ -21,7 +21,7 @@ database:
 #database:
 #  type: MYSQL | MONGODB
 #  hostname: 127.0.0.1
-#  port: 6636
+#  port: 3363
 #  user: username
 #  password: yoursupersecretpassword
 #  database: datbase_name
@@ -29,7 +29,7 @@ database:
 # The Permissionssystem the plugin should use to check for a players permissions
 # NOTE: Spigot & BungeeCord does not support offline user checks for permissions!
 permissions:
-  # Available Types: SPIGOT, LUCKPERMS, BUNGEECORD, CLOUDNET
+  # Available Types: SPIGOT, LUCKPERMS, BUNGEECORD, CLOUDNET, VAULT
   system: SPIGOT
 
 logging:
@@ -40,6 +40,7 @@ logging:
 # Exempted players (without giving the betterbansystem.exempt.ban permission)
 exempted-players: [ ]
 exempted-mute-players: [ ]
+exempted-warn-players: [ ]
 exempted-ips: [ ]
 
 mute:

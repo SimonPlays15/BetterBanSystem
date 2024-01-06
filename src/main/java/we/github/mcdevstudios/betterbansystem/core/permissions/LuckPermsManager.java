@@ -1,8 +1,8 @@
+package we.github.mcdevstudios.betterbansystem.core.permissions;
+
 /*
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
-
-package we.github.mcdevstudios.betterbansystem.core.permissions;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
@@ -24,6 +24,7 @@ public class LuckPermsManager extends PermissionsManager {
     private final LuckPerms luckPerms;
 
     public LuckPermsManager() throws PermissionManagerLoadException {
+        super(PermissionsHandlerType.LUCKPERMS);
         try {
             Class.forName("net.luckperms.api.LuckPerms");
         } catch (ClassNotFoundException e) {

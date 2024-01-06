@@ -1,8 +1,8 @@
+package we.github.mcdevstudios.betterbansystem.core.command.commands;
+
 /*
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
-
-package we.github.mcdevstudios.betterbansystem.core.command.commands;
 
 import we.github.mcdevstudios.betterbansystem.api.exceptions.CommandException;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
@@ -27,6 +27,12 @@ public class WarnCommand extends BaseCommand {
         }
 
         String target = args[0];
+        if (sender.isPlayer() && (this.getPermManager().hasPermission(target, "betterbansystem.exempt.warn") || BetterBanSystem.getInstance().getConfig().getStringList("exempted-warn-players").contains(target))) {
+            sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("defaults.exemptMessage", Map.of("targetType", "player", "target", target, "type", "warn")));
+            return true;
+        }
+
+
         String reason = args.length == 1 ? "No reason provided" : Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
 
         WarnHandler.addWarn(sender, target, reason);

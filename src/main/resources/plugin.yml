@@ -79,14 +79,27 @@ permissions:
     description: "Gives complete access to this plugin"
     children:
       betterbansystem.commands.*: true
-      betterbansystem.exempt.ban: true
-      betterbansystem.exempt.mute: true
+      betterbansystem.exempt.*: true
+  betterbansystem.exempt.warn:
+    default: op
+    description: "Exempts player from warns"
   betterbansystem.exempt.mute:
     default: op
     description: "Exempts player from mutes"
   betterbansytem.exempt.ban:
     default: op
     description: "Exempts player from player bans"
+  betterbansystem.exempt.kick:
+    default: op
+    description: "Exempts player from kicks"
+  betterbansystem.exempt.*:
+    default: false
+    description: "Exempts player from all"
+    children:
+      betterbansystem.exempt.warn: true
+      betterbansystem.exempt.mute: true
+      betterbansystem.exempt.ban: true
+      betterbansystem.exempt.kick: true
   betterbansystem.commands.*:
     default: op
     description: "Gives access to all commands that this plugin provides"

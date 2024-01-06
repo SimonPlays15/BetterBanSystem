@@ -1,8 +1,8 @@
+package we.github.mcdevstudios.betterbansystem.core;
+
 /*
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
-
-package we.github.mcdevstudios.betterbansystem.core;
 
 import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.Contract;
@@ -226,13 +226,13 @@ public class BetterBanSystem {
                 DriverType type = DriverType.valueOf(Objects.requireNonNull(this.config.getString("database.type")).toUpperCase());
                 if (type == DriverType.MYSQL) {
                     this.database = new CachedMySQLDatabase();
-                    this.database.connect(this.config.getString("database.hostname") + ":" + this.config.getInt("database.port") + "/" + this.config.getString("database.database"), this.config.getString("database.user"), this.config.getString("database.password"));
+                    this.database.connect(this.config.getString("database.hostname") + ":" + this.config.getInt("database.port") + "/betterbansystem", this.config.getString("database.user"), this.config.getString("database.password"));
                 } else if (type == DriverType.SQLITE) {
                     this.database = new CachedSQLiteDatabase();
                     this.database.connect(this.config.getString("database.dbFile"), null, null);
                 } else if (type == DriverType.MONGODB) {
                     this.database = new CachedMongoDBDatabase();
-                    this.database.connect(this.config.getString("database.hostname") + ":" + this.config.getInt("database.port") + "/" + this.config.getString("database.database"), this.config.getString("database.user"), this.config.getString("database.password"));
+                    this.database.connect(this.config.getString("database.hostname") + ":" + this.config.getInt("database.port") + "/betterbansystem", this.config.getString("database.user"), this.config.getString("database.password"));
                 }
                 if (this.database != null)
                     this.database.createDatabaseAndTables();
@@ -448,6 +448,8 @@ public class BetterBanSystem {
     public void loadPermissionsSystem(PermissionsHandlerType type) {
         try {
             this.manager = PermissionsManager.getHandler(type);
+            GlobalLogger.getLogger().info("Using the following PermissionSystem: " + this.manager.handlerType.name());
+            return;
         } catch (Exception e) {
             GlobalLogger.getLogger().error("Failed to get a permission manager. Falling back to default", e);
         }
@@ -455,6 +457,9 @@ public class BetterBanSystem {
             this.manager = new SpigotPermissionsHandler();
         else if (RuntimeService.isBungeeCord())
             this.manager = new BungeeCordDefaultHandler();
+
+        GlobalLogger.getLogger().info("Using the following PermissionSystem: " + this.manager.handlerType.name());
+
     }
 
     /**

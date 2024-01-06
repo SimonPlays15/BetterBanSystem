@@ -1,13 +1,14 @@
+package we.github.mcdevstudios.betterbansystem.core.permissions;
+
 /*
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
-
-package we.github.mcdevstudios.betterbansystem.core.permissions;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.api.exceptions.PermissionManagerLoadException;
 import we.github.mcdevstudios.betterbansystem.api.runtimeservice.RuntimeService;
+import we.github.mcdevstudios.betterbansystem.core.logging.GlobalLogger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,8 +22,11 @@ public abstract class PermissionsManager {
         Collections.addAll(availableTypes, PermissionsHandlerType.values());
     }
 
+    public PermissionsHandlerType handlerType;
+
     @Contract(pure = true)
-    public PermissionsManager() {
+    public PermissionsManager(PermissionsHandlerType handlerType) {
+        this.handlerType = handlerType;
     }
 
     /**
@@ -31,14 +35,28 @@ public abstract class PermissionsManager {
      */
     public static PermissionsManager getHandler(@NotNull PermissionsHandlerType type) throws PermissionManagerLoadException {
         PermissionsManager manager = null;
-
-        switch (type) {
-            case LUCKPERMS -> manager = new LuckPermsManager();
-            case SPIGOT -> manager = new SpigotPermissionsHandler();
-            case CLOUDNET -> manager = new CloudNetPermissionsHandler();
-            case BUNGEECORD -> manager = new BungeeCordDefaultHandler();
+        try {
+            switch (type) {
+                case LUCKPERMS -> manager = new LuckPermsManager();
+                case SPIGOT -> manager = new SpigotPermissionsHandler();
+                case CLOUDNET -> manager = new CloudNetPermissionsHandler();
+                case BUNGEECORD -> manager = new BungeeCordDefaultHandler();
+                case VAULT -> manager = new VaultPermissionsSystem();
+            }
+        } catch (PermissionManagerLoadException ex) {
+            GlobalLogger.getLogger().error("Failed to load the " + type.name() + "PermissionManager class. Using the default permissionshandler now.");
+            manager = (RuntimeService.isSpigot() ? new SpigotPermissionsHandler() : new BungeeCordDefaultHandler());
         }
 
+        if (manager == null) {
+            GlobalLogger.getLogger().error("Failed to load any of the available Permission Systems.", new RuntimeException("No permission system has been found!"));
+            manager = new PermissionsManager(PermissionsHandlerType.DEFAULT_PERMISSION_HANDLING) {
+                @Override
+                public boolean hasPermission(String playername, String permission) {
+                    return false;
+                }
+            };
+        }
         return manager;
     }
 

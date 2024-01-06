@@ -1,27 +1,18 @@
+<span style="color: #bf3939;">
+
 # Security Policy
 
-## Supported Versions
-
-Use this section to tell people about which versions of your project are currently being supported with security
-updates.
-
-| Version   | Supported |
-|-----------|-----------|
-| \> 1.20.2 | ❌         |
-| 1.20.2    | ✅         |
-| 1.20.1    | ✅         |
-| 1.20.0    | ✅         |
-| 1.19.4    | ✅         |
-| <1.19.4   | ✅         |
+</span>
 
 ## Reporting a Vulnerability
 
-We take security very seriously. If you have discovered a security issue with our plugin, we appreciate your help in
+We take security very seriously. If you have discovered a security issue with our plugin, we **appreciate** your help in
 disclosing it to us in a responsible manner.
 
 #### DO NOT CREATE AN ISSUE
 
-Do not create a GitHub issue if you find a security vulnerability. GitHub's issues are public, and it would publicly
+Do not create a **GitHub** issue if you find a security vulnerability. GitHub's issues are _public_, and it would
+publicly
 disclose the vulnerability.
 
 #### Reporting

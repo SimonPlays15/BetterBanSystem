@@ -1,3 +1,0 @@
-# Installation
-
-Content follows..

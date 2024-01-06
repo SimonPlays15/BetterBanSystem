@@ -1,8 +1,8 @@
+package we.github.mcdevstudios.betterbansystem.core.command.commands;
+
 /*
  * Copyright (c) MCDevStudios 2024. All Rights Reserved
  */
-
-package we.github.mcdevstudios.betterbansystem.core.command.commands;
 
 import org.jetbrains.annotations.NotNull;
 import we.github.mcdevstudios.betterbansystem.core.BetterBanSystem;
@@ -29,6 +29,11 @@ public class KickCommand extends BaseCommand {
         Object target = BetterBanSystem.getPlayer(targetString);
         if (target == null) {
             sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("defaults.playerOffline", Map.of("target", args[0])));
+            return true;
+        }
+
+        if (sender.isPlayer() && (this.getPermManager().hasPermission(targetString, "betterbansystem.exempt.kick"))) {
+            sender.sendMessage(BetterBanSystem.getInstance().getLanguageFile().getMessage("defaults.exemptMessage", Map.of("targetType", "player", "target", targetString, "type", "kick")));
             return true;
         }
 
