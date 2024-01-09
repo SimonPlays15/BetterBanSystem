@@ -26,6 +26,38 @@ database:
 #  password: yoursupersecretpassword
 #  database: datbase_name
 
+automod:
+  use: true
+  modules:
+    chat:
+      spamming:
+        maxMessages: 5
+        action: "WARN;DELETE"
+      duplicatedText:
+        use: false
+        action: "DELETE;MUTE!5min"
+      capslock:
+        use: true
+        action: WARN
+      links:
+        use: true
+        action: WARN
+      phishingLinks:
+        use: true
+        action: INSTANTBAN
+      badwords:
+        use: true
+        badWordList: [ ]
+        action: WARN
+warns:
+  autodelete:
+    use: true
+    time: 60
+    unit: MINUTES
+  actions:
+    - "3:MUTE:5min"
+
+
 # The Permissionssystem the plugin should use to check for a players permissions
 # NOTE: Spigot & BungeeCord does not support offline user checks for permissions!
 permissions:
@@ -46,3 +78,5 @@ exempted-ips: [ ]
 mute:
   blocked-commands:
     - me
+    - tell
+    - msg

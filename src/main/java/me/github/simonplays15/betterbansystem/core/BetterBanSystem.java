@@ -24,6 +24,9 @@ import me.github.simonplays15.betterbansystem.core.permissions.BungeeCordDefault
 import me.github.simonplays15.betterbansystem.core.permissions.PermissionsHandlerType;
 import me.github.simonplays15.betterbansystem.core.permissions.PermissionsManager;
 import me.github.simonplays15.betterbansystem.core.permissions.SpigotPermissionsHandler;
+import me.github.simonplays15.betterbansystem.core.player.BaseCommandSender;
+import me.github.simonplays15.betterbansystem.core.warn.WarnManager;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +52,21 @@ public class BetterBanSystem {
      * BetterBanSystem system = BetterBanSystem.getInstance();
      */
     private static BetterBanSystem instance;
-
+    /**
+     * This variable is used to cache an instance of the BaseCommandSender class.
+     * It is declared as private, static and volatile to ensure thread safety in a multi-threaded environment.
+     * The cachedSender variable is initially set to null and will be assigned an instance of the BaseCommandSender class when needed.
+     * <p>
+     * The BaseCommandSender class represents a command sender, such as a player or the console, that can execute commands in the plugin.
+     * <p>
+     * To access the cachedSender variable, use the appropriate getter method in the BetterBanSystem class.
+     * <p>
+     * Example usage:
+     * BaseCommandSender sender = BetterBanSystem.getConsoleSender();
+     * <p>
+     * Note: The example code is not included in the documentation to comply with the requirements.
+     */
+    private static volatile BaseCommandSender cachedSender = null;
     /**
      * Represents the folder where data is stored.
      */
@@ -178,7 +195,6 @@ public class BetterBanSystem {
      * Use the static methods to obtain an instance of a specific permissions' manager.
      */
     private PermissionsManager manager;
-
     /**
      * Private variable that holds the database object associated with the BetterBanSystem instance.
      */
@@ -211,13 +227,13 @@ public class BetterBanSystem {
         this.config = new BaseConfig();
         this.config.load(this.configFile);
         if (this.config.getBoolean("chat.usePrefix")) {
-            this.prefix = ChatColor.translateAlternateColorCodes('&', this.config.getString("chat.prefix", "§6[§$cBetterBanSystem§$6]§r "));
+            this.prefix = ChatColor.translateAlternateColorCodes('&', this.config.getString("chat.prefix", "§6[§cBetterBanSystem§$6]§r "));
         } else {
             this.prefix = "";
         }
 
         this.loadLanguage(this.config.getString("chat.language", "en_US"));
-        this.loadPermissionsSystem(PermissionsHandlerType.valueOf(this.config.getString("permissions.system", "SPIGOT").toUpperCase()));
+        this.loadPermissionsSystem(PermissionsHandlerType.valueOf(this.config.getString("permissions.system", RuntimeService.isSpigot() ? "SPIGOT" : "BUNGEECORD").toUpperCase()));
 
         this.commandHandler = new BaseCommandHandler();
 
@@ -243,6 +259,7 @@ public class BetterBanSystem {
         UUIDFetcher.loadUsercacheJson();
         new BanManager().start();
         new MuteManager().start();
+        new WarnManager().stop();
     }
 
     /**
@@ -258,56 +275,74 @@ public class BetterBanSystem {
     /**
      * Sends a message to a player.
      *
-     * @param player The player to send the message to. Can be an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
-     * @param string The message to send.
-     * @throws IllegalArgumentException If the player object is not an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     * @param player  The player object to send the message to. Must be an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer.
+     * @param message The message to send.
+     * @throws IllegalArgumentException If player object is not an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer.
      */
-    public static void sendMessage(@NotNull Object player, String string) {
-        string = getInstance().prefix + string;
-        if (player instanceof org.bukkit.entity.Player a) {
-            a.sendMessage(string);
-        } else if (player instanceof net.md_5.bungee.api.connection.ProxiedPlayer a) {
-            a.sendMessage(new TextComponent(string));
+    public static void sendMessage(@NotNull Object player, String message) {
+        message = getInstance().prefix + message;
+        if (player.getClass().getName().equals("org.bukkit.entity.Player")) {
+            try {
+                player.getClass().getMethod("sendMessage", String.class).invoke(player, message);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        } else if (player.getClass().getName().equals("net.md_5.bungee.api.connection.ProxiedPlayer")) {
+            try {
+                TextComponent textComponent = new TextComponent(message);
+                player.getClass().getMethod("sendMessage", TextComponent.class).invoke(player, textComponent);
+            } catch (ReflectiveOperationException ignored) {
+            }
         } else {
             throw new IllegalArgumentException("Player object is not an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer");
         }
     }
 
     /**
-     * Sends a message to a player.
+     * Send a message to a player. The message will be prefixed with the plugin's prefix.
+     * The player parameter can be an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer.
+     * If it is any other type, an IllegalArgumentException will be thrown.
      *
-     * @param player  The player object to send the message to. Must be an instance of either {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
-     * @param strings Variadic parameter of strings to send as messages. Each string will be sent as a separate message.
-     * @throws IllegalArgumentException If the player object is not an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     * @param player   The player object to send the message to.
+     * @param messages The messages to send. Each message will be sent separately.
+     *                 The messages will be prefixed with the plugin's prefix before sending.
+     * @throws IllegalArgumentException If the player object is not an instance of org.bukkit.entity.Player
+     *                                  or net.md_5.bungee.api.connection.ProxiedPlayer.
      */
-    public static void sendMessage(@NotNull Object player, String @NotNull ... strings) {
-        for (String string : strings) {
-            sendMessage(player, string);
+    public static void sendMessage(Object player, String @NotNull ... messages) {
+        for (String message : messages) {
+            sendMessage(player, message);
         }
     }
 
     /**
-     * Sends a message to a player.
+     * Sends a message to the specified player with the given TextComponent.
      *
-     * @param player    The player to send the message to. Can be an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
-     * @param component The {@link TextComponent} message to send.
-     * @throws IllegalArgumentException If the player object is not an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     * @param player    The player to send the message to.
+     * @param component The TextComponent message to send.
      */
-    public static void sendMessage(Object player, @NotNull TextComponent component) {
+    public static void sendMessage(@NotNull Object player, @NotNull TextComponent component) {
         component.setText(getInstance().getPrefix() + component.getText());
-        if (player instanceof org.bukkit.entity.Player a) {
-            a.spigot().sendMessage(component);
-        } else if (player instanceof net.md_5.bungee.api.connection.ProxiedPlayer a) {
-            a.sendMessage(component);
+        if (player.getClass().getName().equals("org.bukkit.entity.Player")) {
+            try {
+                Object spigot = player.getClass().getMethod("spigot").invoke(player);
+                spigot.getClass().getMethod("sendMessage", BaseComponent.class).invoke(spigot, component);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        } else if (player.getClass().getName().equals("net.md_5.bungee.api.connection.ProxiedPlayer")) {
+            try {
+                player.getClass().getMethod("sendMessage", BaseComponent.class).invoke(player, component);
+            } catch (ReflectiveOperationException ignored) {
+
+            }
         }
     }
 
     /**
-     * Sends a message or multiple messages to a player.
+     * Sends a message to a player with the given TextComponent(s).
      *
-     * @param player     The player to send the message to. Can be an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
-     * @param components The text components representing the messages to send.
-     * @throws IllegalArgumentException If the player object is not an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     * @param player     The player object to send the message to.
+     * @param components The TextComponents to send as the message.
+     * @throws NullPointerException If the player or any of the components is null.
      */
     public static void sendMessage(Object player, @NotNull TextComponent @NotNull ... components) {
         for (TextComponent component : components) {
@@ -318,80 +353,167 @@ public class BetterBanSystem {
 
     /**
      * Kicks a player from the server.
+     * The method first checks if the given player object is of type 'org.bukkit.entity.Player',
+     * in which case it uses reflection to invoke the 'kickPlayer' method on the player object
+     * with the given message parameter.
+     * If the player object is of type 'net.md_5.bungee.api.connection.ProxiedPlayer', it uses reflection
+     * to invoke the 'disconnect' method on the player object with a 'BaseComponent' object created
+     * from the message parameter.
+     * If the player object is of any other type, the method does nothing.
      *
-     * @param player The player to kick. It can be an instance of either {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
-     * @param string The kick message.
-     * @throws IllegalArgumentException If the player object is not an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer}.
+     * @param player  The player to be kicked. Must be of type 'org.bukkit.entity.Player'
+     *                or 'net.md_5.bungee.api.connection.ProxiedPlayer'.
+     * @param message The message to be displayed to the kicked player.
      */
-    public static void kickPlayer(@NotNull Object player, String string) {
-        if (player instanceof org.bukkit.entity.Player a) {
-            a.kickPlayer(string);
-        } else if (player instanceof net.md_5.bungee.api.connection.ProxiedPlayer a) {
-            a.disconnect(new TextComponent(string));
+    public static void kickPlayer(@NotNull Object player, String message) {
+        if (player.getClass().getName().equals("org.bukkit.entity.Player")) {
+            try {
+                player.getClass().getMethod("kickPlayer", String.class).invoke(player, message);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        } else if (player.getClass().getName().equals("net.md_5.bungee.api.connection.ProxiedPlayer")) {
+            try {
+                TextComponent textComponent = new TextComponent(message);
+                player.getClass().getMethod("disconnect", BaseComponent.class).invoke(player, textComponent);
+            } catch (ReflectiveOperationException ignored) {
+            }
         }
     }
 
     /**
-     * Returns the player with the given name.
+     * Retrieves the player object associated with the given player name. If the player is online, the player object will be returned. If the player is offline or cannot be found
+     * , null will be returned.
      *
-     * @param playername The name of the player.
-     * @return The player object if found, otherwise throws a RuntimeException.
-     * @throws RuntimeException If the correct runtime service cannot be loaded.
+     * @param playerName The name of the player to retrieve.
+     * @return The player object associated with the given name, or null if the player is offline or cannot be found.
      */
-    public static @Nullable Object getPlayer(@NotNull String playername) {
-        if (RuntimeService.isSpigot())
-            return org.bukkit.Bukkit.getPlayer(playername);
-        else if (RuntimeService.isBungeeCord())
-            return net.md_5.bungee.api.ProxyServer.getInstance().getPlayer(playername);
-
+    public static @Nullable Object getPlayer(@NotNull String playerName) {
+        if (RuntimeService.isSpigot()) {
+            try {
+                Class<?> bukkit = Class.forName("org.bukkit.Bukkit");
+                return bukkit.getMethod("getPlayer", String.class).invoke(null, playerName);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        } else if (RuntimeService.isBungeeCord()) {
+            try {
+                Class<?> proxyServer = Class.forName("net.md_5.bungee.api.ProxyServer");
+                Object instance = proxyServer.getMethod("getInstance").invoke(null);
+                return instance.getClass().getMethod("getPlayer", String.class).invoke(instance, playerName);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        }
         return null;
     }
 
     /**
-     * Gets the player object associated with the given UUID.
+     * Retrieves the player object associated with the given player ID.
      *
-     * @param uuid The UUID of the player.
-     * @return The player object.
-     * @throws RuntimeException If the correct runtime service cannot be loaded.
+     * @param playerId The ID of the player.
+     * @return The player object, or null if the player is not found.
      */
-    public static @Nullable Object getPlayer(@NotNull UUID uuid) {
-        if (RuntimeService.isSpigot())
-            return org.bukkit.Bukkit.getPlayer(uuid);
-        else if (RuntimeService.isBungeeCord())
-            return net.md_5.bungee.api.ProxyServer.getInstance().getPlayer(uuid);
-
+    public static @Nullable Object getPlayer(@NotNull UUID playerId) {
+        if (RuntimeService.isSpigot()) {
+            try {
+                Class<?> bukkit = Class.forName("org.bukkit.Bukkit");
+                return bukkit.getMethod("getPlayer", UUID.class).invoke(null, playerId);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        } else if (RuntimeService.isBungeeCord()) {
+            try {
+                Class<?> proxyServer = Class.forName("net.md_5.bungee.api.ProxyServer");
+                Object instance = proxyServer.getMethod("getInstance").invoke(null);
+                return instance.getClass().getMethod("getPlayer", UUID.class).invoke(instance, playerId);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        }
         return null;
     }
 
     /**
-     * Checks if the given player has played before.
+     * Checks if the specified player has played before.
      *
-     * @param offlinePlayer The player object to check.
-     * @return true if the player has played before, false otherwise.
-     * @throws IllegalArgumentException If the player object is not an instance of org.bukkit.OfflinePlayer or
-     *                                  net.md_5.bungee.api.connection.ProxiedPlayer.
+     * @param offlinePlayer The player to check.
+     * @return True if the player has played before, false otherwise.
+     * @throws IllegalArgumentException If the player object is not an instance of org.bukkit.OfflinePlayer or net.md_5.bungee.api.connection.ProxiedPlayer.
      */
-    public static boolean hasPlayedBefore(Object offlinePlayer) {
-        if (offlinePlayer instanceof org.bukkit.OfflinePlayer a) {
-            return a.hasPlayedBefore();
-        } else if (offlinePlayer instanceof net.md_5.bungee.api.connection.ProxiedPlayer) {
+    public static boolean hasPlayedBefore(@NotNull Object offlinePlayer) {
+        if (offlinePlayer.getClass().getName().equals("org.bukkit.OfflinePlayer")) {
+            try {
+                return (boolean) offlinePlayer.getClass().getMethod("hasPlayedBefore").invoke(offlinePlayer);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        } else if (offlinePlayer.getClass().getName().equals("net.md_5.bungee.api.connection.ProxiedPlayer")) {
             return true;
-        } else {
-            throw new IllegalArgumentException("Player object is not an instance of org.bukkit.OfflinePlayer or net.md_5.bungee.api.connection.ProxiedPlayer");
         }
+        throw new IllegalArgumentException("Player object is not an instance of org.bukkit.OfflinePlayer or net.md_5.bungee.api.connection.ProxiedPlayer");
     }
 
     /**
-     * Retrieves the offline player with the given UUID.
+     * Retrieves the {@link org.bukkit.OfflinePlayer} object associated with the given UUID.
      *
      * @param uuid The UUID of the player.
-     * @return The offline player object if found, otherwise null.
+     * @return The {@link org.bukkit.OfflinePlayer} object associated with the UUID,
+     * or null if the player does not exist or the runtime environment is not Spigot.
      */
     public static @Nullable Object getOfflinePlayer(UUID uuid) {
         if (RuntimeService.isSpigot()) {
-            return org.bukkit.Bukkit.getOfflinePlayer(uuid);
+            try {
+                Class<?> bukkit = Class.forName("org.bukkit.Bukkit");
+                return bukkit.getMethod("getOfflinePlayer", UUID.class).invoke(null, uuid);
+            } catch (ReflectiveOperationException ignored) {
+            }
         }
         return null;
+    }
+
+    /**
+     * Retrieves the console sender object based on the runtime environment.
+     *
+     * @return The console sender object.
+     * @throws RuntimeException If the Spigot or BungeeCord library cannot be found.
+     */
+    public static Object getConsole() {
+        if (RuntimeService.isSpigot()) {
+            try {
+                Class<?> bukkit = Class.forName("org.bukkit.Bukkit");
+                return bukkit.getMethod("getConsoleSender").invoke(null);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        } else if (RuntimeService.isBungeeCord()) {
+            try {
+                Class<?> proxyServer = Class.forName("net.md_5.bungee.api.ProxyServer");
+                Object instance = proxyServer.getMethod("getInstance").invoke(null);
+                return instance.getClass().getMethod("getConsole").invoke(instance);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        }
+
+        throw new RuntimeException("Failed to find the Spigot or BungeeCord library to get an CommandSender instance.");
+    }
+
+    /**
+     * Retrieves the console sender object for executing commands from the console.
+     *
+     * @return The console sender object.
+     * @throws IllegalArgumentException if the console object is not an instance of org.bukkit.command.CommandSender or net.md_5.bungee.api.CommandSender.
+     */
+    public static @NotNull BaseCommandSender getConsoleSender() {
+        Object console = getConsole();
+        if (RuntimeService.isSpigot() && console.getClass().getName().equals("org.bukkit.command.CommandSender")) {
+            try {
+                cachedSender = (BaseCommandSender) Class.forName("me.github.simonplays15.betterbansystem.core.player.SpigotCommandSender").getConstructor(console.getClass()).newInstance((console));
+            } catch (ReflectiveOperationException ignored) {
+            }
+        } else if (RuntimeService.isBungeeCord() && console.getClass().getName().equals("net.md_5.bungee.api.CommandSender")) {
+            try {
+                cachedSender = (BaseCommandSender) Class.forName("me.github.simonplays15.betterbansystem.core.player.BungeeCordCommandSender").getConstructor(console.getClass()).newInstance(console);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        }
+        if (cachedSender == null)
+            throw new IllegalArgumentException("Console object is not an instance of org.bukkit.command.CommandSender or net.md_5.bungee.api.CommandSender");
+
+        return cachedSender;
     }
 
     /**

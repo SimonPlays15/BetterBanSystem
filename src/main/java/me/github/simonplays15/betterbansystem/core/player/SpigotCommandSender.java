@@ -43,6 +43,18 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
             this.type = CommandSenderType.OTHER;
     }
 
+    public SpigotCommandSender(Object base) {
+        this.base = (CommandSender) base;
+        if (base instanceof Player)
+            this.type = CommandSenderType.PLAYER;
+        else if (base instanceof ConsoleCommandSender)
+            this.type = CommandSenderType.CONSOLE;
+        else if (base instanceof BlockCommandSender)
+            this.type = CommandSenderType.BLOCK;
+        else
+            this.type = CommandSenderType.OTHER;
+    }
+
     /**
      * Creates a new SpigotCommandSender object from a CommandSender object.
      *

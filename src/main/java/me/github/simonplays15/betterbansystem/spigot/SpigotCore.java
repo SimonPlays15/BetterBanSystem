@@ -17,8 +17,8 @@ public class SpigotCore extends JavaPlugin {
         BetterBanSystem core;
         try {
             core = new BetterBanSystem(this.getDataFolder());
-        } catch (RuntimeException e) {
-            GlobalLogger.getLogger().error(e);
+        } catch (NoClassDefFoundError | Exception e) {
+            GlobalLogger.getLogger().error("Failed to initialize BetterBanSystem:", e);
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }

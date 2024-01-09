@@ -68,6 +68,16 @@ public class GlobalLogger extends Logger {
         return instance == null ? new GlobalLogger("BetterBanSystem", true, true) : instance;
     }
 
+    /**
+     * Create GlobalLogger Instance with name "BetterBanSystem", debug: true, writeLogsToFile: false
+     *
+     * @return {@link GlobalLogger}
+     */
+    @Contract(" -> new")
+    public static @NotNull GlobalLogger getLogger(String name) {
+        return instance == null ? new GlobalLogger(name, true, true) : instance;
+    }
+
     @Contract("_ -> new")
     public static @NotNull GlobalLogger createNamedLogger(String name) {
         return instance == null ? new GlobalLogger(name) : instance;

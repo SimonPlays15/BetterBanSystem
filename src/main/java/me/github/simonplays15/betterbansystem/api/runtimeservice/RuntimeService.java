@@ -10,18 +10,19 @@ public class RuntimeService {
         try {
             Class.forName("org.bukkit.plugin.java.JavaPlugin");
             return true;
-        } catch (ClassNotFoundException e) {
-            return false;
+        } catch (ClassNotFoundException ignored) {
         }
+        return false;
     }
 
     public static boolean isBungeeCord() {
         try {
             Class.forName("net.md_5.bungee.api.plugin.Plugin");
             return true;
-        } catch (ClassNotFoundException e) {
-            return false;
+        } catch (ClassNotFoundException ignored) {
         }
+
+        return false;
     }
 
 }

@@ -47,7 +47,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
         GlobalLogger.getLogger().debug(sender.getName(), "executed command", command.getName() + "/" + label + "[" + String.join(", ", args) + "]");
         try {
             if (BetterBanSystem.getInstance().getCommandHandler().getCommands().containsKey(command.getName())) {
-                SpigotCommandSender commandSender = new SpigotCommandSender(sender);
+                SpigotCommandSender commandSender = SpigotCommandSender.of(sender);
                 BaseCommand baseCommand = BetterBanSystem.getInstance().getCommandHandler().getCommands().get(command.getName().toLowerCase());
                 baseCommand.setLabel(label);
                 if (sender instanceof Player && !baseCommand.testPermission(commandSender)) {
@@ -86,7 +86,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (BetterBanSystem.getInstance().getCommandHandler().getCommands().containsKey(command.getName())) {
-            SpigotCommandSender commandSender = new SpigotCommandSender(sender);
+            SpigotCommandSender commandSender = SpigotCommandSender.of(sender);
             BaseCommand baseCommand = BetterBanSystem.getInstance().getCommandHandler().getCommands().get(command.getName().toLowerCase());
             baseCommand.setLabel(label);
             if (sender instanceof Player && !baseCommand.testPermission(commandSender, baseCommand.getPermission())) {

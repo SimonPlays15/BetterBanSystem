@@ -5,6 +5,7 @@ package me.github.simonplays15.betterbansystem.api.uuid;
  */
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.github.simonplays15.betterbansystem.core.BetterBanSystem;
@@ -35,11 +36,14 @@ public class UUIDFetcher {
 
         try {
             Reader reader = Files.newBufferedReader(USERCACHE.toPath());
-            Map<?, ?> map = gson.fromJson(reader, Map.class);
-            UUID uuid = UUID.fromString(map.get("uuid").toString());
-            String name = map.get("name").toString();
-            if (loadUUIDFromBin(name) == null)
-                saveUUIDToBin(name, uuid);
+            JsonArray array = gson.fromJson(reader, JsonArray.class);
+            for (JsonElement map : array) {
+                JsonObject object = map.getAsJsonObject();
+                UUID uuid = UUID.fromString(object.get("uuid").getAsString());
+                String name = object.get("name").getAsString();
+                if (loadUUIDFromBin(name) == null)
+                    saveUUIDToBin(name, uuid);
+            }
         } catch (Exception ex) {
             GlobalLogger.getLogger().debug("Failed to load usercache", ex);
         }

@@ -29,6 +29,15 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
             this.type = CommandSenderType.CONSOLE;
     }
 
+    public BungeeCordCommandSender(Object sender) {
+        this.base = (CommandSender) sender;
+        if (sender instanceof ProxiedPlayer)
+            this.type = CommandSenderType.PLAYER;
+        else
+            this.type = CommandSenderType.CONSOLE;
+    }
+
+
     public static @NotNull BungeeCordCommandSender of(Object sender) {
         if (sender instanceof CommandSender)
             return new BungeeCordCommandSender((CommandSender) sender);
