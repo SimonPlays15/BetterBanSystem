@@ -3,6 +3,37 @@
 Welcome to the BetterBanSystem plugin!<br>
 It was never easier to ban, mute or warn a user
 
+<!-- TOC -->
+
+* [BetterBanSystem Plugin](#betterbansystem-plugin)
+    * [You have some suggestions, tips or additional functions?](#you-have-some-suggestions-tips-or-additional-functions)
+    * [Installation](#installation)
+    * [Supported Minecraft Spigot Versions](#supported-minecraft-spigot-versions)
+    * [Supported Minecraft BungeeCord Versions](#supported-minecraft-bungeecord-versions)
+    * [Report Issues ⚠️](#report-issues-)
+    * [How to use](#how-to-use)
+    * [Config Explanation](#config-explanation)
+        * [Chat settings](#chat-settings)
+        * [How to use the database tag?](#how-to-use-the-database-tag)
+        * [AutoMod](#automod)
+            * [The "action" Tag](#the-action-tag)
+            * [The Chat Modules](#the-chat-modules)
+                * [Examples](#examples)
+            * [Chat modules](#chat-modules)
+        * [Warn Settings](#warn-settings)
+        * [Permissions](#permissions)
+            * [Permission Handling](#permission-handling)
+            * [Plug-In Permissions](#plug-in-permissions)
+        * [How to exempt a Player from Bans, Warns or Mutes](#how-to-exempt-a-player-from-bans-warns-or-mutes)
+            * [Add a Player or IP-Address to the config](#add-a-player-or-ip-address-to-the-config)
+            * [Add the Permission to a Player or an IP-Address.](#add-the-permission-to-a-player-or-an-ip-address)
+
+<!-- TOC -->
+
+### You have some suggestions, tips or additional functions?
+
+Simply Join our discord [MCDevStudios](https://discord.gg/QWpsnKPC8W) and create a ticket and suggest your function
+
 ## Installation
 
 1. Download the Plug-In latest version from SpigotMC or of the release tab from Github.
@@ -10,6 +41,26 @@ It was never easier to ban, mute or warn a user
 3. Restart your server.
 4. After restarting the server, you can edit the config.yml file inside the generated
    Directory: `plugins/BetterBanSystem/`
+
+## Supported Minecraft Spigot Versions
+
+| Version   | Supported    |
+|-----------|--------------|
+| \> 1.20.2 | ❌ NOT TESTED |
+| 1.20.x    | ✅            |
+| 1.19.x    | ✅            |
+| < 1.12.2  | ❌ NOT TESTED |
+
+## Supported Minecraft BungeeCord Versions
+
+| Version      | Supported        |
+|--------------|------------------|
+| ALL VERSIONS | ❌ NOT TESTED YET |
+
+## Report Issues ⚠️
+
+Have you found a bug, a vulnerability, or have some other issues? Join our
+discord [MCDevStudios](https://discord.gg/QWpsnKPC8W) and create a ticket.
 
 ## How to use
 
@@ -187,7 +238,7 @@ Spamming"<br>
 
 </details>
 
-##### The Chat Modules
+#### The Chat Modules
 
 **!NOTE!** For the Chat Modules the standard action is `DELETE`. So the message will not be printed inside the chat if
 no `action` Tags are defined.<br>
@@ -416,27 +467,3 @@ You can also use one of the [Exempt Permissions](#permissions) to exempt a Playe
 **NOTE!**<br>
 If a player has the `betterbansystem.exempt.ban` permission he can get IP-Banned.<br>
 To add an IP-Address to the exempted list `exempted-ips`.
-
-### You have some suggestions, tips or additional functions?
-
-Simply Join our discord [MCDevStudios](https://discord.gg/QWpsnKPC8W) and create a ticket and suggest your function
-
-## Supported Minecraft Spigot Versions
-
-| Version   | Supported    |
-|-----------|--------------|
-| \> 1.20.2 | ❌ NOT TESTED |
-| 1.20.x    | ✅            |
-| 1.19.x    | ✅            |
-| < 1.12.2  | ❌ NOT TESTED |
-
-## Supported Minecraft BungeeCord Versions
-
-| Version      | Supported        |
-|--------------|------------------|
-| ALL VERSIONS | ❌ NOT TESTED YET |
-
-## Report Issues ⚠️
-
-Have you found a bug, a vulnerability, or have some other issues? Join our
-discord [MCDevStudios](https://discord.gg/QWpsnKPC8W) and create a ticket.
