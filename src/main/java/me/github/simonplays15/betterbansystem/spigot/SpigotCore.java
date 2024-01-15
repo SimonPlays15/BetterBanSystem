@@ -12,11 +12,29 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class SpigotCore extends JavaPlugin {
 
+    protected SpigotCore instance;
+
     public void onEnable() {
+        instance = this;
         GlobalLogger.getLogger().info("Enabling BetterBanSystem for Spigot");
         BetterBanSystem core;
         try {
-            core = new BetterBanSystem(this.getDataFolder());
+            core = new BetterBanSystem(this.getDataFolder()) {
+                /**
+                 * Retrieves the currently running plugin.
+                 *
+                 * @return The running plugin object.
+                 */
+                @Override
+                public Object getRunningPlugin() {
+                    return instance;
+                }
+
+                @Override
+                public void dispatchCommand(String command) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                }
+            };
         } catch (NoClassDefFoundError | Exception e) {
             GlobalLogger.getLogger().error("Failed to initialize BetterBanSystem:", e);
             Bukkit.getPluginManager().disablePlugin(this);

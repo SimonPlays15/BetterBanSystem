@@ -166,6 +166,13 @@ public class BaseConfig {
         return result;
     }
 
+    public List<String> getStringList(String path, List<String> def) {
+        List<?> list = this.getList(path, def);
+        if (list == null)
+            return new ArrayList<>(0);
+        return new ArrayList<>(def);
+    }
+
     public boolean contains(String path) {
         return this.config.containsKey(path);
     }

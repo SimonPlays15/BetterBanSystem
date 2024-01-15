@@ -31,31 +31,28 @@ automod:
   modules:
     chat:
       spamming:
+        use: true
         maxMessages: 5
-        action: "WARN;DELETE"
+        # Deletes the given message and warns the player if he ignored the warning message 3 times.
+        action: "DELETE;WARN!3:reason=Spamming"
       duplicatedText:
         use: false
-        action: "DELETE;MUTE!5min"
       capslock:
         use: true
-        action: WARN
       links:
         use: true
-        action: WARN
-      phishingLinks:
-        use: true
-        action: INSTANTBAN
       badwords:
         use: true
+        replaceWords: true
         badWordList: [ ]
-        action: WARN
 warns:
   autodelete:
     use: true
     time: 60
     unit: MINUTES
   actions:
-    - "3:MUTE:5min"
+    3: "mute %p 30min"
+    5: "timeban %p 1h"
 
 
 # The Permissionssystem the plugin should use to check for a players permissions

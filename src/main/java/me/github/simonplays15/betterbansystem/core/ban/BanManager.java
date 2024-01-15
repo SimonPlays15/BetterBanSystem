@@ -42,7 +42,6 @@ public class BanManager {
     }
 
     public void stop() {
-        GlobalLogger.getLogger().debug("Shutting Down BanManager Scheduler Service");
         scheduler.shutdown();
         try {
             if (scheduler.awaitTermination(5, TimeUnit.SECONDS)) {

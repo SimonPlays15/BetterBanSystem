@@ -21,24 +21,65 @@ The default config will look like this:
 
 ````yml
 chat:
-  prefix: '&6[&cBetterBanSystem&6]'
-  usePrefix: true
-  language: en_US
+  prefix: "&6[&cBetterBanSystem&6]"
+  language: "en_US"
+
 database:
   type: none
+
+automod:
+  use: true
+  modules:
+    chat:
+      spamming:
+        use: true
+        maxMessages: 5
+        action: "DELETE;WARN!3:reason=Spamming"
+      duplicatedText:
+        use: false
+      capslock:
+        use: true
+      links:
+        use: true
+      badwords:
+        use: true
+        replaceWords: true
+        badWordList: [ ]
+
+warns:
+  autodelete:
+    use: true
+    time: 60
+    unit: MINUTES
+  actions:
+    3: "mute %p 30min"
+    5: "timeban %p 1h"
+
 permissions:
   system: SPIGOT
+
 logging:
   logfile: true
   debug: false
+
 exempted-players: [ ]
 exempted-mute-players: [ ]
 exempted-warn-players: [ ]
 exempted-ips: [ ]
+
 mute:
   blocked-commands:
     - me
+    - tell
+    - msg
 ````
+
+## Config Explanation
+
+### Chat settings
+
+You can set your own Prefix for every Message. Simply edit the line `chat.prefix` to what you want.<br>
+If you don't want to print the prefix, simply edit the `chat.prefix` line to "none" or just leave it blank like `""`
 
 ### How to use the database tag?
 
@@ -75,6 +116,184 @@ You don't need to create the Database or the tables. If a connection to the MySQ
 will create the database and the needed tables on its own.
 
 </details>
+
+### AutoMod
+
+<details>
+<summary>Config Lines</summary>
+
+````yaml
+automod:
+  use: true
+  modules:
+    chat:
+      spamming:
+        use: true
+        maxMessages: 5
+        action: "DELETE;WARN!3:reason=Spamming"
+      duplicatedText:
+        use: false
+      capslock:
+        use: true
+      links:
+        use: true
+      badwords:
+        use: true
+        replaceWords: true
+        badWordList: [ ]
+````
+
+</details>
+
+Here you can find some AutoMod "modules" which you can enable or disable like you want. Even if you don't want to use
+the AutoMod system at all, simply change `automod.use` from `true` to `false`.<br>
+Inside the modules path you can find all modules this plug-in provides. (Currently for version 1.0 only the Chat
+module).<br>
+You can enable or disable the modules on its own. Just change the `true` value to `false`.<br>
+
+#### The "action" Tag
+
+The `action` tag defines what action the AutoMod should take for the specific module.<br>
+<details>
+<summary>Valid ActionTypes</summary>
+
+- `DELETE`
+    - Simply blocks the message from the player, so it will not be printed to the chat.
+- `WARN`
+    - Simply calls the "warn" Command from the console with the given parameters
+- `INSTANTBAN`
+    - Simply calls the "ban" Command from the console with the given parameters
+- `MUTE`
+    - Simply calls the "mute" Command from the console with the given parameters
+- `TIMEBAN`
+    - Simply calls the "timeban" Command from the console with the given parameters.
+
+</details>
+
+Every action is seperated with an `;` so it's quite simple to add more actions.<br>
+You can add an `!(number)` to every action like `DELETE!4`. This tells the AutoMod system that the Player has to
+execute
+the specific module four times before the execution.<br>
+The `WARN`, `INSTANTBAN`, `MUTE` and `TIMEBAN` actions having some more parameters they need.<br>
+So the `MUTE` action needs the `reason` and the `duration` parameters. For
+example: `"MUTE:reason=Stop spamming:duration=5min"`<br>
+So the Plug-In will execute the `MUTE` action which simply mutes the user for "5 minutes" and for the reason "Stop
+Spamming"<br>
+<details>
+<summary>Available Parameters</summary>
+
+- `REASON`
+- `DURATION`
+
+</details>
+
+##### The Chat Modules
+
+**!NOTE!** For the Chat Modules the standard action is `DELETE`. So the message will not be printed inside the chat if
+no `action` Tags are defined.<br>
+
+##### Examples
+
+<details>
+<summary>Examples</summary>
+
+```yaml
+automod:
+  use: true
+  modules:
+    chat:
+      spamming:
+        use: true
+        maxMessages: 5
+```
+
+If the player sends more than 5 messages in 4 seconds, he gets warned after 4 messages and then the messages gets
+blocked. Because the default action is `DELETE`.<br>
+
+```yaml
+automod:
+  use: true
+  modules:
+    chat:
+      spamming:
+        use: true
+        maxMessages: 5
+        action: "DELETE!2;WARN!3:reason=Spamming"
+```
+
+Now we set 2 actions. If the player sends more than 5 messages in 4 seconds, he gets warned after 4 messages.<br>
+If the player now sends more messages, the messages will only be deleted if the player exceeded the message limit 2
+times. Because of `DELETE!2`.
+
+The second action is that he gets warned, after 3 executions for the given reason "Spamming".
+
+Its quite simple or what do you think?
+
+</details>
+
+#### Chat modules
+
+<details>
+<summary>Spamming Module</summary>
+
+This module checks if the player sends a big amount of messages in a certain time (4 seconds).<br>
+With the `maxMessages` value you set the amount of messages the player needs to send in 4 seconds, then he gets firstly
+warned before the given actions will be taken.
+
+</details>
+
+<details>
+<summary>duplicatedText Module</summary>
+
+This module checks if the player sends 2 messages with the exact same content
+
+</details>
+
+<details>
+<summary>capslock Module</summary>
+
+This module checks if the sended player message is written in only CapsLock or the complete content of the message
+contains
+more than 70% uppercase letters.
+
+</details>
+
+<details>
+<summary>links Module</summary>
+
+This module checks if the sended player message contains a link.
+
+</details>
+
+<details>
+<summary>badwords Module</summary>
+
+This module checks if the sended player message contains bad words from the `badWordList`.
+
+If `replaceWords` is set to `true` the message will not be blocked, its just refactoring the given words into `*`.<br>
+If it's set to false, the message will be blocked by default. (if no `action` tag is set.)
+
+</details>
+
+### Warn Settings
+
+```yaml
+warns:
+  autodelete:
+    use: true
+    time: 60
+    unit: MINUTES
+  actions:
+    3: "mute %p 30min"
+    5: "timeban %p 1h"
+```
+
+Here you can set if player warns should be deleted after a certain time. (Like now after 60 Minutes 1 warn gets removed
+after the creation)<br>
+The "actions" are quite simple. After `3` warns the "mute" commands is getting executed or which command you like. Note
+that "%p" stands for the player name.<br>
+Currently for 3 warns an action is executing and for 5 warns. You can add more actions by simply adding more lines with
+the same schema.
 
 ### Permissions
 
@@ -128,7 +347,8 @@ Every permission starts with `betterbansystem.`
 - `betterbansystem.commands.*`
     - Grants the player the complete access to all commands
 - `betterbansystem.exempt.*`
-    - Grants the player the accessibility to exempt bans, kicks, warns and mutes (only from players).
+    - Grants the player the accessibility to exempt bans, kicks, warns, mutes (only from
+      players) and all AutoMod actions.
 
 <details>
 <summary> Command Permissions </summary>
@@ -169,12 +389,14 @@ Every permission starts with `betterbansystem.`
     - If a player has this permission he cannot get muted by a player. Only per Console.
 - `betterbansystem.exempt.warn`
     - If a player has this permission he cannot get warned by a player. Only per Console
-- `betterbansyste.exempt.kick`
+- `betterbansystem.exempt.kick`
     - If a player has this permission he cannot get kicked by a player. Only per console
+- `betterbansystem.exempt.automod`
+    - If a player has this permission he is exempted from all AutoMod actions
 
 </details>
 
-### How to exempt a Player from Bans, Warns or Muted
+### How to exempt a Player from Bans, Warns or Mutes
 
 #### Add a Player or IP-Address to the config
 

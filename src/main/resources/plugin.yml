@@ -80,6 +80,9 @@ permissions:
     children:
       betterbansystem.commands.*: true
       betterbansystem.exempt.*: true
+  betterbansystem.exempt.automod:
+    default: op
+    description: "Exempts player from AutoMod"
   betterbansystem.exempt.warn:
     default: op
     description: "Exempts player from warns"
@@ -100,6 +103,7 @@ permissions:
       betterbansystem.exempt.mute: true
       betterbansystem.exempt.ban: true
       betterbansystem.exempt.kick: true
+      betterbansystem.exempt.automod: true
   betterbansystem.commands.*:
     default: op
     description: "Gives access to all commands that this plugin provides"

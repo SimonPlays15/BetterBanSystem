@@ -45,7 +45,6 @@ public class MuteManager {
     }
 
     public void stop() {
-        GlobalLogger.getLogger().debug("Shutting Down MuteManager Scheduler Service");
         scheduler.shutdown();
         try {
             if (scheduler.awaitTermination(5, TimeUnit.SECONDS)) {

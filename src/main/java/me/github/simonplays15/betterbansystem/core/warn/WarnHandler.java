@@ -5,6 +5,8 @@ package me.github.simonplays15.betterbansystem.core.warn;
  */
 
 import me.github.simonplays15.betterbansystem.api.uuid.UUIDFetcher;
+import me.github.simonplays15.betterbansystem.core.BetterBanSystem;
+import me.github.simonplays15.betterbansystem.core.chat.ChatColor;
 import me.github.simonplays15.betterbansystem.core.player.BaseCommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,8 +19,8 @@ public class WarnHandler {
     /**
      * Adds a warning for a target player.
      *
-     * @param sender the sender of the warning
-     * @param target the name of the target player
+     * @param sender the command sender who issued the warning
+     * @param target the player name or UUID for which to add the warning
      * @param reason the reason for the warning
      */
     public static void addWarn(@NotNull BaseCommandSender sender, String target, String reason) {
@@ -27,8 +29,12 @@ public class WarnHandler {
         if (potentialWarnEntry == null)
             potentialWarnEntry = new WarnEntry(targetUUID, target, new ArrayList<>());
         potentialWarnEntry.addWarn(new Warn(WarnEntry.idGenerator.getAndIncrement(), sender.getName(), new Date(), reason));
-
         WarnEntry.saveToJson(potentialWarnEntry);
+        String commandString = BetterBanSystem.getInstance().getConfig().getString("warns.actions." + potentialWarnEntry.warns().size(), "");
+        if (!commandString.isEmpty()) {
+            commandString = commandString.replace("%p", target);
+            BetterBanSystem.getInstance().dispatchCommand(ChatColor.translateAlternateColorCodes('&', commandString));
+        }
     }
 
     /**

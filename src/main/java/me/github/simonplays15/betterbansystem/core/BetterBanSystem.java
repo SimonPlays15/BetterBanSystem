@@ -36,7 +36,7 @@ import java.io.File;
 import java.util.Objects;
 import java.util.UUID;
 
-public class BetterBanSystem {
+public abstract class BetterBanSystem {
 
     /**
      * The singleton instance of the BetterBanSystem class.
@@ -211,6 +211,7 @@ public class BetterBanSystem {
 
     public BetterBanSystem(File dataFolder) throws RuntimeException {
         instance = this;
+        UUIDFetcher.loadUsercacheJson();
         this.dataFolder = dataFolder;
         ResourceFile resourceFile = new ResourceFile(this.dataFolder);
 
@@ -226,10 +227,11 @@ public class BetterBanSystem {
         resourceFile.saveResource("language/en_US.yml", true);
         this.config = new BaseConfig();
         this.config.load(this.configFile);
-        if (this.config.getBoolean("chat.usePrefix")) {
-            this.prefix = ChatColor.translateAlternateColorCodes('&', this.config.getString("chat.prefix", "§6[§cBetterBanSystem§$6]§r "));
-        } else {
+        String configPrefix = this.config.getString("chat.prefix", "§6[§cBetterBanSystem§$6]§r");
+        if (configPrefix.isEmpty() || configPrefix.equalsIgnoreCase("none")) {
             this.prefix = "";
+        } else {
+            this.prefix = ChatColor.translateAlternateColorCodes('&', configPrefix);
         }
 
         this.loadLanguage(this.config.getString("chat.language", "en_US"));
@@ -256,10 +258,9 @@ public class BetterBanSystem {
                 GlobalLogger.getLogger().error("Failed to find database type", this.config.getString("database.type", "none").toUpperCase(), "going back to default file handling.", ex);
             }
         }
-        UUIDFetcher.loadUsercacheJson();
         new BanManager().start();
         new MuteManager().start();
-        new WarnManager().stop();
+        new WarnManager().start();
     }
 
     /**
@@ -281,19 +282,19 @@ public class BetterBanSystem {
      */
     public static void sendMessage(@NotNull Object player, String message) {
         message = getInstance().prefix + message;
-        if (player.getClass().getName().equals("org.bukkit.entity.Player")) {
+        if (RuntimeService.isSpigot()) {
             try {
                 player.getClass().getMethod("sendMessage", String.class).invoke(player, message);
             } catch (ReflectiveOperationException ignored) {
             }
-        } else if (player.getClass().getName().equals("net.md_5.bungee.api.connection.ProxiedPlayer")) {
+        } else if (RuntimeService.isBungeeCord()) {
             try {
                 TextComponent textComponent = new TextComponent(message);
                 player.getClass().getMethod("sendMessage", TextComponent.class).invoke(player, textComponent);
             } catch (ReflectiveOperationException ignored) {
             }
         } else {
-            throw new IllegalArgumentException("Player object is not an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer");
+            throw new IllegalArgumentException("Player object is not an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer. | Player object class: " + player.getClass());
         }
     }
 
@@ -315,34 +316,38 @@ public class BetterBanSystem {
     }
 
     /**
-     * Sends a message to the specified player with the given TextComponent.
+     * Sends a message to a player using the given text component.
      *
-     * @param player    The player to send the message to.
-     * @param component The TextComponent message to send.
+     * @param player    the player object to send the message to
+     * @param component the text component to send as the message
+     * @throws IllegalArgumentException if the player object is not an instance of org.bukkit.entity.Player
+     *                                  or net.md_5.bungee.api.connection.ProxiedPlayer
      */
     public static void sendMessage(@NotNull Object player, @NotNull TextComponent component) {
         component.setText(getInstance().getPrefix() + component.getText());
-        if (player.getClass().getName().equals("org.bukkit.entity.Player")) {
+        if (RuntimeService.isSpigot()) {
             try {
                 Object spigot = player.getClass().getMethod("spigot").invoke(player);
                 spigot.getClass().getMethod("sendMessage", BaseComponent.class).invoke(spigot, component);
             } catch (ReflectiveOperationException ignored) {
             }
-        } else if (player.getClass().getName().equals("net.md_5.bungee.api.connection.ProxiedPlayer")) {
+        } else if (RuntimeService.isBungeeCord()) {
             try {
                 player.getClass().getMethod("sendMessage", BaseComponent.class).invoke(player, component);
             } catch (ReflectiveOperationException ignored) {
 
             }
+        } else {
+            throw new IllegalArgumentException("Player object is not an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer. | Player object class: " + player.getClass());
         }
     }
 
     /**
-     * Sends a message to a player with the given TextComponent(s).
+     * Sends a message to a player using the given text components. Each component will be sent separately and will be prefixed with the plugin's prefix.
      *
-     * @param player     The player object to send the message to.
-     * @param components The TextComponents to send as the message.
-     * @throws NullPointerException If the player or any of the components is null.
+     * @param player     The player object to send the message to. Must be an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer.
+     * @param components The text components to send. Each component will be sent separately and will be prefixed with the plugin's prefix.
+     * @throws IllegalArgumentException If the player object is not an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer.
      */
     public static void sendMessage(Object player, @NotNull TextComponent @NotNull ... components) {
         for (TextComponent component : components) {
@@ -437,12 +442,12 @@ public class BetterBanSystem {
      * @throws IllegalArgumentException If the player object is not an instance of org.bukkit.OfflinePlayer or net.md_5.bungee.api.connection.ProxiedPlayer.
      */
     public static boolean hasPlayedBefore(@NotNull Object offlinePlayer) {
-        if (offlinePlayer.getClass().getName().equals("org.bukkit.OfflinePlayer")) {
+        if (RuntimeService.isSpigot()) {
             try {
                 return (boolean) offlinePlayer.getClass().getMethod("hasPlayedBefore").invoke(offlinePlayer);
             } catch (ReflectiveOperationException ignored) {
             }
-        } else if (offlinePlayer.getClass().getName().equals("net.md_5.bungee.api.connection.ProxiedPlayer")) {
+        } else if (RuntimeService.isBungeeCord()) {
             return true;
         }
         throw new IllegalArgumentException("Player object is not an instance of org.bukkit.OfflinePlayer or net.md_5.bungee.api.connection.ProxiedPlayer");
@@ -517,6 +522,20 @@ public class BetterBanSystem {
     }
 
     /**
+     * Dispatches a command to be executed.
+     *
+     * @param command The command to be executed.
+     */
+    public abstract void dispatchCommand(String command);
+
+    /**
+     * Retrieves the currently running plugin.
+     *
+     * @return The running plugin object.
+     */
+    public abstract Object getRunningPlugin();
+
+    /**
      * Retrieves the database object associated with the BetterBanSystem instance.
      *
      * @return The database object.
@@ -541,9 +560,9 @@ public class BetterBanSystem {
      */
     public String getPrefix() {
         if (this.prefix == null) {
-            return "§6[§cBetterBanSystem§6]§r ";
+            return "§6[§cBetterBanSystem§6]§r";
         }
-        return prefix + "§r ";
+        return prefix + "§r";
     }
 
     /**

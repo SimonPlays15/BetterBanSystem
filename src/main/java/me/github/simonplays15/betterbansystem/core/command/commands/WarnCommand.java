@@ -9,6 +9,7 @@ import me.github.simonplays15.betterbansystem.core.BetterBanSystem;
 import me.github.simonplays15.betterbansystem.core.command.BaseCommand;
 import me.github.simonplays15.betterbansystem.core.player.BaseCommandSender;
 import me.github.simonplays15.betterbansystem.core.warn.WarnHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -21,7 +22,7 @@ public class WarnCommand extends BaseCommand {
     }
 
     @Override
-    public boolean runCommand(BaseCommandSender sender, String[] args) throws CommandException {
+    public boolean runCommand(BaseCommandSender sender, String @NotNull [] args) throws CommandException {
         if (args.length == 0) {
             return false;
         }
