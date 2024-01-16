@@ -184,6 +184,8 @@ public class GlobalLogger extends Logger {
      * @see FileHandler#FileHandler(String, boolean)
      */
     private void configureFileHandler() throws IOException {
+        if (!this.writeLogsToFile)
+            return;
         if (new Date().equals(this.currentDate)) {
             return;
         } else {
@@ -317,7 +319,7 @@ public class GlobalLogger extends Logger {
         try {
             configureFileHandler();
         } catch (IOException e) {
-            System.err.println("[BetterBanSystem] " + e.getCause().getClass().getName() + ": " + e.getMessage());
+            System.err.println("[BetterBanSystem] Failed to create the FileHandler\n" + e);
         }
     }
 

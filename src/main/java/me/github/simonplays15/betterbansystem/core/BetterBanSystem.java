@@ -214,6 +214,8 @@ public abstract class BetterBanSystem {
     public BetterBanSystem(File dataFolder) throws RuntimeException {
         instance = this;
         this.dataFolder = dataFolder;
+        if (!this.dataFolder.exists())
+            this.dataFolder.mkdirs();
         UUIDFetcher.loadUsercacheJson();
         ResourceFile resourceFile = new ResourceFile(this.dataFolder);
 
