@@ -34,19 +34,22 @@ public class UUIDFetcher {
             return;
         Gson gson = new Gson();
 
+        Reader reader;
         try {
-            Reader reader = Files.newBufferedReader(USERCACHE.toPath());
-            JsonArray array = gson.fromJson(reader, JsonArray.class);
-            for (JsonElement map : array) {
-                JsonObject object = map.getAsJsonObject();
-                UUID uuid = UUID.fromString(object.get("uuid").getAsString());
-                String name = object.get("name").getAsString();
-                if (loadUUIDFromBin(name) == null)
-                    saveUUIDToBin(name, uuid);
-            }
-        } catch (Exception ex) {
-            GlobalLogger.getLogger().debug("Failed to load usercache", ex);
+            reader = Files.newBufferedReader(USERCACHE.toPath());
+        } catch (IOException e) {
+            GlobalLogger.getLogger().error("Failed to load Usercached UUIDs", e);
+            return;
         }
+        JsonArray array = gson.fromJson(reader, JsonArray.class);
+        for (JsonElement map : array) {
+            JsonObject object = map.getAsJsonObject();
+            UUID uuid = UUID.fromString(object.get("uuid").getAsString());
+            String name = object.get("name").getAsString();
+            if (loadUUIDFromBin(name) == null)
+                saveUUIDToBin(name, uuid);
+        }
+
 
     }
 

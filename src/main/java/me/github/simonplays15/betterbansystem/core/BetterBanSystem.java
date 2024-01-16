@@ -211,8 +211,8 @@ public abstract class BetterBanSystem {
 
     public BetterBanSystem(File dataFolder) throws RuntimeException {
         instance = this;
-        UUIDFetcher.loadUsercacheJson();
         this.dataFolder = dataFolder;
+        UUIDFetcher.loadUsercacheJson();
         ResourceFile resourceFile = new ResourceFile(this.dataFolder);
 
         if (RuntimeService.isSpigot())
@@ -227,6 +227,10 @@ public abstract class BetterBanSystem {
         resourceFile.saveResource("language/en_US.yml", true);
         this.config = new BaseConfig();
         this.config.load(this.configFile);
+
+        GlobalLogger.getLogger().setDebug(config.getBoolean("logging.debug", false));
+        GlobalLogger.getLogger().setWriteLogsToFile(config.getBoolean("logging.logfile", false));
+
         String configPrefix = this.config.getString("chat.prefix", "§6[§cBetterBanSystem§$6]§r");
         if (configPrefix.isEmpty() || configPrefix.equalsIgnoreCase("none")) {
             this.prefix = "";

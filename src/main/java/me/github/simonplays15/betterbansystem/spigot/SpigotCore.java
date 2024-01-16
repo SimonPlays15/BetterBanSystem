@@ -16,7 +16,6 @@ public class SpigotCore extends JavaPlugin {
 
     public void onEnable() {
         instance = this;
-        GlobalLogger.getLogger().info("Enabling BetterBanSystem for Spigot");
         BetterBanSystem core;
         try {
             core = new BetterBanSystem(this.getDataFolder()) {
@@ -40,6 +39,7 @@ public class SpigotCore extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
+        GlobalLogger.getLogger().info("Enabling BetterBanSystem for Spigot");
         core.saveConfig();
         new CommandHandler();
         new EventManager(this);
