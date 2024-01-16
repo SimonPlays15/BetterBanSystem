@@ -37,9 +37,10 @@ Simply Join our discord [MCDevStudios](https://discord.gg/QWpsnKPC8W) and create
 ## Installation
 
 1. Download the Plug-In latest version from SpigotMC or of the release tab from Github.
-2. After downloading, move the Plug-In into your `plugins` folder of your Minecraft Server.<br>
-3. Restart your server.
-4. After restarting the server, you can edit the config.yml file inside the generated
+2. After downloading, move the Plug-In into your `plugins` folder of your Minecraft Server
+3. If you already downloaded a version, make sure to delete the old release file.
+4. Restart your server.
+5. After restarting the server, you can edit the config.yml file inside the generated
    Directory: `plugins/BetterBanSystem/`
 
 ## Supported Minecraft Spigot Versions

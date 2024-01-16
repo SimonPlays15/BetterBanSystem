@@ -65,6 +65,15 @@
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.9.1</version>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                    <doclint>none</doclint>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <reporting>
