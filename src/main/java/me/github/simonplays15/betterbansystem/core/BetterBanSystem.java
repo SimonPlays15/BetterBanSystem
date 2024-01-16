@@ -35,6 +35,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public abstract class BetterBanSystem {
 
@@ -265,6 +267,14 @@ public abstract class BetterBanSystem {
         new BanManager().start();
         new MuteManager().start();
         new WarnManager().start();
+
+        new Updater().getVersion(version -> {
+            if (!this.getPluginDescription().getVersion().equals(version))
+                CompletableFuture.delayedExecutor(4, TimeUnit.SECONDS).execute(() -> {
+                    GlobalLogger.getLogger().info("A new update is available for BetterBanSystem: v" + version);
+                });
+        });
+
     }
 
     /**
