@@ -22,14 +22,59 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Represents a warning entry for a player.
+ */
 public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWarnEntry {
+    /**
+     * The idGenerator variable is an AtomicInteger that is used for generating unique IDs for warnings.
+     * It is declared as public, static, and final, which means that it is a constant variable and can be accessed without creating an instance of its containing class.
+     * <p>
+     * idGenerator is an instance of the AtomicInteger class, which provides atomic operations for integers. This allows multiple threads to safely increment and retrieve the current
+     * value of the generator without conflicts or data races.
+     * <p>
+     * The initial value of the generator is 1.
+     * <p>
+     * Example usage:
+     * <p>
+     * int id = idGenerator.getAndIncrement();
+     * <p>
+     * This code snippet gets the current value of idGenerator and then increments it atomically. The returned value is stored in the "id" variable.
+     */
     public static final AtomicInteger idGenerator = new AtomicInteger(1);
+    /**
+     * The variable gson is an instance of the Gson class. Gson is a library used for JSON serialization and deserialization in Java.
+     * It is used to convert Java objects to JSON representations and vice versa.
+     */
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss Z").registerTypeAdapter(IWarnEntry.class, new IWarnEntryAdapter()).create();
+    /**
+     * Represents the file for storing warning entries for players.
+     * The file is used to store player warnings in JSON format.
+     * <p>
+     * This file is used by the WarnEntry class to load and save warning entries.
+     */
     private static final File file = new File("player-warns.json");
+    /**
+     * Represents a SimpleDateFormat object with the following pattern: "yyyy-MM-dd HH:mm:ss Z".
+     * Uses the US locale for formatting and parsing dates.
+     * This format is used for parsing and formatting dates in the warning system.
+     */
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
+    /**
+     * The variable WARNED_PLAYERS_TABLENAME represents the name of the table
+     * in the database that stores information about warned players.
+     */
     private static final String WARNED_PLAYERS_TABLENAME = "warnedplayers";
+    /**
+     * Represents the table name for storing player warns.
+     */
     private static final String PLAYER_WARNS_TABLENAME = "warns";
 
+    /**
+     * Checks if the specified file exists, and if it doesn't, creates a new file.
+     * If the file is created successfully, a log message will be logged indicating the creation
+     * of the file. Any IOException that occurs during the file creation process will be logged as an error.
+     */
     public WarnEntry {
         if (!file.exists()) {
             try {
@@ -42,6 +87,13 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
         }
     }
 
+    /**
+     * Converts a map representation of a warning into a Warn object.
+     *
+     * @param map the map representation of a warning
+     * @return the converted Warn object
+     * @throws RuntimeException if the map contains invalid data or an error occurs during parsing
+     */
     @Contract("_ -> new")
     private static @NotNull Warn convertMapToWarn(Map<String, Object> map) {
         Map<String, Object> warnMap = new HashMap<>();
@@ -58,6 +110,11 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
         }
     }
 
+    /**
+     * Saves a WarnEntry to a JSON file.
+     *
+     * @param entry The WarnEntry to be saved.
+     */
     public static void saveToJson(IWarnEntry entry) {
         if (BetterBanSystem.getInstance().getDatabase() != null) {
             List<Map<String, Object>> existingEntry = BetterBanSystem.getInstance().getDatabase().select(WARNED_PLAYERS_TABLENAME, "uuid = '" + entry.uuid().toString() + "'");
@@ -117,10 +174,20 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
         }
     }
 
+    /**
+     * Removes the specified warning entry from the system.
+     *
+     * @param entry the warning entry to be removed
+     */
     public static void removeEntry(@NotNull IWarnEntry entry) {
         removeFromJson(entry.uuid());
     }
 
+    /**
+     * Removes the specified UUID from the JSON file.
+     *
+     * @param target The UUID to remove from the JSON file.
+     */
     public static void removeFromJson(UUID target) {
         if (BetterBanSystem.getInstance().getDatabase() != null) {
             BetterBanSystem.getInstance().getDatabase().delete(WARNED_PLAYERS_TABLENAME, "uuid", target.toString());
@@ -158,6 +225,11 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
         }
     }
 
+    /**
+     * Retrieves all the warning entries.
+     *
+     * @return a list of IWarnEntry objects representing the warning entries
+     */
     public static @NotNull List<IWarnEntry> getAllEntries() {
         if (BetterBanSystem.getInstance().getDatabase() != null) {
             List<Map<String, Object>> potentialEntries = BetterBanSystem.getInstance().getDatabase().selectAll(WARNED_PLAYERS_TABLENAME);
@@ -205,6 +277,12 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
         return entries;
     }
 
+    /**
+     * Finds the warning entry with the specified UUID.
+     *
+     * @param targetUUID the UUID of the warning entry to find
+     * @return the warning entry with the specified UUID, or null if not found
+     */
     public static IWarnEntry findEntry(UUID targetUUID) {
         List<IWarnEntry> entries = getAllEntries();
         return entries.stream()
@@ -213,15 +291,36 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
                 .orElse(null);
     }
 
+    /**
+     * Adds a warning to the warn entry.
+     *
+     * @param warn the warning to be added
+     */
     public void addWarn(Warn warn) {
         this.warns.add(warn);
     }
 
+    /**
+     * Removes a warning with the specified ID from the warn entry.
+     *
+     * @param id the ID of the warning to remove
+     * @return true if the warning is successfully removed, false otherwise
+     */
     public boolean removeWarn(int id) {
         return this.warns.removeIf(warn -> warn.id() == id);
     }
 
+    /**
+     * The IWarnEntryAdapter class is a TypeAdapter for serializing and deserializing IWarnEntry objects to and from JSON.
+     */
     public static class IWarnEntryAdapter extends TypeAdapter<IWarnEntry> {
+        /**
+         * Writes an IWarnEntry object to JSON using a JsonWriter.
+         *
+         * @param writer The JsonWriter object to write to.
+         * @param entry  The IWarnEntry object to write.
+         * @throws IOException if an I/O error occurs while writing to the JsonWriter.
+         */
         @Override
         public void write(@NotNull JsonWriter writer, @NotNull IWarnEntry entry) throws IOException {
             writer.beginObject();
@@ -240,6 +339,13 @@ public record WarnEntry(UUID uuid, String name, List<Warn> warns) implements IWa
             writer.endObject();
         }
 
+        /**
+         * Reads a JSON representation of a warning entry and converts it into an IWarnEntry object.
+         *
+         * @param reader The JSON reader to read the input from.
+         * @return An IWarnEntry object representing the deserialized warning entry.
+         * @throws IOException If an I/O error occurs while reading the JSON data.
+         */
         @Override
         public IWarnEntry read(@NotNull JsonReader reader) throws IOException {
             UUID uuid = null;

@@ -19,8 +19,15 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * The BanCommand class represents a command for banning a player in the system.
+ * It extends the BaseCommand class.
+ */
 public class BanCommand extends BaseCommand {
 
+    /**
+     * Instantiates a new Ban command
+     */
     public BanCommand() {
         super("ban");
     }

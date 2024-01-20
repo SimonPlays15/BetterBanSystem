@@ -16,79 +16,58 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.*;
 
+/**
+ * The GlobalLogger class provides a global logger instance that can be used to log messages to the console or to log files.
+ * It extends the Logger class.
+ */
 public class GlobalLogger extends Logger {
     /**
-     * The LOG_FOLDER variable represents the directory location where the log files are stored.
-     * It is a private, static, and final string variable whose value cannot be modified once set.
-     * <p>
-     * The log folder path is set to "plugins/BetterBanSystem/logs/".
-     * This is the default location where the log files for the BetterBanSystem plugin are stored.
-     * It is recommended to keep the log files organized and easily accessible in this folder.
-     * <p>
-     * Note that the value of LOG_FOLDER should not be modified without careful consideration,
-     * as it may result in incorrect file paths and potential errors in the functionality of the plugin.
-     *
-     * @since 1.0
+     * The LOG_FOLDER variable represents the folder path for the log files.
+     * It is a private static final String and its value is "plugins/BetterBanSystem/logs/".
      */
     private static final String LOG_FOLDER = "plugins/BetterBanSystem/logs/";
     /**
-     * Represents a global logger instance.
-     * <p>
-     * This class provides a singleton instance of the logger, allowing for a single logger
-     * instance to be accessed and used throughout the application.
-     * <p>
-     * The logger instance is private and can only be accessed within the class itself.
-     * <p>
-     * Usage:
-     * GlobalLogger logger = GlobalLogger.getInstance();
-     * logger.log("This is a log message.");
      *
-     * @see Logger
      */
     private static GlobalLogger instance;
     /**
-     * Represents the debugging mode of the software.
-     * If it set to true, every debugging message is printed to the console.
+     *
      */
     private boolean debug;
     /**
-     * Determines whether logs should be written to a file.
-     * Default value is false.
+     *
      */
     private boolean writeLogsToFile;
     /**
-     * Holds the reference to the private FileHandler object.
-     * <p>
-     * The fileHandler variable is used to manage file access and perform operations such as reading, writing, and manipulating files.
-     * It provides a convenient way to interact with files in the system.
-     * <p>
-     * This variable is private to ensure encapsulation and to maintain data integrity.
-     * It should only be accessed and modified through the provided getter and setter methods.
-     * <p>
-     * Usage example:
-     * <p>
-     * // Create a new FileHandler instance using a specified file path
-     * FileHandler = new FileHandler("path/to/file.txt");
-     * <p>
-     * // Perform file operations using the fileHandler object
-     * fileHandler.read(); // Read the content of the file
-     * fileHandler.write("Hello, World!"); // Write content to the file
-     * fileHandler.append("Goodbye!"); // Append content to the file
-     * <p>
-     * This documentation provides a general understanding of the purpose and usage of the fileHandler variable,
-     * which helps developers effectively utilize it in their code.
+     * This class represents a FileHandler for writing log messages to a file.
+     * It is used in the GlobalLogger class to handle file logging if enabled.
      */
     private FileHandler fileHandler;
     /**
-     * Private variable representing the current date.
+     * The currentDate variable represents the current date and time when the GlobalLogger object is created.
+     * It is used to track the date changes for logging purposes.
      */
     private Date currentDate;
 
 
     /**
-     * A global logger class for logging messages to the console or to log files.
-     *
-     * @param loggerName The name of the logger.
+     * GlobalLogger class is responsible for creating and configuring a global logger instance.
+     * It provides logging functionality at different log levels and supports logging to both console and file.
+     * <p>
+     * Usage:
+     * GlobalLogger logger = new GlobalLogger(loggerName, debug, writeLogsToFile);
+     * <p>
+     * Parameters:
+     * - loggerName: The name of the logger.
+     * - debug: Flag to enable/disable debug mode. Default is false.
+     * - writeLogsToFile: Flag to enable/disable writing logs to file. Default is false.
+     * <p>
+     * Example usage:
+     * GlobalLogger logger = new GlobalLogger("MyLogger", true, true);
+     * logger.info("This is an information message");
+     * logger.error("This is an error message");
+     * <p>
+     * Note: The class inherits from java.util.logging.Logger class.
      */
     public GlobalLogger(String loggerName) {
         this(loggerName, false, false);
@@ -156,7 +135,12 @@ public class GlobalLogger extends Logger {
     }
 
     /**
+     * Creates a named logger instance or returns the existing global logger instance.
      *
+     * @param name            the name of the logger
+     * @param debug           a boolean indicating if debug mode is enabled
+     * @param writeLogsToFile a boolean indicating if logs should be written to a file
+     * @return the global logger instance
      */
     @Contract("_, _, _ -> new")
     public static @NotNull GlobalLogger createNamedLogger(String name, boolean debug, boolean writeLogsToFile) {
@@ -164,7 +148,11 @@ public class GlobalLogger extends Logger {
     }
 
     /**
+     * Creates a log folder if it does not already exist.
+     * <p>
+     * This method is responsible for creating the log folder at the specified location.
      *
+     * @throws IOException If an I/O error occurs while creating the log folder.
      */
     private void createLogFolder() {
         Path logFolderPath = Paths.get(LOG_FOLDER);
@@ -178,10 +166,9 @@ public class GlobalLogger extends Logger {
     }
 
     /**
-     * Configures the file handler for logging.
+     * Configures the file handler for writing logs to a file.
      *
-     * @throws IOException if an error occurs while creating the file handler
-     * @see FileHandler#FileHandler(String, boolean)
+     * @throws IOException if an I/O error occurs while configuring the file handler
      */
     private void configureFileHandler() throws IOException {
         if (!this.writeLogsToFile)
@@ -205,12 +192,7 @@ public class GlobalLogger extends Logger {
     }
 
     /**
-     * Destroys the logger instance.
-     * If the logger instance is already null, the method does nothing.
-     * Otherwise,
-     * it sets the logger instance to null and logs a debug message
-     * indicating that the logger has been destroyed.
-     * It also closes all the associated log handlers.
+     * Destroys the logger, closing all handlers and cleaning up resources.
      */
     public void destroyLogger() {
         if (instance == null)
@@ -223,25 +205,25 @@ public class GlobalLogger extends Logger {
     }
 
     /**
-     * Logs a fatal level message with the specified arguments.
+     * Logs a message at the FATAL level.
      *
-     * @param args the arguments to be logged
+     * @param args the objects to include in the log message
      */
     public void fatal(Object... args) {
         this.log(LogLevel.FATAL, args);
     }
 
     /**
-     * Logs the given information with LogLevel.INFO.
+     * Logs an informational message.
      *
-     * @param args The objects to be logged.
+     * @param args the message arguments
      */
     public void info(Object... args) {
         this.log(LogLevel.INFO, args);
     }
 
     /**
-     * Logs an information message.
+     * Logs an informational message with the given message.
      *
      * @param msg The message to log.
      */
@@ -260,7 +242,9 @@ public class GlobalLogger extends Logger {
     }
 
     /**
+     * Debug method.
      *
+     * @param args The objects to be logged. Can be multiple.
      */
     public void debug(Object... args) {
         if (this.debug)
@@ -268,9 +252,9 @@ public class GlobalLogger extends Logger {
     }
 
     /**
-     * Logs an error message with the provided arguments.
+     * Logs an error message.
      *
-     * @param args The arguments to be logged.
+     * @param args the error message arguments
      */
     public void error(Object... args) {
         this.log(LogLevel.ERROR, args);
@@ -286,9 +270,9 @@ public class GlobalLogger extends Logger {
     }
 
     /**
-     * Displays a warning message.
+     * Logs a warning message.
      *
-     * @param string the warning message to be displayed
+     * @param string the warning message to be logged
      */
     @Override
     public void warning(String string) {
@@ -324,7 +308,10 @@ public class GlobalLogger extends Logger {
     }
 
     /**
+     * Builds a stack trace string.
      *
+     * @param throwable the {@code Throwable} to build the stack trace from
+     * @return a {@code String} representing the stack trace
      */
     @Contract(pure = true)
     private @NotNull String buildStackTrace(Throwable throwable) {
@@ -356,9 +343,9 @@ public class GlobalLogger extends Logger {
     }
 
     /**
-     * Sets the debug mode for the application.
+     * Sets the debug mode for the GlobalLogger.
      *
-     * @param debug the boolean value to indicate whether to enable debug mode or not
+     * @param debug The boolean value indicating whether debug mode should be enabled or not.
      */
     public void setDebug(boolean debug) {
         this.debug = debug;
@@ -367,7 +354,7 @@ public class GlobalLogger extends Logger {
     /**
      * Determines whether to write log files.
      *
-     * @return True if log files should be written, otherwise False.
+     * @return {@code true} if log files should be written, otherwise {@code false}.
      */
     public boolean writeLogFiles() {
         return writeLogsToFile;
@@ -376,8 +363,7 @@ public class GlobalLogger extends Logger {
     /**
      * Sets the flag for writing logs to a file.
      *
-     * @param writeLogsToFile if true, logs will be written to a file;
-     *                        if false, logs will not be written to a file.
+     * @param writeLogsToFile if true, logs will be written to a file; if false, logs will not be written to a file.
      */
     public void setWriteLogsToFile(boolean writeLogsToFile) {
         this.writeLogsToFile = writeLogsToFile;
@@ -391,7 +377,32 @@ public class GlobalLogger extends Logger {
         }
     }
 
+    /**
+     * The `LogFormatter` class is a custom formatter used to format log records in a specific way. It extends the `Formatter` class provided by the Java logging framework. This class
+     * overrides the `format` method to define the formatting logic for log records.
+     * <p>
+     * The `LogFormatter` class formats the log record by concatenating the log message with the current date and time in the format "dd.MM.yyyy HH:mm:ss". It also strips any color
+     * formatting from the log message using the `ChatColor.stripColor` method provided by the `ChatColor` class.
+     * <p>
+     * Example usage:
+     * <p>
+     * ```
+     * Handler = new ConsoleHandler();
+     * handler.setFormatter(new LogFormatter());
+     * logger.addHandler(handler);
+     * ```
+     *
+     * @see Formatter
+     * @see LogRecord
+     */
     private static class LogFormatter extends Formatter {
+        /**
+         * Formats a log record by concatenating the log message with the current date and time in the format "dd.MM.yyyy HH:mm:ss". It also strips any color formatting from the log
+         * message.
+         *
+         * @param record the log record to format
+         * @return the formatted log record
+         */
         @Override
         public String format(@NotNull LogRecord record) {
             return String.format("%s %s%n", new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date()), ChatColor.stripColor(record.getMessage()));

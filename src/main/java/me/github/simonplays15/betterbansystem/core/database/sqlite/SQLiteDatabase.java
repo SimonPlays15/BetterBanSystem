@@ -14,16 +14,61 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The SQLiteDatabase class represents a database connection and provides methods for interacting with the database.
+ * It extends the Database class and overrides several methods for executing SQL queries and transactions.
+ */
 public class SQLiteDatabase extends Database {
 
+    /**
+     * The connection variable represents the connection to the database.
+     * It is a private instance variable of type Connection.
+     * <p>
+     * Class Hierarchy:
+     * SQLiteDatabase -> Database -> IDatabase
+     * <p>
+     * Class Fields:
+     * SQLiteDatabase:
+     * - connection (private)
+     * <p>
+     * Class Methods:
+     * SQLiteDatabase:
+     * - connect(String connectionstring, String username, String password) : void (Override)
+     * - createDatabaseAndTables() : void (Override)
+     * - disconnect() : void (Override)
+     * - insert(String tableName, Map<String, Object> data) : void
+     * - update(String tableName, String primaryKey, Object primaryKeyValue, Map<String, Object> newData) : void (Override)
+     * - delete(String tableName, String primaryKey, Object primaryKeyValue) : void (Override)
+     * - select(String tableName, String condition) : List<Map<String, Object>> (Override)
+     * - selectAll(String tableName) : List<Map<String, Object>> (Override)
+     * - executeQuery(String queryString) : List<Map<String, Object>> (Override)
+     * - query(String queryString) : void (Override)
+     * - createIndex(String collectionName, String fieldName, boolean unique) : void (Override)
+     * - startTransaction() : void (Override)
+     * - commitTransaction() : void (Override)
+     * - rollbackTransaction() : void (Override)
+     * <p>
+     * Superclass:
+     * Database (abstract class)
+     * - Contains the declaration of connection variable.
+     * <p>
+     * Example usage:
+     * <p>
+     * ```
+     * SQLiteDatabase database = new SQLiteDatabase();
+     * database.connect("url", "username", "password");
+     * // Do something with the connection
+     * database.disconnect();
+     * ```
+     */
     private Connection connection;
 
     /**
-     * Connects to the database using the specified connection string, username, and password.
+     * Connects to the database using the given connection string, username, and password.
      *
-     * @param connectionstring the connection string to the database
-     * @param username         the username for the database connection
-     * @param password         the password for the database connection
+     * @param connectionstring the connection string to connect to the database
+     * @param username         the username to authenticate with the database
+     * @param password         the password to authenticate with the database
      */
     @Override
     public void connect(String connectionstring, String username, String password) {
@@ -37,10 +82,7 @@ public class SQLiteDatabase extends Database {
 
 
     /**
-     * Creates the database and tables required for the BetterBanSystem application.
-     * If the database does not exist, it will be created. If the tables do not exist, they will be created.
-     * The tables include the "bannedplayers", "bannedips", "warnedplayers", "warns", and "mutedplayers" tables.
-     * Each table has its own structure and columns.
+     * Creates the necessary database tables if they don't already exist.
      */
     @Override
     public void createDatabaseAndTables() {
@@ -106,9 +148,9 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Closes the database connection.
-     * If the connection is not null and not closed, it will be closed.
-     * If an SQLException occurs while closing the connection, an error message will be logged.
+     * Disconnects from the database by closing the connection.
+     * If the connection is already closed or null, no action is performed.
+     * Any exception that occurs during the process will be logged to the global logger.
      */
     @Override
     public void disconnect() {
@@ -121,10 +163,12 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Inserts data into the specified table.
+     * Inserts a new row into the specified table with the provided data.
      *
-     * @param tableName the name of the table
-     * @param data      a Map containing the column names and their corresponding values
+     * @param tableName the name of the table to insert into
+     * @param data      a map containing the column names as keys and the values to insert as values
+     * @throws NullPointerException if tableName is null or if data is null or contains null keys
+     * @throws SQLException         if an error occurs while executing the SQL statement
      */
     public void insert(String tableName, @NotNull Map<String, Object> data) {
         StringBuilder coloumns = new StringBuilder();
@@ -153,12 +197,14 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Updates a record in the specified table with new data based on the primary key.
+     * Updates a record in the specified table.
      *
-     * @param tableName       the name of the table to update
+     * @param tableName       the name of the table to update the record in
      * @param primaryKey      the name of the primary key column
-     * @param primaryKeyValue the value of the primary key of the record to update
-     * @param newData         a map containing the new column-value pairs to update
+     * @param primaryKeyValue the value of the primary key for the record to update
+     * @param newData         a map representing the new data to update the record with
+     * @throws NullPointerException if tableName, primaryKey, primaryKeyValue, or newData is null
+     * @throws SQLException         if a database access error occurs
      */
     @Override
     public void update(String tableName, String primaryKey, Object primaryKeyValue, @NotNull Map<String, Object> newData) {
@@ -187,11 +233,11 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Deletes a record from the specified table based on the primary key.
+     * Deletes a record from the specified table using the given primary key and value.
      *
-     * @param tableName       the name of the table where the record will be deleted
+     * @param tableName       the name of the table to delete from
      * @param primaryKey      the name of the primary key column
-     * @param primaryKeyValue the value of the primary key for the record to be deleted
+     * @param primaryKeyValue the value of the primary key for the record to delete
      */
     @Override
     public void delete(String tableName, String primaryKey, Object primaryKeyValue) {
@@ -206,13 +252,11 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Executes a SELECT query on the specified table with the given condition.
-     * Returns a list of maps, where each map represents a row of the result set
-     * with column names as keys and column values as values.
+     * Executes a SELECT SQL statement on the specified table with the given condition.
      *
-     * @param tableName the name of the table to query
-     * @param condition the condition to apply in the WHERE clause of the query
-     * @return a list of maps representing the result set of the SELECT query
+     * @param tableName the name of the table to select from
+     * @param condition the condition for selecting rows from the table
+     * @return a {@link List} of {@link Map}s representing the selected rows, where each map contains the column names as keys and the corresponding column values as values
      */
     @Override
     public List<Map<String, Object>> select(String tableName, String condition) {
@@ -245,8 +289,8 @@ public class SQLiteDatabase extends Database {
     /**
      * Retrieves all records from the specified table.
      *
-     * @param tableName the name of the table
-     * @return a list of maps representing each record in the table
+     * @param tableName the name of the table to select records from.
+     * @return a list of maps representing the records retrieved from the table. Each map contains the column names as keys and the corresponding column values as values.
      */
     @Override
     public List<Map<String, Object>> selectAll(String tableName) {
@@ -277,12 +321,10 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Executes the given SQL query string and returns the result as a list of maps,
-     * where each map represents a row and contains column names as keys and
-     * corresponding column values as values.
+     * Executes the given SQL query and returns a list of maps containing the query results.
      *
-     * @param queryString the SQL query string to execute
-     * @return a list of maps representing the result of the query
+     * @param queryString the SQL query to execute
+     * @return a list of maps where each map represents a row from the query result, with column names as keys
      */
     @Override
     public List<Map<String, Object>> executeQuery(String queryString) {
@@ -317,11 +359,11 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Creates an index on a specified field in a given collection.
+     * Creates an index on a specified field in a collection.
      *
-     * @param collectionName The name of the collection on which to create the index.
-     * @param fieldName      The name of the field on which to create the index.
-     * @param unique         Indicates whether the index should enforce uniqueness.
+     * @param collectionName the name of the collection
+     * @param fieldName      the name of the field to create the index on
+     * @param unique         indicates whether the index should be unique or not
      */
     @Override
     public void createIndex(String collectionName, String fieldName, boolean unique) {
@@ -337,7 +379,8 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     *
+     * Starts a transaction by setting the auto commit value to false.
+     * If an SQLException occurs, it is logged.
      */
     @Override
     public void startTransaction() {
@@ -349,8 +392,16 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Commits the current transaction and sets auto-commit to true.
-     * If an SQLException occurs during the commit, it will be logged with the GlobalLogger.
+     * Commits the current transaction.
+     * <p>
+     * This method commits the changes made during the current transaction. It calls the {@link Connection#commit()}
+     * method to commit the changes and then sets the auto-commit mode back to true using {@link Connection#setAutoCommit(boolean)}.
+     * <p>
+     * If an error occurs during the commit process, an error message will be logged using the {@link GlobalLogger} class.
+     *
+     * @see Connection#commit()
+     * @see Connection#setAutoCommit(boolean)
+     * @see GlobalLogger
      */
     @Override
     public void commitTransaction() {
@@ -363,7 +414,8 @@ public class SQLiteDatabase extends Database {
     }
 
     /**
-     * Rolls back the current transaction.
+     * Rollbacks the current transaction and restores the auto-commit behavior of the database connection.
+     * If an SQLException occurs during the rollback, it is logged as an error.
      */
     @Override
     public void rollbackTransaction() {

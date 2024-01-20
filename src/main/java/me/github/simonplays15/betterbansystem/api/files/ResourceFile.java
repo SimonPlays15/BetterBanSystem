@@ -7,32 +7,56 @@ package me.github.simonplays15.betterbansystem.api.files;
 import me.github.simonplays15.betterbansystem.core.logging.GlobalLogger;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Objects;
 
+/**
+ * ResourceFile represents a utility class for saving and accessing resources within a data folder.
+ */
 public class ResourceFile {
+    /**
+     * Represents the folder directory for data files.
+     * <p>
+     * The dataFolder variable is a private final File object that holds the directory path
+     * for data files in the ResourceFile class.
+     * <p>
+     * This variable is used to locate and access data files within the class. It is initialized
+     * when the ResourceFile object is created and is immutable throughout the life of the object.
+     * <p>
+     * The dataFolder variable is used in several methods of the ResourceFile class to manipulate
+     * and retrieve data resources. It is also accessed by other classes that use the ResourceFile
+     * class to interact with data files.
+     *
+     * @see ResourceFile
+     * @see ResourceFile#getResource(String)
+     * @see ResourceFile#saveResource(String, boolean)
+     * @see ResourceFile#getResourceLastModified(String)
+     * @see ResourceFile#copyResourceToFile(String, File)
+     */
     private final File dataFolder;
 
     /**
-     * @param dataFolder {@link File}
+     * Constructs a new instance of the ResourceFile class.
+     *
+     * @param dataFolder The data folder for the resource file.
      */
     public ResourceFile(File dataFolder) {
         this.dataFolder = dataFolder;
     }
 
     /**
-     * Saves the File given from the resourcepath
-     * of this JAR File.
+     * Saves a resource to the specified resource path.
      *
-     * @param resourcePath {@link String}
-     * @param replace      {@link Boolean}
-     * @throws NullPointerException     if {@code resourcePath} is null or empty
-     * @throws IllegalArgumentException if the given {@link InputStream} of {@link ResourceFile#getResource(String)} is null
-     * @apiNote if {@code replace} is set to {@code true} its only replacing the File when the file inside the jar file is newer.
+     * @param resourcePath The path of the resource to save.
+     * @param replace      Indicates whether to replace the existing file if it already exists.
+     * @throws NullPointerException     if the resource path is empty or null.
+     * @throws IllegalArgumentException if the embedded resource cannot be found.
      */
     public void saveResource(@NotNull String resourcePath, boolean replace) {
         if (resourcePath.isEmpty()) {
@@ -75,11 +99,11 @@ public class ResourceFile {
     }
 
     /**
-     * Tries to find the resource from the given fileName inside the jar File
+     * Retrieves an InputStream for a given resource file.
      *
-     * @param fileName {@link String}
-     * @return {@link InputStream}
-     * @throws RuntimeException if the given resource fileName does not exist
+     * @param fileName The name of the resource file.
+     * @return An InputStream for the resource file, or null if the resource file was not found.
+     * @throws RuntimeException If an error occurs while finding or accessing the resource file.
      */
     public InputStream getResource(@NotNull String fileName) {
         try {
@@ -96,8 +120,10 @@ public class ResourceFile {
     }
 
     /**
-     * @param resourcePath String
-     * @return {@link Long}
+     * Retrieves the last modified time of a resource specified by the given resource path.
+     *
+     * @param resourcePath The path of the resource.
+     * @return The last modified time of the resource in milliseconds, or 0 if the resource cannot be found or an error occurs.
      */
     private long getResourceLastModified(@NotNull String resourcePath) {
         try {
@@ -108,9 +134,11 @@ public class ResourceFile {
     }
 
     /**
-     * @param resourcePath    String
-     * @param destinationFile File
-     * @throws IOException if {@link Files#copy(Path, OutputStream)} failed
+     * Copies a resource to a destination file.
+     *
+     * @param resourcePath    The path of the resource to be copied.
+     * @param destinationFile The file to which the resource should be copied.
+     * @throws IOException If an I/O error occurs during the copy process.
      */
     private void copyResourceToFile(@NotNull String resourcePath, @NotNull File destinationFile) throws IOException {
         try (FileWriter writer = new FileWriter(destinationFile)) {

@@ -10,7 +10,9 @@
 
     <groupId>me.github.simonplays15.betterbansystem</groupId>
     <artifactId>BetterBanSystem</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
+    <description>It was never easier to ban a user</description>
+    <url>https://simonplays15.github.io/betterbansystem.github.io/</url>
     <developers>
         <developer>
             <name>SimonPlays15</name>

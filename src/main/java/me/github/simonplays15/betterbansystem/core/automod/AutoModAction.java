@@ -11,6 +11,25 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+
+/**
+ * Represents an auto moderation action.
+ *
+ * <p>
+ * An AutoModAction object represents a specific action to be taken in an
+ * auto moderation system. Each AutoModAction has a type, an action limit,
+ * and a set of optional parameters.
+ *
+ * <p>
+ * Example usage:
+ * AutoModAction action = new AutoModAction("DELETE;LIMIT=3;REASON=Spam");
+ * AutoModActionType type = action.getType(); // returns AutoModActionType.DELETE
+ * int limit = action.getActionLimit(); // returns 3
+ * String reason = action.getParameter(AutoModActionParameters.REASON); // returns "Spam"
+ *
+ * @see AutoModActionType
+ * @see AutoModActionParameters
+ */
 public class AutoModAction {
 
     /**
@@ -108,6 +127,15 @@ public class AutoModAction {
         return actions;
     }
 
+    /**
+     * Returns a string representation of the AutoModAction object.
+     * <p>
+     * The string has the format "AutoModAction{type=TYPE, actionLimit=ACTION_LIMIT, parameters=[PARAMS]}".
+     * The parameters are represented as a comma-separated list of key-value pairs enclosed in curly braces, where each pair
+     * is represented as "key=KEY, value=VALUE".
+     *
+     * @return a string representation of the AutoModAction object
+     */
     @Override
     public String toString() {
         String params = parameters.entrySet().stream()
@@ -116,6 +144,14 @@ public class AutoModAction {
         return String.format("AutoModAction{type=%s, actionLimit=%s, parameters=[%s]}", type, actionLimit, params);
     }
 
+    /**
+     * Compares this AutoModAction instance with the specified object for equality.
+     * Returns true if and only if the specified object is also an AutoModAction instance,
+     * all the corresponding instance variables have the same values in both objects.
+     *
+     * @param o the object to be compared for equality with this AutoModAction
+     * @return true if the specified object is equal to this AutoModAction, false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -124,6 +160,11 @@ public class AutoModAction {
         return actionLimit == that.actionLimit && type == that.type && Objects.equals(parameters, that.parameters);
     }
 
+    /**
+     * Calculates the hash code for the AutoModAction object.
+     *
+     * @return the hash code for the AutoModAction object
+     */
     @Override
     public int hashCode() {
         return Objects.hash(type, actionLimit, parameters);
@@ -132,9 +173,9 @@ public class AutoModAction {
     /**
      * Retrieves an Enum value from a given value.
      *
+     * @param <T>      the Enum type.
      * @param enumType the Class representing the Enum type.
      * @param value    the value to retrieve the Enum from.
-     * @param <T>      the Enum type.
      * @return the Enum value corresponding to the given value, or the Enum value corresponding to "UNKNOWN" if the given value does not exist in the Enum.
      */
     private <T extends Enum<T>> T getEnumFromValue(Class<T> enumType, String value) {

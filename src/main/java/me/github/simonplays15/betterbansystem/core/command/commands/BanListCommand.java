@@ -21,14 +21,32 @@ import org.jetbrains.annotations.NotNull;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * The BanListCommand class extends BaseCommand and represents a command to list banned players or IPs.
+ */
 public class BanListCommand extends BaseCommand {
 
+    /**
+     * Represents the date format used in the BanListCommand class.
+     * The format is "HH:mm:ss | dd.MM.yyyy".
+     */
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss | dd.MM.yyyy");
 
+    /**
+     * Represents a command that retrieves and displays the ban list.
+     */
     public BanListCommand() {
         super("banlist");
     }
 
+    /**
+     * Run command boolean.
+     *
+     * @param sender the sender
+     * @param args   the args
+     * @return the boolean
+     * @throws CommandException the command exception
+     */
     @Override
     public boolean runCommand(BaseCommandSender sender, String @NotNull [] args) throws CommandException {
         String type = "players";
@@ -44,6 +62,12 @@ public class BanListCommand extends BaseCommand {
         return true;
     }
 
+    /**
+     * Send ban list.
+     *
+     * @param sender the sender
+     * @param type   the type
+     */
     private void sendBanList(@NotNull BaseCommandSender sender, @NotNull String type) {
         List<TextComponent> banList = new ArrayList<>();
         Object player = BetterBanSystem.getPlayer(sender.getName());
@@ -79,12 +103,25 @@ public class BanListCommand extends BaseCommand {
 
     }
 
+    /**
+     * Gets hoverable component.
+     *
+     * @param text  the text
+     * @param hover the hover
+     * @return the hoverable component
+     */
     private @NotNull TextComponent getHoverableComponent(String text, String hover) {
         TextComponent component = new TextComponent(text);
         component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create()));
         return component;
     }
 
+    /**
+     * Gets ip ban info.
+     *
+     * @param entry the entry
+     * @return the ip ban info
+     */
     private String getIpBanInfo(@NotNull IIPBanEntry entry) {
         return new StringJoiner("\n", "§c", "")
                 .add("§bReason: §f" + entry.reason().substring(0, 20))
@@ -94,6 +131,12 @@ public class BanListCommand extends BaseCommand {
                 .toString();
     }
 
+    /**
+     * Gets ban info.
+     *
+     * @param entry the entry
+     * @return the ban info
+     */
     private String getBanInfo(@NotNull IBanEntry entry) {
         return new StringJoiner("\n", "§c", "")
                 .add("§bReason: §f" + entry.reason().substring(0, 20))

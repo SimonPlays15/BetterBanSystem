@@ -6,5 +6,8 @@ package me.github.simonplays15.betterbansystem.core.warn;
 
 import java.util.Date;
 
+/**
+ * Represents a warning.
+ */
 public record Warn(int id, String source, Date created, String reason) {
 }

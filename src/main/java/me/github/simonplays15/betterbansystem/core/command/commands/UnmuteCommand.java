@@ -13,11 +13,25 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
+/**
+ * The type Unmute command.
+ */
 public class UnmuteCommand extends BaseCommand {
+    /**
+     * Instantiates a new Unmute command.
+     */
     public UnmuteCommand() {
         super("unmute");
     }
 
+    /**
+     * Run command boolean.
+     *
+     * @param sender the sender
+     * @param args   the args
+     * @return the boolean
+     * @throws CommandException the command exception
+     */
     @Override
     public boolean runCommand(BaseCommandSender sender, String @NotNull [] args) throws CommandException {
         if (args.length == 0) {

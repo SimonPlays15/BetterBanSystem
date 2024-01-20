@@ -16,11 +16,24 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.UUID;
 
+/**
+ * The BungeeCordCommandSender class extends the BaseCommandSender class and represents a BungeeCord command sender.
+ * It provides methods for sending messages, checking permissions, and getting the name and type of the sender.
+ */
 public class BungeeCordCommandSender extends BaseCommandSender implements CommandSender {
 
+    /**
+     *
+     */
     private final CommandSender base;
+    /**
+     *
+     */
     private final CommandSenderType type;
 
+    /**
+     * The BungeeCordCommandSender class represents a command sender in the BungeeCord API. It extends the BaseCommandSender abstract class.
+     */
     public BungeeCordCommandSender(CommandSender sender) {
         this.base = sender;
         if (sender instanceof ProxiedPlayer)
@@ -29,6 +42,10 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
             this.type = CommandSenderType.CONSOLE;
     }
 
+    /**
+     * BungeeCordCommandSender represents a command sender in the BungeeCord API. It extends the BaseCommandSender class and provides methods for sending messages, checking permissions
+     * , getting the name of the sender, and determining the type of sender.
+     */
     public BungeeCordCommandSender(Object sender) {
         this.base = (CommandSender) sender;
         if (sender instanceof ProxiedPlayer)
@@ -38,6 +55,13 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     }
 
 
+    /**
+     * Creates a BungeeCordCommandSender object from the given sender.
+     *
+     * @param sender the CommandSender object
+     * @return the BungeeCordCommandSender object
+     * @throws IllegalArgumentException if the sender type is not supported
+     */
     public static @NotNull BungeeCordCommandSender of(Object sender) {
         if (sender instanceof CommandSender)
             return new BungeeCordCommandSender((CommandSender) sender);
@@ -47,9 +71,9 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
 
     /**
      * Sends multiple messages to the command sender.
-     * Each message is prepended with the prefix defined in the BetterBanSystem instance.
      *
-     * @param strings The messages to be sent.
+     * @param strings the messages to be sent
+     * @throws IllegalArgumentException if any of the messages is null
      */
     @Override
     public void sendMessages(String @NotNull ... strings) {
@@ -59,9 +83,9 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     }
 
     /**
-     * Sends one or more BaseComponents as a message.
+     * Overrides the sendMessage method of the BaseCommandSender class to send multiple messages using BaseComponent.
      *
-     * @param baseComponents the BaseComponents to send as a message
+     * @param baseComponents the BaseComponent messages to be sent
      */
     @Override
     public void sendMessage(BaseComponent... baseComponents) {
@@ -71,9 +95,10 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     }
 
     /**
-     * Sends a message to the command sender with the given BaseComponent.
+     * Sends a message to the command sender.
      *
-     * @param baseComponent the BaseComponent to send as a message
+     * @param baseComponent the BaseComponent to be sent as a message
+     * @since version 1.0
      */
     @Override
     public void sendMessage(BaseComponent baseComponent) {
@@ -83,9 +108,9 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     }
 
     /**
-     * Retrieves the groups associated with this command sender.
+     * Retrieves the groups associated with the command sender.
      *
-     * @return a collection of group names
+     * @return a Collection of strings representing the groups associated with the command sender
      */
     @Override
     public Collection<String> getGroups() {
@@ -93,9 +118,9 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     }
 
     /**
-     * Adds groups to the CommandSender.
+     * Adds the specified groups to the command sender.
      *
-     * @param strings The groups to add. Accepts varargs.
+     * @param strings the groups to be added
      */
     @Override
     public void addGroups(String... strings) {
@@ -105,7 +130,7 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     /**
      * Removes the specified groups from the command sender.
      *
-     * @param strings The groups to be removed.
+     * @param strings the groups to be removed
      */
     @Override
     public void removeGroups(String... strings) {
@@ -113,20 +138,20 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     }
 
     /**
-     * Sets the permission for the given string with the specified boolean value.
+     * Sets a permission for the command sender.
      *
-     * @param s the permission to be set
-     * @param b the value of the permission (true for granting the permission, false for denying it)
+     * @param permission the permission to be set
+     * @param value      true if the permission is granted, false if it is denied
      */
     @Override
-    public void setPermission(String s, boolean b) {
-        this.base.setPermission(s, b);
+    public void setPermission(String permission, boolean value) {
+        this.base.setPermission(permission, value);
     }
 
     /**
-     * Retrieves the permissions associated with the command sender.
+     * Retrieves the permissions of the command sender.
      *
-     * @return a collection of strings representing the permissions of the command sender
+     * @return a Collection of strings representing the permissions of the command sender
      */
     @Override
     public Collection<String> getPermissions() {
@@ -136,7 +161,7 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     /**
      * Sends a message to the command sender.
      *
-     * @param string the message to send
+     * @param string the message to be sent
      */
     @Override
     public void sendMessage(String string) {
@@ -144,9 +169,9 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     }
 
     /**
-     * Sends a message to the command sender.
+     * Sends a message or multiple messages to the command sender.
      *
-     * @param strings the messages to send
+     * @param strings the messages to be sent to the command sender
      */
     @Override
     public void sendMessage(String... strings) {
@@ -154,10 +179,11 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     }
 
     /**
-     * Sends a message to the specified UUID.
+     * Sends a message to the player with the given UUID.
+     * If the UUID is null, the message is sent to the console.
      *
-     * @param uuid   the UUID of the recipient
-     * @param string the message to send
+     * @param uuid   The UUID of the player to send the message to. Can be null for console.
+     * @param string The message to send.
      */
     @Override
     public void sendMessage(UUID uuid, String string) {
@@ -165,11 +191,10 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     }
 
     /**
-     * Sends a message to the specified UUID.
+     * Sends a message or multiple messages to the command sender.
      *
      * @param uuid    the UUID of the recipient
-     * @param strings the strings to send as the message
-     * @throws NotImplementedException if the method is called within the BungeeCord API
+     * @param strings the string message(s) to send
      */
     @Override
     public void sendMessage(UUID uuid, String... strings) {
@@ -177,20 +202,20 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     }
 
     /**
-     * Checks if the command sender has a specific permission.
+     * Checks if the command sender has the specified permission.
      *
-     * @param paramString the permission to check
+     * @param permission the permission to check
      * @return true if the command sender has the permission, false otherwise
      */
     @Override
-    public boolean hasPermission(String paramString) {
-        return this.base.hasPermission(paramString);
+    public boolean hasPermission(String permission) {
+        return this.base.hasPermission(permission);
     }
 
     /**
      * Retrieves the name of the command sender.
      *
-     * @return The name of the command sender.
+     * @return the name of the command sender
      */
     @Override
     public String getName() {
@@ -198,9 +223,9 @@ public class BungeeCordCommandSender extends BaseCommandSender implements Comman
     }
 
     /**
-     * Returns the type of the command sender.
+     * Retrieves the type of the command sender.
      *
-     * @return the type of the command sender
+     * @return The CommandSenderType representing the type of the command sender.
      */
     @Override
     public CommandSenderType getSenderType() {

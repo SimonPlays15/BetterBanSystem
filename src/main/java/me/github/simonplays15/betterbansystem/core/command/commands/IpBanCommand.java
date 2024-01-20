@@ -21,12 +21,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * The type Ip ban command.
+ */
 public class IpBanCommand extends BaseCommand {
 
+    /**
+     * Instantiates a new Ip ban command.
+     */
     public IpBanCommand() {
         super("banip");
     }
 
+    /**
+     * Run command boolean.
+     *
+     * @param sender the sender
+     * @param args   the args
+     * @return the boolean
+     * @throws CommandException the command exception
+     */
     @Override
     public boolean runCommand(BaseCommandSender sender, String @NotNull [] args) throws CommandException {
         if (args.length == 0) {

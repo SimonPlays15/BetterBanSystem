@@ -20,17 +20,33 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+/**
+ * CommandHandler is responsible for handling commands in the plugin.
+ */
 public class CommandHandler {
+    /**
+     * Represents a plugin instance.
+     */
     private final Plugin plugin;
 
+    /**
+     * The CommandHandler class handles the registration of commands for the plugin.
+     */
     public CommandHandler(Plugin plugin) {
         this.plugin = plugin;
         this.registerCommands();
     }
 
+    /**
+     * Registers commands from the CommandHandler to the BungeeCord proxy plugin manager.
+     */
     private void registerCommands() {
         for (BaseCommand command : BetterBanSystem.getInstance().getCommandHandler().getCommands().values()) {
-            plugin.getProxy().getPluginManager().registerCommand(plugin, new TabCompleterAndCommand(command.getCommandName(), command.getPermission(), String.valueOf(command.getAliases())) {
+            String[] aliases = new String[command.getAliases().size()];
+            for (int i = 0; i < command.getAliases().size(); i++) {
+                aliases[i] = "global" + command.getAliases().get(i);
+            }
+            plugin.getProxy().getPluginManager().registerCommand(plugin, new TabCompleterAndCommand(command, aliases) {
 
                 @Override
                 public Iterable<String> onTabComplete(CommandSender commandSender, String[] strings) {
@@ -44,16 +60,23 @@ public class CommandHandler {
 
                 @Override
                 public void execute(CommandSender commandSender, String[] strings) {
-                    if (onCommand(commandSender, this, this.getName(), strings)) {
-                        GlobalLogger.getLogger().trace(commandSender.getName(), "run command", this.getName() + "/" + this.getName() + "[" + String.join(", ", strings) + "]", "successfully");
-                    }
+                    onCommand(commandSender, this, this.getName(), strings);
                 }
 
             });
         }
     }
 
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    /**
+     * Executes a command.
+     *
+     * @param sender  the command sender
+     * @param command the command being executed
+     * @param label   the command label
+     * @param args    the command arguments
+     * @return true if the command executed successfully, false otherwise
+     */
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) throws CommandException {
         GlobalLogger.getLogger().debug(sender.getName(), "executed command", command.getName() + "/" + label + "[" + String.join(", ", args) + "]");
         try {
             if (BetterBanSystem.getInstance().getCommandHandler().getCommands().containsKey(command.getName())) {
@@ -84,11 +107,19 @@ public class CommandHandler {
         } catch (CommandException ex) {
             GlobalLogger.getLogger().log(Level.SEVERE, "Failed to execute command " + command.getName() + " by user " + sender.getName(), ex);
             sender.sendMessage(TextComponent.fromLegacyText(BetterBanSystem.getInstance().getPrefix() + "Failed to execute command. See log for more details."));
+            ex.printStackTrace(System.err);
         }
-        GlobalLogger.getLogger().log(Level.SEVERE, "Failed to execute command " + command.getName() + " by user " + sender.getName());
         return true;
     }
 
+    /**
+     * Retrieves a list of tab completion options for a given command.
+     *
+     * @param sender  The command sender who initiated the tab completion.
+     * @param command The command being executed.
+     * @param args    The arguments provided after the command.
+     * @return An Iterable containing possible tab completion options.
+     */
     public Iterable<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String[] args) {
         if (BetterBanSystem.getInstance().getCommandHandler().getCommands().containsKey(command.getName())) {
             BaseCommandSender commandSender = BungeeCordCommandSender.of(sender);
@@ -101,10 +132,35 @@ public class CommandHandler {
         return null;
     }
 
+    /**
+     * TabCompleterAndCommand is a class that extends the Command class and implements the TabExecutor interface.
+     * It combines the functionality of both a command and a tab completer.
+     */
     private abstract static class TabCompleterAndCommand extends Command implements TabExecutor {
 
-        public TabCompleterAndCommand(String name, String permission, String... aliases) {
-            super(name, permission, aliases);
+        /**
+         * The private final variable {@code command} holds an instance of the {@link BaseCommand} class.
+         */
+        private final BaseCommand command;
+
+        /**
+         * TabCompleterAndCommand is a class that extends the Command class and implements the TabExecutor interface.
+         * It combines the functionality of both a command and a tab completer.
+         */
+        public TabCompleterAndCommand(@NotNull BaseCommand command, String[] aliases) {
+            super(command.getCommandName(), command.getPermission(), aliases);
+            this.command = command;
+        }
+
+        /**
+         * Checks if the provided CommandSender has the permission to execute this command.
+         *
+         * @param sender The CommandSender to check the permission for.
+         * @return True if the sender has the permission, false otherwise.
+         */
+        @Override
+        public boolean hasPermission(CommandSender sender) {
+            return command.testPermission(BungeeCordCommandSender.of(sender), this.command.getPermission());
         }
     }
 

@@ -20,15 +20,61 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * Represents a mute entry for a player.
+ * Implements the IMuteEntry interface.
+ */
 public record MuteEntry(UUID uuid, String name, String source, Date created,
                         Object expires, String reason)
         implements IMuteEntry {
+    /**
+     * The variable gson is an instance of the Gson class from the Gson library.
+     * It is used for JSON serialization and deserialization of IMuteEntry objects.
+     * The Gson instance is configured with pretty printing, date format, and a custom type adapter for IMuteEntry.
+     * It is a private static final variable.
+     * <p>
+     * To serialize an IMuteEntry object to JSON, use the toJson() method of the gson variable.
+     * To deserialize a JSON string to an IMuteEntry object, use the fromJson() method of the gson variable.
+     * The IMuteEntryAdapter class is responsible for the custom serialization and deserialization logic.
+     */
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss Z").registerTypeAdapter(IMuteEntry.class, new IMuteEntryAdapter()).create();
+    /**
+     *
+     */
     private static final File file = new File("muted-players.json");
 
+    /**
+     * The format variable is a private static final SimpleDateFormat object used to parse and format dates in the format "yyyy-MM-dd HH:mm:ss Z".
+     * It is initialized with the given pattern and the US locale.
+     * <p>
+     * The format object is used in the IMuteEntryAdapter class to parse and format date values when reading and writing JSON.
+     * It ensures consistent date representation across different systems and locales.
+     * <p>
+     * Example usage:
+     * <p>
+     * // Parsing a date string
+     * String dateString = "2021-06-01 12:30:00 +0200";
+     * Date date = format.parse(dateString);
+     * <p>
+     * // Formatting a date object
+     * Date now = new Date();
+     * String formattedDate = format.format(now);
+     *
+     * @see IMuteEntryAdapter
+     */
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
+    /**
+     * The MUTE_TABLENAME variable represents the name of the table used for storing muted player entries.
+     * It is a constant variable defined in the MuteEntry class.
+     */
     private static final String MUTE_TABLENAME = "mutedplayers";
 
+    /**
+     * Creates a mute entry if the file does not exist.
+     *
+     * @param file The file to be checked and created if necessary.
+     * @throws IOException If an I/O error occurs.
+     */
     public MuteEntry {
         if (!file.exists()) {
             try {
@@ -41,6 +87,11 @@ public record MuteEntry(UUID uuid, String name, String source, Date created,
         }
     }
 
+    /**
+     * Saves an IMuteEntry object to JSON.
+     *
+     * @param entry The IMuteEntry object to save.
+     */
     public static void saveToJson(IMuteEntry entry) {
         if (BetterBanSystem.getInstance().getDatabase() != null) {
             BetterBanSystem.getInstance().getDatabase().insert(MUTE_TABLENAME, Map.of("uuid", entry.uuid().toString(), "name", entry.name(), "source", entry.source(), "created", format.format(entry.created()), "expires", (entry.expires() instanceof Date ? format.format(entry.expires()) : entry.expires()), "reason", entry.reason()));
@@ -79,10 +130,21 @@ public record MuteEntry(UUID uuid, String name, String source, Date created,
         }
     }
 
+    /**
+     * Removes an entry from the system.
+     *
+     * @param entry The entry to be removed.
+     * @throws NullPointerException if the entry is null.
+     */
     public static void removeEntry(@NotNull IMuteEntry entry) {
         removeFromJson(entry.uuid());
     }
 
+    /**
+     * Removes a mute entry with the given UUID from a JSON file or database.
+     *
+     * @param targetUUID The UUID of the mute entry to be removed.
+     */
     public static void removeFromJson(UUID targetUUID) {
         if (BetterBanSystem.getInstance().getDatabase() != null) {
             BetterBanSystem.getInstance().getDatabase().delete(MUTE_TABLENAME, "uuid", targetUUID.toString());
@@ -121,6 +183,13 @@ public record MuteEntry(UUID uuid, String name, String source, Date created,
         }
     }
 
+    /**
+     * Retrieves a list of all mute entries.
+     *
+     * @return A list of all mute entries, represented as {@link IMuteEntry}.
+     * If no entries are found, an empty list is returned.
+     * @throws IOException if there is an error reading the mute entries from the file
+     */
     public static @NotNull List<IMuteEntry> getAllEntries() {
         if (BetterBanSystem.getInstance().getDatabase() != null) {
             List<Map<String, Object>> potentialEntries = BetterBanSystem.getInstance().getDatabase().selectAll(MUTE_TABLENAME);
@@ -163,6 +232,12 @@ public record MuteEntry(UUID uuid, String name, String source, Date created,
         return entries;
     }
 
+    /**
+     * Finds an entry in the list of mute entries with the specified target UUID.
+     *
+     * @param targetUUID The UUID of the target entry.
+     * @return The first mute entry with the specified UUID, or null if no such entry is found.
+     */
     public static IMuteEntry findEntry(UUID targetUUID) {
         List<IMuteEntry> entries = getAllEntries();
         return entries.stream()
@@ -171,6 +246,11 @@ public record MuteEntry(UUID uuid, String name, String source, Date created,
                 .orElse(null);
     }
 
+    /**
+     * Returns a string representation of the mute entry.
+     *
+     * @return A string representation of the mute entry.
+     */
     @Override
     public String toString() {
         return "MuteEntry{" +
@@ -183,7 +263,17 @@ public record MuteEntry(UUID uuid, String name, String source, Date created,
                 '}';
     }
 
+    /**
+     * The IMuteEntryAdapter class is a Gson TypeAdapter for serializing and deserializing IMuteEntry objects.
+     */
     public static class IMuteEntryAdapter extends TypeAdapter<IMuteEntry> {
+        /**
+         * Writes the given {@link IMuteEntry} object to the provided {@link JsonWriter}.
+         *
+         * @param writer the JSON writer to write the mute entry object to
+         * @param entry  the mute entry object to be written
+         * @throws IOException if an I/O error occurs during the write operation
+         */
         @Override
         public void write(@NotNull JsonWriter writer, @NotNull IMuteEntry entry) throws IOException {
             writer.beginObject();
@@ -200,6 +290,14 @@ public record MuteEntry(UUID uuid, String name, String source, Date created,
             writer.endObject();
         }
 
+        /**
+         * Reads the JSON representation of an IMuteEntry from a JsonReader and
+         * constructs a new IMuteEntry object.
+         *
+         * @param reader the JsonReader from which to read the JSON representation
+         * @return a new IMuteEntry object constructed from the JSON representation
+         * @throws IOException if an I/O error occurs while reading the JSON representation
+         */
         @Override
         public IMuteEntry read(@NotNull JsonReader reader) throws IOException {
             UUID uuid = null;
