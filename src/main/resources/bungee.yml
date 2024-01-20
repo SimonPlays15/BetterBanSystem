@@ -2,9 +2,9 @@ name: ${project.artifactId}
 authors: [ SimonPlays15, Blubo ]
 version: ${project.version}
 main: ${project.groupId}.bungeecord.BungeeCore
-description: It was never easier to ban a user
+description: ${project.description}
 prefix: ${project.artifactId}
-
+website: ${project.url}
 libraries:
   - org.mongodb:mongodb-driver-sync:4.3.1
   - org.jetbrains:annotations:23.0.0
@@ -80,6 +80,9 @@ permissions:
     children:
       betterbansystem.commands.*: true
       betterbansystem.exempt.*: true
+  betterbansystem.exempt.automod:
+    default: op
+    description: "Exempts player from AutoMod"
   betterbansystem.exempt.warn:
     default: op
     description: "Exempts player from warns"
@@ -100,6 +103,7 @@ permissions:
       betterbansystem.exempt.mute: true
       betterbansystem.exempt.ban: true
       betterbansystem.exempt.kick: true
+      betterbansystem.exempt.automod: true
   betterbansystem.commands.*:
     default: op
     description: "Gives access to all commands that this plugin provides"

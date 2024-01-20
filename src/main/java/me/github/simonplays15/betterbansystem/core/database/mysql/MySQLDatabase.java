@@ -14,22 +14,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * MySQLDatabase is a class that extends the abstract class Database and provides methods for managing an MySQL database.
+ */
 public class MySQLDatabase extends Database {
 
+    /**
+     * The Connection variable represents the connection to a database.
+     */
     private Connection connection;
 
     /**
-     * Creates the database and necessary tables for the BetterBanSystem.
-     * This method will execute the necessary SQL queries to create the database and tables if they do not already exist.
-     * <p>
-     * The database will be named "betterbansystem".
-     * <p>
-     * The tables that will be created include:
-     * - bannedplayers: Stores information about banned players
-     * - bannedips: Stores information about banned IPs
-     * - warnedplayers: Stores information about warned players
-     * - warns: Stores information about warns issued to players
-     * - mutedplayers: Stores information about muted players
+     * Creates the database and tables required for the BetterBanSystem.
      */
     @Override
     public void createDatabaseAndTables() {
@@ -92,11 +88,11 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Connects to the database using the given connection string, username, and password.
+     * Establishes a connection to the database using the provided connection string, username, and password.
      *
-     * @param connectionstring the connection string for the database
-     * @param username         the username for the database connection
-     * @param password         the password for the database connection
+     * @param connectionstring the connection string used to connect to the database
+     * @param username         the username for authentication
+     * @param password         the password for authentication
      */
     @Override
     public void connect(String connectionstring, String username, String password) {
@@ -110,7 +106,13 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Closes the database connection if it is open.
+     * Disconnects from the database.
+     * <p>
+     * This method closes the active connection to the database, if it is not already closed.
+     * </p>
+     * <p>
+     * If an error occurs while closing the connection, an error message is logged using the global logger.
+     * </p>
      */
     @Override
     public void disconnect() {
@@ -123,10 +125,11 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Inserts data into the specified table.
+     * Inserts a new row into the specified table with the given data.
      *
-     * @param tableName the name of the table
-     * @param data      a map containing the column names and their corresponding values to be inserted
+     * @param tableName the name of the table to insert into
+     * @param data      a Map containing the column names and corresponding values for the new row
+     * @throws NullPointerException if tableName or data is null
      */
     public void insert(String tableName, @NotNull Map<String, Object> data) {
         StringBuilder coloumns = new StringBuilder();
@@ -155,13 +158,12 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Updates a record in the specified table with the given primary key and new data.
+     * Updates a record in the specified table with the new data provided.
      *
      * @param tableName       the name of the table to update
      * @param primaryKey      the name of the primary key column
-     * @param primaryKeyValue the value of the primary key for the record to update
-     * @param newData         a map of column names to new values for the record
-     * @throws SQLException if a database error occurs
+     * @param primaryKeyValue the value of the primary key of the record to update
+     * @param newData         a map of column names and their corresponding new values
      */
     @Override
     public void update(String tableName, String primaryKey, Object primaryKeyValue, @NotNull Map<String, Object> newData) {
@@ -190,11 +192,11 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Deletes a record from the specified table based on the primary key and its value.
+     * Deletes a record from the specified table based on the given primary key and primary key value.
      *
-     * @param tableName       the name of the table
-     * @param primaryKey      the primary key column name
-     * @param primaryKeyValue the value of the primary key to match for deletion
+     * @param tableName       the name of the table from which to delete the record
+     * @param primaryKey      the name of the primary key column
+     * @param primaryKeyValue the value of the primary key of the record to be deleted
      */
     @Override
     public void delete(String tableName, String primaryKey, Object primaryKeyValue) {
@@ -209,12 +211,12 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Executes a SELECT query on a specified table with a provided condition.
+     * Executes a SELECT statement on the specified table with a given condition and returns the result as a list of maps.
      *
      * @param tableName the name of the table to select from
      * @param condition the condition to apply in the WHERE clause
-     * @return a List of Map objects where each Map represents a row in the result set,
-     * with column names as keys and column values as values
+     * @return a list of maps representing the rows selected from the table,
+     * where each map contains column names as keys and corresponding values as values
      */
     @Override
     public List<Map<String, Object>> select(String tableName, String condition) {
@@ -247,8 +249,9 @@ public class MySQLDatabase extends Database {
     /**
      * Retrieves all rows from the specified table in the database.
      *
-     * @param tableName the name of the table to select from
-     * @return a list of maps containing the rows from the table
+     * @param tableName the name of the table from which to retrieve the rows
+     * @return a list of maps representing the rows in the table, where each map contains the column name as the key
+     * and the corresponding value of the column as the value
      */
     @Override
     public List<Map<String, Object>> selectAll(String tableName) {
@@ -279,11 +282,12 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Executes a SQL query and returns the result as a list of maps.
-     * Each map represents a row from the query result with column names as the keys and column values as the values.
+     * Executes a query and returns the result as a list of maps.
+     * Each map represents a row in the query result, where the keys are the column names
+     * and the values are the corresponding column values.
      *
-     * @param queryString the SQL query string to be executed
-     * @return a list of maps representing the result of the query
+     * @param queryString the SQL query to be executed
+     * @return a list of maps, where each map represents a row in the query result
      */
     @Override
     public List<Map<String, Object>> executeQuery(String queryString) {
@@ -320,9 +324,9 @@ public class MySQLDatabase extends Database {
     /**
      * Creates an index on a specified field in a collection.
      *
-     * @param collectionName the name of the collection on which to create the index
-     * @param fieldName      the name of the field on which to create the index
-     * @param unique         {@code true} if the index should be unique, {@code false} otherwise
+     * @param collectionName The name of the collection.
+     * @param fieldName      The name of the field to create the index on.
+     * @param unique         True if the index should enforce uniqueness, false otherwise.
      */
     @Override
     public void createIndex(String collectionName, String fieldName, boolean unique) {
@@ -338,8 +342,12 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Starts a transaction by disabling auto-commit mode for the connection.
-     * If an SQLException occurs, it will be logged using the GlobalLogger.
+     * Starts a transaction by disabling the auto-commit mode of the database connection.
+     * Once the transaction is started, all database operations until the transaction is committed or rolled back
+     * will be treated as a single atomic unit of work.
+     * If an exception occurs while starting the transaction, an error message will be logged.
+     *
+     * @throws SQLException if an error occurs while disabling the auto-commit mode of the database connection
      */
     @Override
     public void startTransaction() {
@@ -351,8 +359,9 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Commits the current transaction and sets the auto-commit mode of the connection to true.
-     * If an SQLException occurs during the commit, it is logged as an error.
+     * Commits the current transaction by calling the 'commit()' method on the database connection.
+     * Sets auto-commit mode to true after the commit operation is successful.
+     * If an SQLException occurs during the commit operation, it is logged as an error.
      */
     @Override
     public void commitTransaction() {
@@ -365,9 +374,8 @@ public class MySQLDatabase extends Database {
     }
 
     /**
-     * Rollbacks the current transaction and sets the auto-commit mode to true.
-     * If an exception occurs during the rollback, it will be logged using the GlobalLogger.
-     * This method does not return any value.
+     * Rolls back the current transaction and sets auto-commit mode to true.
+     * If an SQLException is caught during the rollback, an error message will be logged.
      */
     @Override
     public void rollbackTransaction() {

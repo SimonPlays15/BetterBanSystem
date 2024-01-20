@@ -11,14 +11,31 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * BanManager class is responsible for managing bans and checking for expired ban entries.
+ */
 public class BanManager {
 
+    /**
+     * The scheduled executor service used for scheduling tasks to be executed at fixed intervals or delays.
+     *
+     * @see BanManager
+     * @since 1.0
+     */
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
+    /**
+     * BanManager is responsible for managing bans and checking for expired ban entries.
+     * It has a start method that schedules tasks to check for expired ban entries periodically,
+     * and a stop method to shut down the scheduler.
+     */
     public BanManager() {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
+    /**
+     * Starts the BanManager and schedules tasks to check for expired ban entries.
+     */
     public void start() {
         Runnable checkExpiredBanEntry = () -> {
             for (IBanEntry entry : BanEntry.getAllEntries()) {
@@ -41,6 +58,12 @@ public class BanManager {
         scheduler.scheduleAtFixedRate(checkExpiredIPBanEntry, 6, 1, TimeUnit.SECONDS);
     }
 
+    /**
+     * Shuts down the scheduler and ensures all scheduled tasks are completed or canceled within 5 seconds.
+     * If the tasks do not complete within 5 seconds, the scheduler is forcibly shutdown.
+     * <p>
+     * If an InterruptedException occurs during the termination process, the scheduler is forcibly shutdown and an error message is written to the logger.
+     */
     public void stop() {
         scheduler.shutdown();
         try {

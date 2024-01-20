@@ -15,12 +15,26 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * The type Warn command.
+ */
 public class WarnCommand extends BaseCommand {
 
+    /**
+     * Instantiates a new Warn command.
+     */
     public WarnCommand() {
         super("warn");
     }
 
+    /**
+     * Run command boolean.
+     *
+     * @param sender the sender
+     * @param args   the args
+     * @return the boolean
+     * @throws CommandException the command exception
+     */
     @Override
     public boolean runCommand(BaseCommandSender sender, String @NotNull [] args) throws CommandException {
         if (args.length == 0) {

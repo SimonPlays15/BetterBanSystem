@@ -14,13 +14,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * The WarnHandler class provides methods for adding and removing warnings for a target player.
+ * Warnings are associated with a target player and can be issued by a command sender.
+ * Warnings consist of a reason and a unique identifier.
+ */
 public class WarnHandler {
 
     /**
-     * Adds a warning for a target player.
+     * Adds a warning for a target player with a given reason.
      *
-     * @param sender the command sender who issued the warning
-     * @param target the player name or UUID for which to add the warning
+     * @param sender the command sender issuing the warning
+     * @param target the name or UUID of the target player
      * @param reason the reason for the warning
      */
     public static void addWarn(@NotNull BaseCommandSender sender, String target, String reason) {
@@ -38,9 +43,10 @@ public class WarnHandler {
     }
 
     /**
-     * Removes a warning for a target player.
+     * Removes a specific warning from the target players warn entry.
      *
-     * @param target the player name or UUID for which to remove the warning
+     * @param target The name of the target player.
+     * @param id     The unique identifier of the warning to be removed.
      */
     public static void removeWarn(String target, int id) {
         UUID targetUUID = UUIDFetcher.getUUIDOrOfflineUUID(target);

@@ -20,8 +20,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 
+/**
+ * The CommandHandler class handles the execution of commands and tab completions.
+ */
 public class CommandHandler implements CommandExecutor, TabCompleter {
 
+    /**
+     * The CommandHandler class handles the registration of commands and sets default command handlers for unregistered commands.
+     */
     public CommandHandler() {
         registerCommands();
         for (String s : BetterBanSystem.getInstance().getPluginDescription().getCommands().keySet()) {
@@ -36,12 +42,25 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
         }
     }
 
+    /**
+     * Registers all commands from the CommandHandler into the Bukkit plugin command registry,
+     * allowing them to be executed by players.
+     */
     private void registerCommands() {
         for (BaseCommand value : BetterBanSystem.getInstance().getCommandHandler().getCommands().values()) {
             Objects.requireNonNull(Bukkit.getPluginCommand(value.getCommandName())).setExecutor(this);
         }
     }
 
+    /**
+     * Executes the command when it is called by a sender.
+     *
+     * @param sender  the command sender
+     * @param command the command that is being executed
+     * @param label   the command label
+     * @param args    the command arguments
+     * @return true if the command was successfully executed, false otherwise
+     */
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         GlobalLogger.getLogger().debug(sender.getName(), "executed command", command.getName() + "/" + label + "[" + String.join(", ", args) + "]");
@@ -82,6 +101,15 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    /**
+     * Provides tab completion for a command.
+     *
+     * @param sender  The CommandSender who is performing the tab completion.
+     * @param command The command being tab completed.
+     * @param label   The alias or label used to invoke the command.
+     * @param args    The arguments provided for the command.
+     * @return A List of tab completion options for the command arguments, or null if tab completion is not available for the command.
+     */
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

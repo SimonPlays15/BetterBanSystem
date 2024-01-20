@@ -21,12 +21,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * The type Look up command.
+ */
 public class LookUpCommand extends BaseCommand {
 
+    /**
+     * Instantiates a new Look up command.
+     */
     public LookUpCommand() {
         super("lookup");
     }
 
+    /**
+     * Run command boolean.
+     *
+     * @param sender the sender
+     * @param args   the args
+     * @return the boolean
+     * @throws CommandException the command exception
+     */
     @Override
     public boolean runCommand(@NotNull BaseCommandSender sender, String[] args) throws CommandException {
         if (sender.isConsole() && args.length == 0) {

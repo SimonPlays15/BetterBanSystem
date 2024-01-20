@@ -24,9 +24,9 @@ It was never easier to ban, mute or warn a user
         * [Permissions](#permissions)
             * [Permission Handling](#permission-handling)
             * [Plug-In Permissions](#plug-in-permissions)
-        * [How to exempt a Player from Bans, Warns or Mutes](#how-to-exempt-a-player-from-bans-warns-or-mutes)
-            * [Add a Player or IP-Address to the config](#add-a-player-or-ip-address-to-the-config)
-            * [Add the Permission to a Player or an IP-Address.](#add-the-permission-to-a-player-or-an-ip-address)
+    * [How to exempt a Player from Bans, Warns or Mutes](#how-to-exempt-a-player-from-bans-warns-or-mutes)
+        * [Add a Player or IP-Address to the config](#add-a-player-or-ip-address-to-the-config)
+        * [Add the Permission to a Player or an IP-Address.](#add-the-permission-to-a-player-or-an-ip-address)
 
 <!-- TOC -->
 
@@ -50,13 +50,14 @@ Simply Join our discord [MCDevStudios](https://discord.gg/QWpsnKPC8W) and create
 | \> 1.20.2 | ❌ NOT TESTED |
 | 1.20.x    | ✅            |
 | 1.19.x    | ✅            |
-| < 1.12.2  | ❌ NOT TESTED |
+| < 1.8     | ❌ NOT TESTED |
 
 ## Supported Minecraft BungeeCord Versions
 
-| Version      | Supported        |
-|--------------|------------------|
-| ALL VERSIONS | ❌ NOT TESTED YET |
+| Version       | Supported        |
+|---------------|------------------|
+| 1.20.2        | ✅                |
+| Other version | ❌ NOT TESTED YET |
 
 ## Report Issues ⚠️
 
@@ -241,8 +242,10 @@ Spamming"<br>
 
 #### The Chat Modules
 
-**!NOTE!** For the Chat Modules the standard action is `DELETE`. So the message will not be printed inside the chat if
-no `action` Tags are defined.<br>
+> [!NOTE]
+> **!NOTE!** For the Chat Modules the standard action is `DELETE`. So the message will not be printed inside the chat if
+> no `action` Tags are defined.
+<br>
 
 ##### Examples
 
@@ -448,7 +451,7 @@ Every permission starts with `betterbansystem.`
 
 </details>
 
-### How to exempt a Player from Bans, Warns or Mutes
+## How to exempt a Player from Bans, Warns or Mutes
 
 #### Add a Player or IP-Address to the config
 
@@ -458,13 +461,14 @@ bans<br>
 or you add the players name to the `exempted-mute-players` or `exempted-warns-players` list to exempt the player from
 mutes / warns.<br>
 You can also add an IP-Address to the `exempted-ips` list to exempt a specific IP-Address from bans.<br>
-**NOTE!**<br>
-You can ban, warn, mute and ban an IP address over the console, even if the name or the ip address is inside one of the
-lists.<br>
+> [!NOTE]
+> You can ban, warn, mute and ban an IP address over the console, even if the name or the ip address is inside one of
+> the
+> lists.
 
 #### Add the Permission to a Player or an IP-Address.
 
 You can also use one of the [Exempt Permissions](#permissions) to exempt a Player from warns, bans mutes.<br>
-**NOTE!**<br>
-If a player has the `betterbansystem.exempt.ban` permission he can get IP-Banned.<br>
-To add an IP-Address to the exempted list `exempted-ips`.
+> [!NOTE]
+> If a player has the `betterbansystem.exempt.ban` permission he can get IP-Banned.<br>
+> To add an IP-Address to the exempted list `exempted-ips`.

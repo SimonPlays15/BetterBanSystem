@@ -22,14 +22,24 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * SpigotCommandSender is a class that represents a command sender in the Spigot server.
+ * It extends the BaseCommandSender class and implements the CommandSender interface.
+ * It provides methods for sending messages, checking permissions, getting the name of the sender, and determining the type of sender.
+ */
 public class SpigotCommandSender extends BaseCommandSender implements CommandSender {
+    /**
+     *
+     */
     private final CommandSender base;
+    /**
+     *
+     */
     private final CommandSenderType type;
 
     /**
-     * Constructs a new SpigotCommandSender object with the given base CommandSender.
-     *
-     * @param base The base CommandSender object to wrap with SpigotCommandSender.
+     * SpigotCommandSender is a class that represents a command sender in the Spigot plugin for Bukkit.
+     * It extends the BaseCommandSender class and provides additional functionality to identify the type of sender.
      */
     public SpigotCommandSender(CommandSender base) {
         this.base = base;
@@ -43,6 +53,12 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
             this.type = CommandSenderType.OTHER;
     }
 
+    /**
+     * Constructor for the SpigotCommandSender class.
+     * Initializes a new instance of the SpigotCommandSender class with the given base object.
+     *
+     * @param base The base object of type Object, representing the command sender.
+     */
     public SpigotCommandSender(Object base) {
         this.base = (CommandSender) base;
         if (base instanceof Player)
@@ -56,10 +72,10 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Creates a new SpigotCommandSender object from a CommandSender object.
+     * Converts an object to a SpigotCommandSender.
      *
-     * @param sender the CommandSender object to convert
-     * @return a new SpigotCommandSender object
+     * @param sender the object to convert
+     * @return a new instance of SpigotCommandSender
      */
     @Contract("_ -> new")
     public static @NotNull SpigotCommandSender of(Object sender) {
@@ -67,24 +83,29 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Returns the type of the command sender.
+     * Retrieves the type of the command sender.
      *
-     * @return The CommandSenderType of the command sender.
+     * @return The CommandSenderType representing the type of the command sender.
      */
     @Override
     public CommandSenderType getSenderType() {
         return this.type;
     }
 
+    /**
+     * Retrieves the base CommandSender associated with this object.
+     *
+     * @return the base CommandSender object
+     */
     public CommandSender getBase() {
         return base;
     }
 
     /**
-     * Sends a message to the command sender.
-     * The message will be preceded with the prefix set in BetterBanSystem.
+     * Sends a message to the command sender with the specified string.
+     * The message is prefixed with the prefix retrieved from BetterBanSystem.
      *
-     * @param string the message to be sent
+     * @param string the string message to send
      */
     @Override
     public void sendMessage(@NotNull String string) {
@@ -92,9 +113,10 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Sends a message to the recipient(s).
+     * Sends a message or multiple messages to the command sender.
      *
-     * @param strings the message(s) to be sent
+     * @param strings the messages to be sent to the command sender
+     * @throws NullPointerException if {@code strings} is {@code null}
      */
     @Override
     public void sendMessage(@NotNull String @NotNull ... strings) {
@@ -103,10 +125,9 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Sends a message to the player with the given UUID.
-     * If the UUID is null, the message is sent to the console.
+     * Sends a message to the specified player identified by their UUID.
      *
-     * @param uuid The UUID of the player to send the message to. Can be null for console.
+     * @param uuid The UUID of the player to send the message to. Can be null if the message is intended for all players.
      * @param s    The message to send.
      */
     @Override
@@ -115,10 +136,10 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Sends a message to a player identified by the specified UUID.
+     * This method sends a message or multiple messages to the command sender.
      *
-     * @param uuid    the UUID of the player to send the message to
-     * @param strings the messages to be sent
+     * @param uuid    The UUID of the command sender to send the message to. Can be null for console.
+     * @param strings The messages to be sent to the command sender.
      */
     @Override
     public void sendMessage(@Nullable UUID uuid, @NotNull String... strings) {
@@ -127,9 +148,9 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Retrieves the server object associated with this SpigotCommandSender.
+     * Returns the server associated with this command sender.
      *
-     * @return a Server object representing the server.
+     * @return The server associated with this command sender.
      */
     @NotNull
     @Override
@@ -138,9 +159,9 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Returns the name of the object.
+     * Retrieves the name of the command sender.
      *
-     * @return the name of the object.
+     * @return the name of the command sender
      */
     @NotNull
     @Override
@@ -149,10 +170,9 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Returns the Spigot object associated with this instance.
+     * Retrieves the Spigot for this command sender.
      *
-     * @return the Spigot object
-     * @since 1.0.0
+     * @return the Spigot for this command sender.
      */
     @NotNull
     @Override
@@ -161,10 +181,10 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Checks if a specific permission is set.
+     * Determines whether the command sender has the specified permission.
      *
-     * @param s The permission to check.
-     * @return {@code true} if the permission is set, otherwise {@code false}.
+     * @param s the permission to check
+     * @return true if the command sender has the permission, false otherwise
      */
     @Override
     public boolean isPermissionSet(@NotNull String s) {
@@ -172,10 +192,10 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Checks if the specified permission is set for this command sender.
+     * Checks if the command sender has the specified permission.
      *
      * @param permission the permission to check
-     * @return {@code true} if the permission is set, {@code false} otherwise
+     * @return true if the command sender has the permission, false otherwise
      */
     @Override
     public boolean isPermissionSet(@NotNull Permission permission) {
@@ -196,7 +216,7 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     /**
      * Checks if the command sender has the specified permission.
      *
-     * @param permission The permission to check
+     * @param permission the permission to check
      * @return true if the command sender has the permission, false otherwise
      */
     @Override
@@ -207,10 +227,10 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     /**
      * Adds a permission attachment to the command sender.
      *
-     * @param plugin the plugin that is adding the attachment
-     * @param s      the permission to add
+     * @param plugin the plugin that owns the attachment
+     * @param s      the permission string
      * @param b      the value of the permission
-     * @return the created PermissionAttachment
+     * @return the PermissionAttachment object representing the added attachment
      */
     @NotNull
     @Override
@@ -219,10 +239,10 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Adds a permission attachment for the given plugin.
+     * Adds a permission attachment for the specified plugin to this command sender.
      *
-     * @param plugin The plugin for which the permission attachment is added.
-     * @return The created PermissionAttachment.
+     * @param plugin the plugin that owns the attachment
+     * @return the newly created PermissionAttachment
      */
     @NotNull
     @Override
@@ -231,13 +251,14 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Adds a permission attachment to the command sender.
+     * Adds a permission attachment to this command sender.
      *
-     * @param plugin the plugin the attachment is for
-     * @param s      the name of the attachment
-     * @param b      if the attachment should be automatically removed when the plugin is disabled
-     * @param i      the desired priority of the attachment
-     * @return the created PermissionAttachment
+     * @param plugin the plugin that owns this attachment
+     * @param s      the permission string
+     * @param b      the value of the permission
+     * @param i      the ticks remaining for the attachment (useful for temporary permissions)
+     * @return the permission attachment that was added
+     * @nullable if the plugin is null or the permission attachment could not be added
      */
     @Nullable
     @Override
@@ -246,22 +267,22 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Adds a permission attachment for the specified plugin and priority level.
+     * Adds a permission attachment to this sender for the specified plugin with the given priority.
      *
-     * @param plugin The plugin that adds the attachment
-     * @param i      The priority level of the attachment
-     * @return The created PermissionAttachment, or null if the addition failed
+     * @param plugin   The plugin that owns the attachment
+     * @param priority The priority of the attachment
+     * @return The newly created PermissionAttachment, or null if it was not possible to create one
      */
     @Nullable
     @Override
-    public PermissionAttachment addAttachment(@NotNull Plugin plugin, int i) {
-        return this.base.addAttachment(plugin, i);
+    public PermissionAttachment addAttachment(@NotNull Plugin plugin, int priority) {
+        return this.base.addAttachment(plugin, priority);
     }
 
     /**
-     * Removes a PermissionAttachment from the command sender.
+     * Removes a permission attachment from the command sender.
      *
-     * @param permissionAttachment the PermissionAttachment to remove
+     * @param permissionAttachment the permission attachment to remove
      */
     @Override
     public void removeAttachment(@NotNull PermissionAttachment permissionAttachment) {
@@ -269,9 +290,12 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Recalculates the permissions of the current object.
-     * This method overrides the recalculatePermissions() method of the base class.
-     * It delegates the responsibility to recalculate the permissions to the base object.
+     * Recalculates the permissions of the command sender.
+     *
+     * <p>
+     * This method delegates the task of recalculating permissions to the {@link CommandSender#recalculatePermissions()} method
+     * of the base command sender object.
+     * </p>
      */
     @Override
     public void recalculatePermissions() {
@@ -279,10 +303,9 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Retrieves the effective permissions for the object.
+     * Retrieves the effective permissions of the command sender.
      *
-     * @return a set of PermissionAttachmentInfo representing the effective permissions
-     * @throws NullPointerException if the base object is null
+     * @return a Set of PermissionAttachmentInfo representing the effective permissions of the command sender
      */
     @NotNull
     @Override
@@ -291,9 +314,9 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Checks if the user executing the method is an operator.
+     * Determines whether the command sender has operator permissions.
      *
-     * @return true if the user is an operator, false otherwise.
+     * @return true if the command sender has operator permissions, false otherwise
      */
     @Override
     public boolean isOp() {
@@ -301,9 +324,9 @@ public class SpigotCommandSender extends BaseCommandSender implements CommandSen
     }
 
     /**
-     * Sets the operation status of the Base object.
+     * Sets the op status of the command sender.
      *
-     * @param b the new operation status, true for enabled and false for disabled.
+     * @param b the op status to set
      */
     @Override
     public void setOp(boolean b) {

@@ -12,7 +12,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import me.github.simonplays15.betterbansystem.core.database.Database;
-import me.github.simonplays15.betterbansystem.core.database.IDatabase;
 import org.apache.commons.lang.NotImplementedException;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
@@ -22,11 +21,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * MongoDBDatabase is a concrete class that extends the abstract class Database. It provides
+ * the implementation of the methods to interact with a MongoDB database. This class uses the
+ * MongoDB driver to connect to and perform operations on the database.
+ */
 public class MongoDBDatabase extends Database {
 
+    /**
+     * The MongoClient instance used to connect to a MongoDB database.
+     */
     private MongoClient mongoClient;
+    /**
+     * Private variable that represents the database for the MongoDBDatabase class.
+     * The database is an instance of the MongoDatabase class from the MongoDB Java driver.
+     */
     private MongoDatabase database;
 
+    /**
+     * Create the database and tables required for the application to function.
+     */
     @Override
     public void createDatabaseAndTables() {
         MongoDatabase database = mongoClient.getDatabase("betterbansystem");
@@ -38,11 +52,11 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Connects to a specific database using the MongoDB driver.
+     * Connects to a specific database using the provided connection string, username, and password.
      *
-     * @param connectionstring the connection string for the MongoDB database
-     * @param username         the username for authentication (optional)
-     * @param password         the password for authentication (optional)
+     * @param connectionstring the connection string to connect to the database
+     * @param username         the username for authentication
+     * @param password         the password for authentication
      */
     @Override
     public void connect(@NotNull String connectionstring, String username, String password) {
@@ -52,7 +66,7 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Disconnects from the database. Closes the MongoClient if it is not null.
+     * Disconnects from the database.
      */
     @Override
     public void disconnect() {
@@ -90,7 +104,9 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Deletes a record from the specified table based on the primary key value.
+     * Deletes a record from the specified table based on the primary key value. This method overrides the delete
+     * method in the super class and additionally clears the cache of query results that are associated with the
+     * deleted table.
      *
      * @param tableName       the name of the table
      * @param primaryKey      the name of the primary key column
@@ -124,7 +140,7 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Selects all records from the specified table in the MongoDB database.
+     * Retrieves all records from the specified table in the MongoDB database.
      *
      * @param tableName the name of the table to select from
      * @return a list of maps representing the selected records
@@ -143,10 +159,10 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Executes the specified MongoDB query and returns a list of maps representing the query result.
+     * Executes a query on the MongoDB database.
      *
-     * @param queryString the MongoDB query string to execute
-     * @return a list of maps, where each map represents a row in the query result and contains column names mapped to their respective values
+     * @param queryString The query string to be executed.
+     * @return A list of maps representing the query result. Each map contains field-value pairs of the documents returned by the query.
      */
     @Override
     public List<Map<String, Object>> executeQuery(String queryString) {
@@ -162,9 +178,7 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Executes a query on the MongoDB database.
      *
-     * @param queryString the query string to execute
      */
     @Override
     public void query(String queryString) {
@@ -186,12 +200,7 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * This method is used to start a transaction in the database.
-     * It is implemented by classes that represent specific database drivers.
-     * Once a transaction is started, any changes made to the database will not be saved until the transaction is committed.
-     *
-     * @see IDatabase#commitTransaction()
-     * @see IDatabase#rollbackTransaction()
+     * Starts a transaction.
      */
     @Override
     public void startTransaction() {
@@ -207,7 +216,7 @@ public class MongoDBDatabase extends Database {
     }
 
     /**
-     * Rollbacks the current transaction.
+     * Rolls back the current transaction.
      */
     @Override
     public void rollbackTransaction() {

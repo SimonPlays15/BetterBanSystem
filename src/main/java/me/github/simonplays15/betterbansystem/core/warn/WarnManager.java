@@ -17,14 +17,40 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * WarnManager class for managing warnings and auto-deletion of expired warnings.
+ */
 public class WarnManager {
 
+    /**
+     *
+     */
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    /**
+     * WarnManager class for managing warnings and auto-deletion of expired warnings.
+     */
     public WarnManager() {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
+    /**
+     * Starts the auto-deletion of expired warnings based on the configured interval.
+     * <p>
+     * Note: The auto-deletion feature must be enabled in the configuration file.
+     * The interval for auto-deletion can be configured in the configuration file
+     * using the properties 'warns.autodelete.use' and 'warns.autodelete.time'.
+     * <p>
+     * The time unit for the interval can be configured using the property 'warns.autodelete.unit'.
+     * By default, the time unit is set to 'MINUTES'. The available time units are:
+     * - NANOSECONDS
+     * - MICROSECONDS
+     * - MILLISECONDS
+     * - SECONDS
+     * - MINUTES
+     * - HOURS
+     * - DAYS
+     */
     public void start() {
         if (!BetterBanSystem.getInstance().getConfig().getBoolean("warns.autodelete.use"))
             return;
@@ -51,6 +77,11 @@ public class WarnManager {
 
     }
 
+    /**
+     * Stops the execution of the scheduler and shuts it down gracefully.
+     * If the scheduler does not terminate within 5 seconds, it will be forced to shut down.
+     * If an InterruptedException occurs during the termination process, the scheduler will be forced to shut down as well.
+     */
     public void stop() {
         scheduler.shutdown();
         try {

@@ -19,44 +19,50 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * The BaseCommand class represents a base command that can be executed by a command sender.
+ * Subclasses should extend this abstract class to implement their own specific commands.
+ */
 public abstract class BaseCommand {
 
     /**
-     * The name of the command.
-     */
-    private final String commandName;
-    /**
-     * Represents a private final variable for managing permissions.
-     *
-     * @see BetterBanSystem
+     * Represents a variable manager that holds an instance of PermissionsManager.
+     * The manager is declared as private final and cannot be modified once set.
      */
     private final PermissionsManager manager;
+    /**
+     * Represents a list of aliases associated with a command.
+     * Aliases are alternative names that can be used to execute the command.
+     * The list is unmodifiable, meaning that it cannot be modified after it is initialized.
+     */
     private final List<String> aliases;
+    /**
+     * Represents a private variable that stores the name of a command.
+     */
+    private String commandName;
     /**
      * Represents the permission associated with a command.
      */
     private String permission;
     /**
-     * private variable to store the description.
+     * Description of the variable.
      */
     private String description;
     /**
-     * Returns the usage information of the command.
+     * The usage of the command
      */
     private String usage;
     /**
-     * Represents the label of a command.
-     * The label is a string that identifies a command.
-     * It can be used to match a command with its corresponding functionality.
+     * Represents a private string variable called 'label'.
+     * This variable is used to store a label associated with a command.
      */
     private String label;
 
     /**
      * Represents a base command.
-     * Constructor initializes the command properties based on the provided command name.
      *
      * @param commandName The name of the command.
-     * @throws InvalidDescriptionException If the command name is not found in the plugin.yml (PluginDescriptionFile).
+     * @throws InvalidDescriptionException if the command name cannot be found in the plugin.yml file.
      */
     public BaseCommand(String commandName) {
         this.manager = BetterBanSystem.getInstance().getPermissionsManager();
@@ -75,28 +81,28 @@ public abstract class BaseCommand {
     }
 
     /**
-     * Tests the permission of a command sender.
+     * Tests if the specified command sender has the required permission to execute the command.
      *
-     * @param sender The command sender to test the permission for.
-     * @return True if the sender has permission, false otherwise.
+     * @param sender The command sender to test.
+     * @return true if the command sender has the required permission, false otherwise.
      */
     public boolean testPermission(@NotNull BaseCommandSender sender) {
         return this.testPermission(sender, this.permission);
     }
 
     /**
-     * Retrieves the list of aliases for this command.
+     * Returns the list of aliases associated with the command.
      *
-     * @return The list of aliases.
+     * @return the list of aliases
      */
     public List<String> getAliases() {
         return aliases;
     }
 
     /**
-     * Check if the provided sender has the given permission.
+     * This method checks if a given command sender has the specified permission.
      *
-     * @param sender     The BaseCommandSender instance.
+     * @param sender     The BaseCommandSender to test the permission for.
      * @param permission The permission string to check.
      * @return True if the sender has the permission, false otherwise.
      */
@@ -106,25 +112,33 @@ public abstract class BaseCommand {
         if (sender.isConsole()) {
             return true;
         }
+        if (manager.hasPermission(sender.getName(), "betterbansystem.*"))
+            return true;
+
+        if (permission.contains(".commands.") && manager.hasPermission(sender.getName(), "betterbansystem.commands.*"))
+            return true;
+        if (permission.contains(".exempt.") && manager.hasPermission(sender.getName(), "betterbansystem.exempt.*"))
+            return true;
+
         return manager.hasPermission(sender.getName(), permission);
     }
 
     /**
      * Executes the command.
      *
-     * @param sender the command sender.
-     * @param args   the command arguments.
-     * @return {@code true} if the command was executed successfully, {@code false} otherwise.
-     * @throws CommandException if an error occurs during command execution.
+     * @param sender The command sender.
+     * @param args   The command arguments.
+     * @return true if the command executed successfully, false otherwise.
+     * @throws CommandException if a command encounters an error or exception.
      */
     public abstract boolean runCommand(BaseCommandSender sender, String[] args) throws CommandException;
 
     /**
-     * Returns a list of tab completions for the given command sender and arguments.
+     * Generates a list of tab completion options for the given command.
      *
-     * @param sender The command sender.
-     * @param args   The command arguments.
-     * @return The list of tab completions.
+     * @param sender The command sender initiating the tab completion.
+     * @param args   The arguments provided after the command.
+     * @return A list of tab completion options.
      */
     public List<String> onTabComplete(BaseCommandSender sender, String @NotNull [] args) {
         if (!this.testPermission(sender, this.getPermission()))
@@ -146,7 +160,7 @@ public abstract class BaseCommand {
     }
 
     /**
-     * Returns the name of the command.
+     * Retrieves the name of the command.
      *
      * @return The name of the command.
      */
@@ -155,54 +169,63 @@ public abstract class BaseCommand {
     }
 
     /**
+     * Sets the name of the command.
+     *
+     * @param commandName The name of the command to set.
+     */
+    public void setCommandName(String commandName) {
+        this.commandName = commandName;
+    }
+
+    /**
      * Retrieves the permission associated with this command.
      *
-     * @return The permission associated with this command.
+     * @return the permission associated with this command as a string
      */
     public String getPermission() {
         return permission;
     }
 
     /**
-     * Sets the permission required to use this command.
+     * Sets the permission for the command.
      *
-     * @param permission The permission string to set. It should follow the format "plugin.permission".
+     * @param permission the permission to set
      */
     public void setPermission(String permission) {
         this.permission = permission;
     }
 
     /**
-     * Returns the usage of the command.
+     * Retrieves the usage string of the command.
      *
-     * @return The usage of the command.
+     * @return the usage string with the label of the command
      */
     public String getUsage() {
         return usage.replaceAll("<command>", this.label);
     }
 
     /**
-     * Sets the usage message for the command.
+     * Sets the usage of the command.
      *
-     * @param usage The usage message to be set.
+     * @param usage the usage of the command
      */
     public void setUsage(String usage) {
         this.usage = usage;
     }
 
     /**
-     * Sends the usage information of the command to the specified BaseCommandSender.
+     * Sends the usage of the command to the specified sender.
      *
-     * @param sender The BaseCommandSender to send the usage information to.
+     * @param sender The base command sender.
      */
     public void sendUsage(@NotNull BaseCommandSender sender) {
         sender.sendMessage(BetterBanSystem.getInstance().getPrefix() + getUsage());
     }
 
     /**
-     * Sets the label for the command.
+     * Sets the label for a command.
      *
-     * @param label The label to set for the command.
+     * @param label the label to set
      */
     public void setLabel(String label) {
         this.label = label;
@@ -211,25 +234,25 @@ public abstract class BaseCommand {
     /**
      * Returns the description of the command.
      *
-     * @return The description of the command.
+     * @return the description of the command.
      */
     public String getDescription() {
         return description;
     }
 
     /**
-     * Sets the description of the command.
+     * Sets the description of the method.
      *
-     * @param description The new description of the command.
+     * @param description the description to be set
      */
     public void setDescription(String description) {
         this.description = description;
     }
 
     /**
-     * Retrieves the PermissionsManager object associated with this BaseCommand instance.
+     * Retrieves the PermissionsManager instance associated with this BaseCommand.
      *
-     * @return The PermissionsManager object.
+     * @return The PermissionsManager instance.
      */
     public PermissionsManager getPermManager() {
         return manager;
@@ -252,15 +275,21 @@ public abstract class BaseCommand {
     }
 
     /**
-     * Computes the hash code for the object.
+     * Computes the hash code for this object.
      *
-     * @return the hash code value for this command
+     * @return the hash code value for this object.
      */
     @Override
     public int hashCode() {
         return Objects.hash(commandName, manager, aliases, permission, description, usage, label);
     }
 
+    /**
+     * Returns a string representation of the BaseCommand object.
+     * The string includes the values of the commandName, manager, aliases, permission, description, usage, and label fields.
+     *
+     * @return a string representation of the BaseCommand object
+     */
     @Override
     public String toString() {
         return "BaseCommand{" +

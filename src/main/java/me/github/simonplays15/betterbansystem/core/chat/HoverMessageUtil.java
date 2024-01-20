@@ -10,16 +10,18 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
+/**
+ * The type Hover message util.
+ */
 public class HoverMessageUtil {
 
     /**
      * Sends a hoverable message to the specified player.
      *
-     * @param player       the player to send the message to (has to be an instance of {@link org.bukkit.entity.Player} or {@link net.md_5.bungee.api.connection.ProxiedPlayer})
-     * @param message      the main message text
-     * @param hoverMessage the text to display when hovering over the main message
-     * @apiNote {@link HoverEvent#HoverEvent(HoverEvent.Action, BaseComponent[])} is deprecated and is removed in future releases of the BungeeCord API. (Tested on 1.20.2)
-     * @deprecated {@code BaseComponent[] sendMessage = new ComponentBuilder(message).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText)).create();}
+     * @param player       the player to send the message to
+     * @param message      the main message to be displayed
+     * @param hoverMessage the message to be displayed when hovering over the main message
+     * @deprecated This method is deprecated and should not be used. Use the overloaded methods instead.
      */
     @Deprecated
     public static void sendHoverableMessage(Object player, String message, String hoverMessage) {
@@ -35,6 +37,12 @@ public class HoverMessageUtil {
         }
     }
 
+    /**
+     * Sends a hoverable message to a player.
+     *
+     * @param player     the player to send the message to
+     * @param components the components of the message
+     */
     public static void sendHoverableMessage(Object player, BaseComponent[] components) {
         if (player instanceof org.bukkit.entity.Player a) {
             a.spigot().sendMessage(components);
@@ -43,6 +51,12 @@ public class HoverMessageUtil {
         }
     }
 
+    /**
+     * Sends a hoverable message to a player or proxied player.
+     *
+     * @param player    the player or proxied player to send the message to
+     * @param component the text components to send as the message
+     */
     public static void sendHoverableMessage(Object player, TextComponent... component) {
         if (player instanceof org.bukkit.entity.Player a) {
             a.spigot().sendMessage(component);
@@ -52,6 +66,12 @@ public class HoverMessageUtil {
     }
 
 
+    /**
+     * Sends a hoverable message to a player.
+     *
+     * @param player    the player to send the message to
+     * @param component the text component to send
+     */
     public static void sendHoverableMessage(Object player, TextComponent component) {
         if (player instanceof org.bukkit.entity.Player a) {
             a.spigot().sendMessage(component);
@@ -61,12 +81,12 @@ public class HoverMessageUtil {
     }
 
     /**
-     * Builds a hoverable message with the specified player, message, and hover message.
+     * Builds a hoverable message with the specified message and hover text.
      *
-     * @param message      the main message text
-     * @param hoverMessage the text to display when hovering over the main message
-     * @return the hoverable message as an array of {@link BaseComponent}
-     * @deprecated Please use {@link HoverMessageUtil#sendHoverableMessage(Object, String, String)} instead.
+     * @param message      The main message to display.
+     * @param hoverMessage The hover text to display when the message is hovered.
+     * @return The hoverable message as an array of BaseComponents.
+     * @deprecated This method is deprecated. Use {@link HoverMessageUtil#sendHoverableMessage} instead.
      */
     @Deprecated
     public static BaseComponent[] buildHoverableMessage(String message, String hoverMessage) {

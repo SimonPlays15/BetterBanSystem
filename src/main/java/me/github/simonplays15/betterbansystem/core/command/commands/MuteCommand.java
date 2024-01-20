@@ -22,12 +22,25 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * The type Mute command.
+ */
 public class MuteCommand extends BaseCommand {
 
+    /**
+     * Instantiates a new Mute command.
+     */
     public MuteCommand() {
         super("mute");
     }
 
+    /**
+     * Future date date.
+     *
+     * @param now        the now
+     * @param timeString the time string
+     * @return the date
+     */
     private @Nullable Date futureDate(Date now, String timeString) {
 
         Pattern pattern = Pattern.compile("(\\d+y)?(\\d+m)?(\\d+d)?(\\d+h)?(\\d+min)?(\\d+s)?");
@@ -62,6 +75,14 @@ public class MuteCommand extends BaseCommand {
         return null;
     }
 
+    /**
+     * Run command boolean.
+     *
+     * @param sender the sender
+     * @param args   the args
+     * @return the boolean
+     * @throws CommandException the command exception
+     */
     @Override
     public boolean runCommand(BaseCommandSender sender, String @NotNull [] args) throws CommandException {
         if (args.length < 2) {

@@ -38,179 +38,152 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Represents the BetterBanSystem class.
+ */
 public abstract class BetterBanSystem {
 
     /**
-     * The singleton instance of the BetterBanSystem class.
-     * <p>
-     * This variable allows access to the BetterBanSystem class from anywhere in the code.
-     * It ensures that there is only one instance of the class throughout the application.
-     * <p>
-     * Containing Class: BetterBanSystem
-     * <p>
-     * Type: BetterBanSystem
-     * <p>
-     * Example Usage:
-     * BetterBanSystem system = BetterBanSystem.getInstance();
+     * The BetterBanSystem class represents a singleton instance of the BetterBanSystem system.
+     * It provides methods for sending messages, getting players, managing permissions, loading configurations,
+     * and interacting with the database.
      */
     private static BetterBanSystem instance;
     /**
-     * This variable is used to cache an instance of the BaseCommandSender class.
-     * It is declared as private, static and volatile to ensure thread safety in a multi-threaded environment.
-     * The cachedSender variable is initially set to null and will be assigned an instance of the BaseCommandSender class when needed.
-     * <p>
-     * The BaseCommandSender class represents a command sender, such as a player or the console, that can execute commands in the plugin.
-     * <p>
-     * To access the cachedSender variable, use the appropriate getter method in the BetterBanSystem class.
-     * <p>
-     * Example usage:
-     * BaseCommandSender sender = BetterBanSystem.getConsoleSender();
-     * <p>
-     * Note: The example code is not included in the documentation to comply with the requirements.
+     * Represents a cached instance of a command sender.
+     * It is used to store a reference to a command sender object for efficient access.
+     * The reference is volatile to ensure atomicity and visibility across multiple threads.
      */
     private static volatile BaseCommandSender cachedSender = null;
     /**
-     * Represents the folder where data is stored.
+     * Represents the folder where the data for the BetterBanSystem plugin is stored.
      */
     private final File dataFolder;
     /**
-     * Represents the configuration file used by the application.
+     * The configFile variable represents the file object that holds the configuration data for the BetterBanSystem.
      */
     private final File configFile;
     /**
-     * This class represents the plugin description for the base plugin.
+     * Represents the description of the base plugin.
      */
     private final BasePluginDescription basePluginDescription;
     /**
-     * The `commandHandler` variable is an instance of the `BaseCommandHandler` class.
-     * It represents a command handler that manages registered commands.
+     * The commandHandler variable is a private final member of the BetterBanSystem class.
+     * It is an instance of the BaseCommandHandler class, which is responsible for handling commands in a command-based system.
      * <p>
-     * The `BaseCommandHandler` class has the following methods:
-     * <p>
-     * - `registerCommand(BaseCommand)`:
-     * This method is used to register a new command with the command handler.
-     * It takes a `BaseCommand` object as a parameter and adds it to the internal map of commands.
-     * If a command with the same name is already registered, the method does nothing.
-     * <p>
-     * - `getCommands()`:
-     * This method returns a map containing all registered commands.
+     * The commandHandler variable is initialized in the constructor of the BetterBanSystem class.
+     * During initialization, several example commands are registered using the registerCommand() method of the BaseCommandHandler class.
      * <p>
      * Example usage:
-     * ```
-     * BaseCommandHandler commandHandler = new BaseCommandHandler();
-     * BaseCommand myCommand = new MyCommand();
-     * commandHandler.registerCommand(myCommand);
+     * <p>
+     * // Create an instance of BetterBanSystem
+     * BetterBanSystem betterBanSystem = new BetterBanSystem(dataFolder);
+     * <p>
+     * // Get the command handler
+     * BaseCommandHandler commandHandler = betterBanSystem.getCommandHandler();
+     * <p>
+     * // Get all registered commands
      * Map<String, BaseCommand> commands = commandHandler.getCommands();
-     * ```
+     * <p>
+     * // Retrieve a specific command by its name
+     * BaseCommand command = commands.get("commandName");
+     * <p>
+     * Note: This documentation only covers the purpose and usage of the commandHandler variable and does not provide example code.
      */
     private final BaseCommandHandler commandHandler;
     /**
-     * The prefix variable represents the prefix used in the BetterBanSystem class.
-     * It is a string that is used to prefix messages or log statements in the system.
-     * It can be set and retrieved using the getter and setter methods defined in the BetterBanSystem class.
+     * The prefix variable stores a string that represents a prefix for messages or commands.
      */
     public String prefix;
     /**
-     * The `config` variable is an instance of the `BaseConfig` class. It represents a configuration object that
-     * stores key-value pairs for various settings and options.
-     * <p>
-     * The `BaseConfig` class provides methods for loading and saving configuration data from a file, retrieving
-     * values based on keys, and checking the type of value.
-     * <p>
-     * The configuration data is stored internally as a `Map<String, Object>` where the keys are strings representing
-     * the path to a specific configuration property, and the values are the corresponding values for those properties.
-     * <p>
-     * The `BaseConfig` class provides the following methods:
-     * <p>
-     * - `save(File)`: Saves the configuration data to the specified file using the YAML format.
-     * <p>
-     * - `load(File)`: Loads the configuration data from the specified file using the YAML format.
-     * <p>
-     * - `get(String key)`: Returns the value associated with the specified key. If the key is not found, it returns null.
-     * <p>
-     * - `get(String key, Object def)`: Returns the value associated with the specified key. If the key is not found,
-     * it returns the default value specified by `def`.
-     * <p>
-     * - `getString(String path)`: Returns the value associated with the specified key as a string. If the key is not
-     * found, it returns null.
-     * <p>
-     * - `getString(String path, String def)`: Returns the value associated with the specified key as a string. If the
-     * key is not found, it returns the default value specified by `def`.
-     * <p>
-     * - `getInt(String path)`: Returns the value associated with the specified key as an integer. If the key is not
-     * found or the value is not a valid integer, it returns 0.
-     * <p>
-     * - `getInt(String path, int def)`: Returns the value associated with the specified key as an integer. If the key
-     * is not found or the value is not a valid integer, it returns the default value specified by `def`.
-     * <p>
-     * - `getBoolean(String path)`: Returns the value associated with the specified key as a boolean. If the key is not
-     * found or the value is not a valid boolean, it returns false.
-     * <p>
-     * - `getBoolean(String path, boolean def)`: Returns the value associated with the specified key as a boolean.
-     * If the key is not found or the value is not a valid boolean, it returns the default value specified by `def`.
-     * <p>
-     * - `getDouble(String path)`: Returns the value associated with the specified key as a double. If the key is not
-     * found or the value is not a valid double, it returns 0.0.
-     * <p>
-     * - `getDouble(String path, double def)`: Returns the value associated with the specified key as a double.
-     * If the key is not found or the value is not a valid double, it returns the default value specified by `def`.
-     * <p>
-     * - `getLong(String path)`: Returns the value associated with the specified key as a long. If the key is not
-     * found or the value is not a valid long, it returns 0L.
-     * <p>
-     * - `getLong(String path, long def)`: Returns the value associated with the specified key as a long. If the key
-     * is not found or the value is not a valid long, it returns the default value specified by `def`.
-     * <p>
-     * - `getList(String path)`: Returns the value associated with the specified key as a list. If the key is not
-     * found or the value is not a valid list, it returns null.
-     * <p>
-     * - `getList(String path, List<?> def)`: Returns the value associated with the specified key as a list. If the key
-     * is not found or the value is not a valid list, it returns the default value specified by `def`.
-     * <p>
-     * - `getStringList(String path)`: Returns the value associated with the specified key as a list of strings. If
-     * the key is not found or the value is not a valid list, it returns an empty list.
-     * <p>
-     * - `contains(String path)`: Checks if the configuration contains the specified key.
-     * <p>
-     * - `isString(String path)`: Checks if the value associated with the specified key is a string.
-     * <p>
-     * - `isInt(String path)`: Checks if the value associated with the specified key is an integer.
-     * <p>
-     * - `isBoolean(String path)`: Checks if the value associated with the specified key is a boolean.
-     * <p>
-     * - `isDouble(String path)`: Checks if the value associated with the specified key is a double.
-     * <p>
-     * - `isLong(String path)`: Checks if the value associated with the specified key is a long.
-     * <p>
-     * - `isList(String path)`: Checks if the value associated with the specified key is a list.
+     * Represents the configuration settings for the BetterBanSystem.
      */
     public BaseConfig config;
     /**
-     * Represents a language file which stores key-value pairs for different messages and their translations.
-     * The messages are loaded from a YAML file specified by the languagePath parameter.
-     * If the file fails to be loaded, a default language file ("language/en_US.yml") is used instead.
+     * The LanguageFile class represents a language file that extends the BaseConfig class.
+     * It provides methods to load and retrieve messages from the language file.
      */
     private LanguageFile languageFile;
     /**
-     * Represents a permissions' manager.
-     * This class is abstract and cannot be instantiated directly.
-     * Use the static methods to obtain an instance of a specific permissions' manager.
-     */
+     * The PermissionsManager variable is an instance of the PermissionsManager class.
+     * <p>
+     * It is a private field in the BetterBanSystem class.
+     * <p>
+     * The PermissionsManager class is responsible for managing permissions within the BetterBanSystem.
+     * It provides methods for checking permissions, assigning permissions to players, and handling permission-related operations.
+     * <p>
+     * To access the PermissionsManager object, use the getter method 'getPermissionsManager()' of the BetterBanSystem class.
+     * Examples:
+     * PermissionsManager = betterBanSystem.getPermissionsManager();
+     * <p>
+     * Note that this variable is declared as private, which means it can only be accessed within the BetterBanSystem class.
+     **/
     private PermissionsManager manager;
     /**
-     * Private variable that holds the database object associated with the BetterBanSystem instance.
+     * Represents a database and provides methods to interact with it.
+     * Use this variable to perform various database operations such as creating, connecting, disconnecting, inserting, updating,
+     * deleting, and selecting data. It also supports executing custom SQL queries, creating indexes, and managing transactions.
+     * You can access the methods and functionality of the database through this variable.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *     // Create an instance of IDatabase
+     *     IDatabase database = new Database();
+     *
+     *     // Connect to the database
+     *     database.connect("connectionstring", "username", "password");
+     *
+     *     // Insert data into a table
+     *     Map<String, Object> data = new HashMap<>();
+     *     data.put("column1", value1);
+     *     data.put("column2", value2);
+     *     database.insert("tableName", data);
+     *
+     *     // Update a record in a table
+     *     Map<String, Object> newData = new HashMap<>();
+     *     newData.put("column1", newValue1);
+     *     newData.put("column2", newValue2);
+     *     database.update("tableName", "primaryKey", primaryKeyValue, newData);
+     *
+     *     // Delete a record from a table
+     *     database.delete("tableName", "primaryKey", primaryKeyValue);
+     *
+     *     // Execute a SELECT query
+     *     List<Map<String, Object>> result = database.select("tableName", "condition");
+     *
+     *     // Execute a custom SQL query
+     *     List<Map<String, Object>> queryResult = database.executeQuery("SELECT * FROM tableName WHERE condition");
+     *
+     *     // Create an index on a field
+     *     database.createIndex("collectionName", "fieldName", true);
+     *
+     *     // Start a transaction
+     *     database.startTransaction();
+     *     try {
+     *         // Perform database operations within the transaction
+     *         database.insert("tableName", data);
+     *         database.update("tableName", "primaryKey", primaryKeyValue, newData);
+     *         database.delete("tableName", "primaryKey", primaryKeyValue);
+     *         // Commit the transaction
+     *         database.commitTransaction();
+     *     } catch (Exception e) {
+     *         // Handle exception
+     *         // Roll back the transaction
+     *         database.rollbackTransaction();
+     *     }
+     *
+     *     // Disconnect from the database
+     *     database.disconnect();
+     * }</pre>
      */
     private IDatabase database;
 
     /**
-     * Constructs a new instance of the BetterBanSystem class.
+     * Initializes the BetterBanSystem.
      *
-     * @param dataFolder The data folder for the plugin.
-     * @throws RuntimeException         If the correct runtime service cannot be loaded.
-     * @throws NullPointerException     If the dataFolder is null.
-     * @throws IllegalArgumentException If the plugin.yml or bungee.yml resource cannot be found.
+     * @param dataFolder The data folder for storing configuration and data files.
+     * @throws RuntimeException if the runtime service is not Spigot or BungeeCord.
      */
-
     public BetterBanSystem(File dataFolder) throws RuntimeException {
         instance = this;
         this.dataFolder = dataFolder;
@@ -276,7 +249,6 @@ public abstract class BetterBanSystem {
                     GlobalLogger.getLogger().info("A new update is available for BetterBanSystem: v" + version);
                 });
         });
-
     }
 
     /**
@@ -292,9 +264,9 @@ public abstract class BetterBanSystem {
     /**
      * Sends a message to a player.
      *
-     * @param player  The player object to send the message to. Must be an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer.
-     * @param message The message to send.
-     * @throws IllegalArgumentException If player object is not an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer.
+     * @param player  the player object to send the message to
+     * @param message the message to send
+     * @throws IllegalArgumentException if the player object is not an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer
      */
     public static void sendMessage(@NotNull Object player, String message) {
         message = getInstance().prefix + message;
@@ -315,15 +287,10 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Send a message to a player. The message will be prefixed with the plugin's prefix.
-     * The player parameter can be an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer.
-     * If it is any other type, an IllegalArgumentException will be thrown.
+     * Sends one or more messages to the specified player.
      *
-     * @param player   The player object to send the message to.
-     * @param messages The messages to send. Each message will be sent separately.
-     *                 The messages will be prefixed with the plugin's prefix before sending.
-     * @throws IllegalArgumentException If the player object is not an instance of org.bukkit.entity.Player
-     *                                  or net.md_5.bungee.api.connection.ProxiedPlayer.
+     * @param player   The player object to send the messages to. Must not be null.
+     * @param messages The messages to be sent. Can be one or more strings.
      */
     public static void sendMessage(Object player, String @NotNull ... messages) {
         for (String message : messages) {
@@ -332,12 +299,11 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Sends a message to a player using the given text component.
+     * Sends a message to a player or console.
      *
-     * @param player    the player object to send the message to
-     * @param component the text component to send as the message
-     * @throws IllegalArgumentException if the player object is not an instance of org.bukkit.entity.Player
-     *                                  or net.md_5.bungee.api.connection.ProxiedPlayer
+     * @param player    the player or console object to send the message to
+     * @param component the text component to send
+     * @throws IllegalArgumentException if player object is not an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer
      */
     public static void sendMessage(@NotNull Object player, @NotNull TextComponent component) {
         component.setText(getInstance().getPrefix() + component.getText());
@@ -359,11 +325,10 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Sends a message to a player using the given text components. Each component will be sent separately and will be prefixed with the plugin's prefix.
+     * Sends a message or multiple messages to a player.
      *
-     * @param player     The player object to send the message to. Must be an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer.
-     * @param components The text components to send. Each component will be sent separately and will be prefixed with the plugin's prefix.
-     * @throws IllegalArgumentException If the player object is not an instance of org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer.
+     * @param player     the player or command sender to send the message(s) to
+     * @param components the text components representing the message(s) to be sent
      */
     public static void sendMessage(Object player, @NotNull TextComponent @NotNull ... components) {
         for (TextComponent component : components) {
@@ -373,26 +338,18 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Kicks a player from the server.
-     * The method first checks if the given player object is of type 'org.bukkit.entity.Player',
-     * in which case it uses reflection to invoke the 'kickPlayer' method on the player object
-     * with the given message parameter.
-     * If the player object is of type 'net.md_5.bungee.api.connection.ProxiedPlayer', it uses reflection
-     * to invoke the 'disconnect' method on the player object with a 'BaseComponent' object created
-     * from the message parameter.
-     * If the player object is of any other type, the method does nothing.
+     * Kicks the specified player with the given message.
      *
-     * @param player  The player to be kicked. Must be of type 'org.bukkit.entity.Player'
-     *                or 'net.md_5.bungee.api.connection.ProxiedPlayer'.
+     * @param player  The player object to kick. Must be an instance of either org.bukkit.entity.Player or net.md_5.bungee.api.connection.ProxiedPlayer.
      * @param message The message to be displayed to the kicked player.
      */
     public static void kickPlayer(@NotNull Object player, String message) {
-        if (player.getClass().getName().equals("org.bukkit.entity.Player")) {
+        if (RuntimeService.isSpigot()) {
             try {
                 player.getClass().getMethod("kickPlayer", String.class).invoke(player, message);
             } catch (ReflectiveOperationException ignored) {
             }
-        } else if (player.getClass().getName().equals("net.md_5.bungee.api.connection.ProxiedPlayer")) {
+        } else if (RuntimeService.isBungeeCord()) {
             try {
                 TextComponent textComponent = new TextComponent(message);
                 player.getClass().getMethod("disconnect", BaseComponent.class).invoke(player, textComponent);
@@ -402,11 +359,10 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Retrieves the player object associated with the given player name. If the player is online, the player object will be returned. If the player is offline or cannot be found
-     * , null will be returned.
+     * Retrieves the player object based on the given player name.
      *
-     * @param playerName The name of the player to retrieve.
-     * @return The player object associated with the given name, or null if the player is offline or cannot be found.
+     * @param playerName the name of the player
+     * @return the player object if found, otherwise null
      */
     public static @Nullable Object getPlayer(@NotNull String playerName) {
         if (RuntimeService.isSpigot()) {
@@ -427,10 +383,10 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Retrieves the player object associated with the given player ID.
+     * Retrieves the player with the specified UUID.
      *
-     * @param playerId The ID of the player.
-     * @return The player object, or null if the player is not found.
+     * @param playerId the UUID of the player to retrieve
+     * @return the player object with the specified UUID, or null if the player is not found or the runtime environment is not supported
      */
     public static @Nullable Object getPlayer(@NotNull UUID playerId) {
         if (RuntimeService.isSpigot()) {
@@ -470,11 +426,10 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Retrieves the {@link org.bukkit.OfflinePlayer} object associated with the given UUID.
+     * Retrieves the OfflinePlayer object associated with the specified UUID.
      *
-     * @param uuid The UUID of the player.
-     * @return The {@link org.bukkit.OfflinePlayer} object associated with the UUID,
-     * or null if the player does not exist or the runtime environment is not Spigot.
+     * @param uuid The UUID of the player to fetch
+     * @return The OfflinePlayer object for the specified UUID, or null if it cannot be found.
      */
     public static @Nullable Object getOfflinePlayer(UUID uuid) {
         if (RuntimeService.isSpigot()) {
@@ -488,10 +443,10 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Retrieves the console sender object based on the runtime environment.
+     * Retrieves the console object for the current runtime environment.
      *
-     * @return The console sender object.
-     * @throws RuntimeException If the Spigot or BungeeCord library cannot be found.
+     * @return The console object for the current runtime environment.
+     * @throws RuntimeException if the Spigot or BungeeCord library is not found.
      */
     public static Object getConsole() {
         if (RuntimeService.isSpigot()) {
@@ -513,10 +468,10 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Retrieves the console sender object for executing commands from the console.
+     * Retrieves the console sender for the current runtime environment.
      *
-     * @return The console sender object.
-     * @throws IllegalArgumentException if the console object is not an instance of org.bukkit.command.CommandSender or net.md_5.bungee.api.CommandSender.
+     * @return The console sender.
+     * @throws IllegalArgumentException If the console object is not an instance of org.bukkit.command.CommandSender or net.md_5.bungee.api.CommandSender.
      */
     public static @NotNull BaseCommandSender getConsoleSender() {
         Object console = getConsole();
@@ -538,41 +493,39 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Dispatches a command to be executed.
+     * Dispatches a command for execution.
      *
-     * @param command The command to be executed.
+     * @param command the command to be dispatched
      */
     public abstract void dispatchCommand(String command);
 
     /**
      * Retrieves the currently running plugin.
      *
-     * @return The running plugin object.
+     * @return The currently running plugin.
      */
     public abstract Object getRunningPlugin();
 
     /**
-     * Retrieves the database object associated with the BetterBanSystem instance.
+     * Retrieves the database associated with this BetterBanSystem instance.
      *
-     * @return The database object.
+     * @return The IDatabase instance representing the database.
      */
     public IDatabase getDatabase() {
         return database;
     }
 
     /**
-     * Retrieves the command handler of the BetterBanSystem instance.
+     * Retrieves the command handler for managing commands in the command-based system.
      *
-     * @return The command handler used by BetterBanSystem.
+     * @return The command handler, an instance of the BaseCommandHandler class.
      */
     public BaseCommandHandler getCommandHandler() {
         return commandHandler;
     }
 
     /**
-     * Retrieves the prefix of the BetterBanSystem instance.
      *
-     * @return the prefix if it is not null and not empty, otherwise returns a default prefix
      */
     public String getPrefix() {
         if (this.prefix == null) {
@@ -582,11 +535,12 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Loads a language file with the given name. If the file name does not end with ".yml", it will be appended automatically.
-     * The language file is loaded using the LanguageFile class and stored in the languageFile field.
+     * Loads the specified language file.
+     * If the language parameter does not end with ".yml", it will be appended with ".yml".
+     * The language file will be loaded from the path specified in the data folder of the plugin.
      *
-     * @param language the name of the language file to load
-     * @throws NullPointerException if language is null
+     * @param language The name of the language file to load.
+     * @throws NullPointerException if the language parameter is null.
      */
     public void loadLanguage(@NotNull String language) {
         if (!language.endsWith(".yml"))
@@ -595,10 +549,21 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Loads the permissions system based on the provided handler type.
-     * If the specified handler type is not available, it falls back to the default handler based on the runtime environment.
+     * Loads the permissions system based on the specified {@link PermissionsHandlerType}.
+     * <p>
+     * The permissions system is responsible for managing permissions in the system.
+     * It provides functionality for creating, modifying, and deleting permissions,
+     * as well as checking if a player has a specific permission.
+     * <p>
+     * If the specified handler cannot be obtained, the method falls back to the default
+     * permissions handler based on the server runtime.
+     * <p>
+     * The available types of permissions handlers are defined in the {@link PermissionsHandlerType} enum.
      *
-     * @param type The type of permissions handler to load. See {@link PermissionsHandlerType}.
+     * @param type The type of the permissions handler to load.
+     *             Possible values are SPIGOT, LUCKPERMS, BUNGEECORD, CLOUDNET, VAULT, and DEFAULT_PERMISSION_HANDLING.
+     * @see PermissionsHandlerType
+     * @see PermissionsManager
      */
     public void loadPermissionsSystem(PermissionsHandlerType type) {
         try {
@@ -614,11 +579,10 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Reloads the configuration file.
-     * If the configuration object is null, a new instance of BaseConfig is created.
-     * The configuration file is loaded using a Yaml object.
-     * If the file is successfully loaded, the configuration object is updated with the contents of the file.
-     * If there is an error loading the file, a new empty configuration object is created.
+     * Reloads the configuration by loading the config file into the current {@code config} object.
+     * <p>
+     * If the {@code config} is null, a new instance of {@link BaseConfig} is created.
+     * After that, the {@link BaseConfig#load(File)} method is called to load the config file.
      */
     public void reloadConfig() {
         if (this.config == null)
@@ -627,7 +591,7 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Saves the configuration file.
+     * Saves the configuration to a file.
      */
     public void saveConfig() {
         this.config.save(this.configFile);
@@ -643,9 +607,9 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Retrieves the BaseConfig object that holds the configuration settings.
+     * Retrieves the BaseConfig object associated with this BetterBanSystem instance.
      *
-     * @return the BaseConfig object
+     * @return The BaseConfig object used for storing configuration settings.
      */
     public BaseConfig getConfig() {
         return config;
@@ -662,9 +626,9 @@ public abstract class BetterBanSystem {
     }
 
     /**
-     * Returns the PermissionsManager instance used by the BetterBanSystem.
+     * Retrieves the permissions manager associated with this instance of BetterBanSystem.
      *
-     * @return The PermissionsManager instance.
+     * @return The permissions' manager.
      */
     public PermissionsManager getPermissionsManager() {
         return manager;

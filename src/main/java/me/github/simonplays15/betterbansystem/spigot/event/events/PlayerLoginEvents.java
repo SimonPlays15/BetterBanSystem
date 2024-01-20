@@ -13,40 +13,43 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.InetAddress;
-
+/**
+ * The PlayerLoginEvents class handles the login event for players.
+ */
 public class PlayerLoginEvents implements Listener {
     /**
      * Handles the login event for players.
-     *
-     * @param event the player login event
      */
     @EventHandler
     public void onLogin(@NotNull PlayerLoginEvent event) {
         Player player = event.getPlayer();
-        InetAddress address = event.getAddress();
-
-        handleBan(event, BanHandler.findIPBanEntry(address.getHostAddress()));
-        handleBan(event, BanHandler.findBanEntry(player.getUniqueId()));
+        if (!handleBan(event, BanHandler.findIPBanEntry(event.getAddress().getHostAddress())))
+            handleBan(event, BanHandler.findBanEntry(player.getUniqueId()));
     }
 
     /**
-     * Handles the ban entry for a player during login.
-     * If a ban entry exists, the player is kicked with a ban message.
+     * Handles the ban for a player during login.
      *
-     * @param event    the PlayerLoginEvent
-     * @param banEntry the ban entry object
+     * @param event    The PlayerLoginEvent triggered during player login.
+     * @param banEntry The ban entry for the player.
      */
-    private void handleBan(@NotNull PlayerLoginEvent event, Object banEntry) {
+    @Contract("_, null -> false")
+    private boolean handleBan(@NotNull PlayerLoginEvent event, Object banEntry) {
         if (banEntry != null) {
             GlobalLogger.getLogger().warn(event.getPlayer().getName(), "tried to login but is banned from the server.");
             event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
-            if (banEntry instanceof IBanEntry)
-                event.setKickMessage(StringFormatter.formatBanMessage((IBanEntry) banEntry));
-            else if (banEntry instanceof IIPBanEntry)
+            if (banEntry instanceof IIPBanEntry) {
                 event.setKickMessage(StringFormatter.formatIpBanMessage((IIPBanEntry) banEntry));
+                return true;
+            }
+            if (banEntry instanceof IBanEntry) {
+                event.setKickMessage(StringFormatter.formatBanMessage((IBanEntry) banEntry));
+                return true;
+            }
         }
+        return false;
     }
 }

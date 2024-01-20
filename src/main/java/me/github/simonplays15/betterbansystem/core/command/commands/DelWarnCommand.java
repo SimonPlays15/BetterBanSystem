@@ -18,12 +18,26 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The type Del warn command.
+ */
 public class DelWarnCommand extends BaseCommand {
 
+    /**
+     * Instantiates a new Del warn command.
+     */
     public DelWarnCommand() {
         super("delwarn");
     }
 
+    /**
+     * Run command boolean.
+     *
+     * @param sender the sender
+     * @param args   the args
+     * @return the boolean
+     * @throws CommandException the command exception
+     */
     @Override
     public boolean runCommand(BaseCommandSender sender, String @NotNull [] args) throws CommandException {
         if (args.length < 2) {

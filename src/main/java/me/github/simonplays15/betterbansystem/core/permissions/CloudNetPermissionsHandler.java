@@ -12,11 +12,31 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
+/**
+ * The CloudNetPermissionsHandler class is a subclass of PermissionsManager that provides
+ * a permissions handler implementation for the CloudNet system.
+ */
 public class CloudNetPermissionsHandler extends PermissionsManager {
 
+    /**
+     * The getUserMethod variable stores a reference to the 'getUser' method of the 'CloudPermissionsManagement' class.
+     * This method is used to retrieve a user object based on a given UUID.
+     *
+     * @see CloudNetPermissionsHandler#getUserMethod
+     */
     private final Method getUserMethod;
+    /**
+     * The INSTANCE variable represents an instance of the CloudPermissionsManagement class.
+     * It is used as a handler for managing permissions in the CloudNet system.
+     * <p>
+     * It is a private final variable of type Object.
+     */
     private final Object INSTANCE;
 
+    /**
+     * The CloudNetPermissionsHandler class is a subclass of PermissionsManager that provides
+     * a permissions handler implementation for the CloudNet system.
+     */
     public CloudNetPermissionsHandler() throws PermissionManagerLoadException {
         super(PermissionsHandlerType.CLOUDNET);
         try {
@@ -31,11 +51,11 @@ public class CloudNetPermissionsHandler extends PermissionsManager {
     }
 
     /**
-     * @param playername String
-     * @param permission String
-     * @return boolean
-     * @implSpec {@link UUIDFetcher}
-     * @apiNote Converts PlayerName into {@link UUID} 'cause CloudNet only wants uuids <.< | Fetching with {@link UUIDFetcher}
+     * Checks if the given player has the specified permission.
+     *
+     * @param playername the name of the player
+     * @param permission the permission to check
+     * @return true if the player has the permission, false otherwise
      */
     @Override
     public boolean hasPermission(String playername, String permission) {

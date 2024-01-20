@@ -14,11 +14,25 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The type Unban ip command.
+ */
 public class UnbanIpCommand extends BaseCommand {
+    /**
+     * Instantiates a new Unban ip command.
+     */
     public UnbanIpCommand() {
         super("unbanip");
     }
 
+    /**
+     * Run command boolean.
+     *
+     * @param sender the sender
+     * @param args   the args
+     * @return the boolean
+     * @throws CommandException the command exception
+     */
     @Override
     public boolean runCommand(BaseCommandSender sender, String[] args) throws CommandException {
         if (args.length == 0) {

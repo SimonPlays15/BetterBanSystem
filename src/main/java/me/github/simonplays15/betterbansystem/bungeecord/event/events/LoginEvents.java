@@ -17,18 +17,26 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+/**
+ * The LoginEvents class is a listener class that handles login events.
+ */
 public class LoginEvents implements Listener {
 
+    /**
+     * Handles the login event.
+     *
+     * @param event The login event object.
+     */
     @EventHandler
     public void loginEvent(@NotNull LoginEvent event) {
         PendingConnection connection = event.getConnection();
         UUID uuid = connection.getUniqueId();
-        String address = connection.getVirtualHost().getAddress().getHostAddress();
         IBanEntry banEntry = BanHandler.findBanEntry(uuid);
         if (banEntry != null) {
             event.setCancelled(true);
             event.setCancelReason(new TextComponent(StringFormatter.formatBanMessage(banEntry)));
         }
+        String address = connection.getVirtualHost().getHostName();
         IIPBanEntry ipBanEntry = BanHandler.findIPBanEntry(address);
         if (ipBanEntry != null) {
             event.setCancelled(true);

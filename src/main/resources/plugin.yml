@@ -2,9 +2,9 @@ name: ${project.artifactId}
 authors: [ SimonPlays15, Blubo ]
 version: ${project.version}
 main: ${project.groupId}.spigot.SpigotCore
-description: It was never easier to ban a user
+description: ${project.description}
 prefix: ${project.artifactId}
-
+website: ${project.url}
 libraries:
   - org.mongodb:mongodb-driver-sync:4.3.1
   - org.jetbrains:annotations:23.0.0
