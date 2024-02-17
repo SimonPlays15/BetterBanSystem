@@ -4,6 +4,7 @@ package me.github.simonplays15.betterbansystem.bungeecord;
  * Copyright (c) SimonPlays15 2024. All Rights Reserved
  */
 
+import me.github.simonplays15.betterbansystem.api.backend.WebServiceApplication;
 import me.github.simonplays15.betterbansystem.bungeecord.event.EventManager;
 import me.github.simonplays15.betterbansystem.core.BetterBanSystem;
 import me.github.simonplays15.betterbansystem.core.logging.GlobalLogger;
@@ -52,5 +53,10 @@ public class BungeeCore extends Plugin {
 
         new CommandHandler(this);
         new EventManager(this);
+    }
+
+    @Override
+    public void onDisable() {
+        WebServiceApplication.stop();
     }
 }

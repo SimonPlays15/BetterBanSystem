@@ -4,6 +4,7 @@ package me.github.simonplays15.betterbansystem.core;
  * Copyright (c) SimonPlays15 2024. All Rights Reserved
  */
 
+import me.github.simonplays15.betterbansystem.api.backend.WebServiceApplication;
 import me.github.simonplays15.betterbansystem.api.files.BaseConfig;
 import me.github.simonplays15.betterbansystem.api.files.BasePluginDescription;
 import me.github.simonplays15.betterbansystem.api.files.LanguageFile;
@@ -242,6 +243,8 @@ public abstract class BetterBanSystem {
         new BanManager().start();
         new MuteManager().start();
         new WarnManager().start();
+
+        WebServiceApplication.start(8080);
 
         new Updater().getVersion(version -> {
             if (!this.getPluginDescription().getVersion().equals(version))

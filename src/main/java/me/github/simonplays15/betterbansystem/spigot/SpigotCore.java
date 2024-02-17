@@ -4,6 +4,7 @@ package me.github.simonplays15.betterbansystem.spigot;
  * Copyright (c) SimonPlays15 2024. All Rights Reserved
  */
 
+import me.github.simonplays15.betterbansystem.api.backend.WebServiceApplication;
 import me.github.simonplays15.betterbansystem.core.BetterBanSystem;
 import me.github.simonplays15.betterbansystem.core.logging.GlobalLogger;
 import me.github.simonplays15.betterbansystem.spigot.event.EventManager;
@@ -75,7 +76,7 @@ public class SpigotCore extends JavaPlugin {
      * Note that when the plugin is disabled, it will no longer receive events or be able to execute commands.
      */
     public void onDisable() {
-
+        WebServiceApplication.stop();
     }
 
     /**
