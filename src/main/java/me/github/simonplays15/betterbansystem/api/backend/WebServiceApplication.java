@@ -8,6 +8,10 @@ package me.github.simonplays15.betterbansystem.api.backend;/*
 
 import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
+import io.javalin.http.staticfiles.Location;
+import me.github.simonplays15.betterbansystem.api.backend.handlers.ApiError;
+
+import java.util.Map;
 
 /**
  * The WebServiceApplication class represents a web service application that can be started
@@ -36,20 +40,48 @@ public class WebServiceApplication {
     private static Javalin app;
 
     public static void main(String[] args) {
-        int port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
+        int port = args.length >= 1 ? Integer.parseInt(args[0]) : 8080;
         start(port);
-
-        app.get("/", ctx -> ctx.status(HttpStatus.INTERNAL_SERVER_ERROR));
-
     }
 
     /**
      * Starts the web service application on the specified port.
      *
-     * @param port the port number the web service should listen on
+     * @param port the port number on which the web service application will listen for incoming requests
      */
     public static void start(int port) {
-        app = Javalin.create().start(port);
+        app = Javalin.create(config -> {
+            config.staticFiles.add("/dist", Location.CLASSPATH);
+        });
+
+        app.get("/", ctx -> ctx.redirect("/index.html"));
+        app.exception(Exception.class, (e, ctx) -> {
+            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+            ctx.json(Map.of(
+                    "status", "error",
+                    "message", "An internal server error has occurred",
+                    "exception", e.getMessage(),
+                    "caused", e.getCause().toString(),
+                    "path", ctx.path()
+            ));
+            e.printStackTrace(System.err);
+        });
+
+        app.get("/api", ctx -> {
+            ctx.status(HttpStatus.UNAUTHORIZED);
+        });
+
+        for (HttpStatus status : HttpStatus.values()) {
+            if (status.isError() || status.isServerError() || status.isClientError())
+                app.error(status, context -> {
+                    context.status(status);
+                    ApiError error = new ApiError(status.getCode(), status.getMessage(), context.path());
+                    context.json(error);
+                });
+        }
+
+        app.start(port);
+
     }
 
     /**
