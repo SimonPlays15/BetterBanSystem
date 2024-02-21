@@ -12,6 +12,12 @@ chat:
 database:
   # Available Types: MYSQL, SQLITE, MONGODB
   type: none
+webinterface:
+  use: true
+  users:
+    1:
+      username: "Administrator"
+      password: "rotartsinimdA"
 
 # SQLite example:
 #database:

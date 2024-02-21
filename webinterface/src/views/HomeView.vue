@@ -4,7 +4,7 @@
 
 <template>
   <div class="container">
-    <div class="container py-5 h-100">
+    <div class="py-5 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col-12 col-md-8 col-lg-6 col-xl-5">
           <div class="card" style="border-radius: 1rem;">
@@ -25,8 +25,10 @@
                            placeholder="Password"
                            required type="password">
                   </div>
-                  <div class="col">
-                    <button class="btn btn-outline-info btn-lg" type="button" @click="login">Login</button>
+                  <div class="col mt-3 w-100">
+                    <button :disabled="!validInputs" class="btn btn-outline-success btn-lg w-100" type="button"
+                            @click="login">Login
+                    </button>
                   </div>
                 </form>
               </div>
@@ -40,8 +42,9 @@
 
 <script>
 
-import {GET_USERNAME, SET_AUTHENTICATION, SET_USERNAME} from "@/store/storeconstants.js";
+import {GET_USERNAME, SET_AUTHENTICATION} from "@/store/storeconstants.js";
 import {addAlert} from "@/assets/js/globalmethods.js"
+import axios from "axios";
 
 export default {
   data() {
@@ -53,18 +56,35 @@ export default {
       output: ""
     }
   },
+  computed: {
+    validInputs() {
+      return this.input.username && this.input.password
+    }
+  },
   methods: {
     getUsername() {
       return this.$store.getters[`auth/${GET_USERNAME}`];
     },
     login() {
       if (this.input.username !== "" || this.input.password !== "") {
-        this.$store.commit(`auth/${SET_AUTHENTICATION}`, true);
-        this.$store.commit(`auth/${SET_USERNAME}`, this.input.username);
-        this.output = `Authentication complete. Welcome ${this.getUsername()}`;
+        const postCall = axios.get("http://localhost:8080/api", {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          auth: {
+            username: this.input.username,
+            password: this.input.password
+          }
+        }).catch(error => {
+          console.log("Error", error)
+        }).then(result => {
+          console.log("Result", result)
+        }).finally(() => {
+          console.log("Finally:", postCall);
+        })
       } else {
         this.$store.commit(`auth/${SET_AUTHENTICATION}`, false);
-        addAlert("danger", "Failed to login", "Password or Username is wrong please check your credentials")
+        addAlert("danger", "Failed to login", "Username and the password field cannot be empty.")
       }
     }
   }

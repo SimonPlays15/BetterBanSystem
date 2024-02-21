@@ -10,10 +10,7 @@ export default {
     namespaced: true,
     state() {
         return {
-            authenticated: false,
-            username: "",
-            token: "",
-            userid: ""
+            currentView: "DashboardComponent"
         }
     },
     mutations,

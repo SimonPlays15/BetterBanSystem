@@ -7,11 +7,21 @@ package me.github.simonplays15.betterbansystem.api.backend;/*
  */
 
 import io.javalin.Javalin;
+import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.staticfiles.Location;
+import io.javalin.http.util.NaiveRateLimit;
+import me.github.simonplays15.betterbansystem.api.backend.auth.AuthHandler;
 import me.github.simonplays15.betterbansystem.api.backend.handlers.ApiError;
+import org.eclipse.jetty.http.HttpCookie;
+import org.eclipse.jetty.server.session.SessionHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
+import static io.javalin.apibuilder.ApiBuilder.*;
 
 /**
  * The WebServiceApplication class represents a web service application that can be started
@@ -42,6 +52,29 @@ public class WebServiceApplication {
     public static void main(String[] args) {
         int port = args.length >= 1 ? Integer.parseInt(args[0]) : 8080;
         start(port);
+        Thread thread = new Thread(() -> {
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                String string = scanner.nextLine();
+                if (string.equals("stop")) {
+                    stop();
+                    scanner.close();
+                    System.exit(0);
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    static @NotNull SessionHandler customSessionHandler() {
+        final SessionHandler sessionHandler = new SessionHandler();
+        sessionHandler.setHttpOnly(true);
+        sessionHandler.setSecureRequestOnly(true);
+        sessionHandler.getSessionCookieConfig().setSecure(true);
+        sessionHandler.setMaxInactiveInterval(60 * 15);
+        sessionHandler.setSameSite(HttpCookie.SameSite.STRICT);
+        return sessionHandler;
     }
 
     /**
@@ -51,45 +84,73 @@ public class WebServiceApplication {
      */
     public static void start(int port) {
         app = Javalin.create(config -> {
-            config.staticFiles.add("/dist", Location.CLASSPATH);
+            config.staticFiles.add("dist", Location.CLASSPATH);
+            config.http.defaultContentType = "application/json";
+            config.showJavalinBanner = false;
+            config.jetty.modifyServletContextHandler(handler -> {
+                handler.setSessionHandler(customSessionHandler());
+            });
+            config.bundledPlugins.enableCors(cors -> {
+                cors.addRule(it -> {
+                    it.allowHost("http://localhost:5173");
+                    it.allowCredentials = true;
+                    it.exposeHeader("x-server");
+                });
+            });
+            config.router.apiBuilder(() -> {
+                path("/api/v1", () -> {
+                    get(context -> context.status(HttpStatus.METHOD_NOT_ALLOWED));
+                    post(context -> context.status(HttpStatus.OK));
+                    delete(context -> context.req().getSession().invalidate());
+                });
+                path("/health", () -> {
+                    Handler handler = context -> {
+                        context.status(HttpStatus.OK);
+                    };
+                    post(handler);
+                    get(handler);
+                });
+            });
+            config.router.mount(router -> {
+                router.beforeMatched(AuthHandler::handleAccess);
+                router.beforeMatched(context -> NaiveRateLimit.requestPerTimeUnit(context, 10, TimeUnit.SECONDS));
+            });
+            config.bundledPlugins.enableDevLogging();
         });
-
-        app.get("/", ctx -> ctx.redirect("/index.html"));
         app.exception(Exception.class, (e, ctx) -> {
             ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
-            ctx.json(Map.of(
-                    "status", "error",
-                    "message", "An internal server error has occurred",
-                    "exception", e.getMessage(),
-                    "caused", e.getCause().toString(),
-                    "path", ctx.path()
-            ));
+            ctx.json(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.getCode(), e.getMessage(), ctx.contextPath()));
             e.printStackTrace(System.err);
         });
-
-        app.get("/api", ctx -> {
-            ctx.status(HttpStatus.UNAUTHORIZED);
-        });
-
         for (HttpStatus status : HttpStatus.values()) {
-            if (status.isError() || status.isServerError() || status.isClientError())
+            if (status.isError() || status.isClientError() || status.isServerError()) {
                 app.error(status, context -> {
                     context.status(status);
-                    ApiError error = new ApiError(status.getCode(), status.getMessage(), context.path());
-                    context.json(error);
+                    context.json(Map.of("status", status.getCode(),
+                            "message", status.getMessage(), "path", context.path()));
                 });
+            }
         }
-
         app.start(port);
-
+        Runtime.getRuntime().addShutdownHook(new Thread(WebServiceApplication::stop));
     }
 
     /**
      * Stops the web service application if it is running.
      */
     public static void stop() {
-        if (app != null)
-            app.stop();
+        if (app != null) {
+            app.jettyServer().server().getSessionIdManager().getSessionHandlers().forEach(handlers -> {
+                handlers.getSessionCache().setInvalidateOnShutdown(true);
+                try {
+                    handlers.getSessionCache().getSessionDataStore().stop();
+                } catch (Exception e) {
+                    e.printStackTrace(System.err);
+                }
+            });
+            app.stop().javalinServlet().destroy();
+            app = null;
+        }
     }
 
 }
