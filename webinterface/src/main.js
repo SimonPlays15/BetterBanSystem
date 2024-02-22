@@ -33,11 +33,11 @@ app.config.errorHandler = ((error, instance, info) => {
 
 router.beforeEach(async (to, from) => {
     if (!store.getters[`auth/${IS_USER_AUTHENTICATED}`] && to.name !== "home") {
-        //return {name: 'home'}
+        // TODO uncomment
+        // return {name: 'home'}
     }
 })
 
 app.use(store);
 app.use(router);
 app.mount('#app')
-

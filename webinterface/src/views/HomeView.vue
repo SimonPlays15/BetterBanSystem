@@ -84,7 +84,7 @@ export default {
         })
       } else {
         this.$store.commit(`auth/${SET_AUTHENTICATION}`, false);
-        addAlert("danger", "Failed to login", "Username and the password field cannot be empty.")
+        addAlert("danger", "Failed to login", "Username and password field cannot be empty.")
       }
     }
   }

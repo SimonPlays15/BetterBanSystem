@@ -3,17 +3,19 @@
   -->
 
 <script setup>
-import {GET_CURRENTVIEW, IS_USER_AUTHENTICATED} from "@/store/storeconstants.js";
+import {GET_CURRENTVIEW, GET_USERNAME} from "@/store/storeconstants.js";
 import {RouterView} from 'vue-router';
 import DashboardComponent from "@/components/DashboardComponent.vue";
 import ConsoleComponent from "@/components/ConsoleComponent.vue";
 import router from "@/router/index.js";
+import {logout} from "@/assets/js/globalmethods.js";
 
 console.log(router.currentRoute)
 </script>
 
 <script>
-import {GET_CURRENTVIEW, SET_CURRENTVIEW} from "@/store/storeconstants.js";
+import {GET_CURRENTVIEW, SET_AUTHENTICATION, SET_CURRENTVIEW, SET_TOKEN, SET_USERNAME} from "@/store/storeconstants.js";
+import router from "@/router/index.js";
 
 export default {
   methods: {
@@ -32,7 +34,9 @@ export default {
 </script>
 
 <template>
-  <div v-if="!$store.getters[`auth/${IS_USER_AUTHENTICATED}`]">
+
+  <!-- TODO v-if="$store.getters[`auth/${IS_USER_AUTHENTICATED}`]" -->
+  <div>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">BetterBanSystem</a>
@@ -49,11 +53,24 @@ export default {
                  @click="changeView('DashboardComponent')">Dashboard</a>
             </li>
             <li class="nav-item">
+              <a :class="isActiveLink('PlayerTableComponent')"
+                 :href="router.currentRoute.value.name === 'dashboard' ? '#' : '/dashboard'"
+                 @click="changeView('PlayerTableComponent')">Players</a>
+            </li>
+            <li class="nav-item">
               <a :class="isActiveLink('ConsoleComponent')"
                  :href="router.currentRoute.value.name === 'dashboard' ? '#' : '/dashboard'" class="nav-link"
                  @click="changeView('ConsoleComponent')">Console</a>
             </li>
           </ul>
+          <div class="d-flex">
+            <img :src="'https://mc-heads.net/avatar/'+$store.getters[`auth/${GET_USERNAME}`]+'/40'"
+                 alt="" class="rounded">
+            <span class="navbar-text" style="margin-right: 5px; margin-left: 5px;">{{
+                $store.getters[`auth/${GET_USERNAME}`] ? $store.getters[`auth/${GET_USERNAME}`] : "UNDEFINED"
+              }}</span>
+            <button class="btn btn-outline-danger btn-sm" type="button" @click="logout($store)">Logout</button>
+          </div>
         </div>
       </div>
     </nav>
