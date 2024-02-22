@@ -14,7 +14,14 @@ console.log(router.currentRoute)
 </script>
 
 <script>
-import {GET_CURRENTVIEW, SET_AUTHENTICATION, SET_CURRENTVIEW, SET_TOKEN, SET_USERNAME} from "@/store/storeconstants.js";
+import {
+  GET_CURRENTVIEW,
+  GET_USERNAME, IS_USER_AUTHENTICATED,
+  SET_AUTHENTICATION,
+  SET_CURRENTVIEW,
+  SET_TOKEN,
+  SET_USERNAME
+} from "@/store/storeconstants.js";
 import router from "@/router/index.js";
 
 export default {
@@ -29,14 +36,19 @@ export default {
       }
       return "nav-link";
     }
-  }
+  },
+  computed: {
+    isLoggedIn() {
+      // TODO REMOVE COMMENT
+      return true;
+      //return this.$store.getters[`auth/${GET_USERNAME}`] && this.$store.getters[`auth/${IS_USER_AUTHENTICATED}`];
+    }
+  },
 }
 </script>
 
 <template>
-
-  <!-- TODO v-if="$store.getters[`auth/${IS_USER_AUTHENTICATED}`]" -->
-  <div>
+  <div v-if="isLoggedIn">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">BetterBanSystem</a>
