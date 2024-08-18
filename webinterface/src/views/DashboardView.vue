@@ -6,7 +6,7 @@ import DashboardComponent from "@/components/DashboardComponent.vue";
 import ConsoleComponent from "@/components/ConsoleComponent.vue";
 import PlayerTableComponent from "@/components/PlayerTableComponent.vue";
 import {IS_USER_AUTHENTICATED} from "@/store/storeconstants.js";
-import {logout} from "@/assets/js/globalmethods.js";
+import LogoutComponent from "@/components/LogoutComponent.vue";
 </script>
 <script>
 import {
@@ -22,18 +22,6 @@ export default {
       currentView: this.$store.getters[`navigation/${GET_CURRENTVIEW}`]
     }
   },
-  computed: {
-    isLoggedIn() {
-      // TODO UNCOMMENT
-      return true;
-      //return this.$store.getters[`auth/${GET_USERNAME}`] && this.$store.getters[`auth/${IS_USER_AUTHENTICATED}`];
-    }
-  },
-  mounted() {
-    if (!this.$store.getters[`auth/${GET_USERNAME}`] && this.$store.getters[`auth/${IS_USER_AUTHENTICATED}`]) {
-      addAlert("danger", "Error", "Failed to load the username are you really logged in?", false, false)
-    }
-  },
   updated() {
     this.currentView = this.$store.getters[`navigation/${GET_CURRENTVIEW}`]
   }
@@ -42,11 +30,7 @@ export default {
 
 
 <template>
-  <div v-if="!isLoggedIn">
-    <button class="btn btn-danger btn-lg w-100" @click="logout($store)">
-      LOGOUT
-    </button>
-  </div>
+  <LogoutComponent/>
   <div v-if="isLoggedIn">
     <div class="container-fluid">
       <div class="mb-4">
@@ -73,6 +57,5 @@ export default {
       <PlayerTableComponent v-if="currentView === 'PlayerTableComponent'"/>
     </div>
   </div>
-
 
 </template>

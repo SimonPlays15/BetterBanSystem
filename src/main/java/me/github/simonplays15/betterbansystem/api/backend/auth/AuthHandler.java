@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class AuthHandler {
     /**
@@ -28,9 +29,11 @@ public class AuthHandler {
      */
     @Contract(pure = true)
     public static void handleAccess(@NotNull Context context) {
-        String jwtToken = context.queryParam("token");
+        String jwtToken = null;
+        if (context.header(Header.AUTHORIZATION) != null) {
+            jwtToken = Objects.requireNonNull(context.header(Header.AUTHORIZATION)).replace("Bearer ", "");
+        }
         String userid = context.sessionAttribute("userid");
-
         if (jwtToken != null && userid != null) {
             context.header(Header.AUTHORIZATION, "Bearer " + jwtToken);
             User user = UserController.getUserByUserId(userid);

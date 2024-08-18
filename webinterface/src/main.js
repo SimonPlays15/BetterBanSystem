@@ -11,7 +11,7 @@ import router from './router'
 import {createStore} from "vuex";
 import auth from "@/store/auth/index.js";
 import navigation from "@/store/navigation/index.js";
-import {IS_USER_AUTHENTICATED} from "@/store/storeconstants.js";
+import {IS_USER_AUTHENTICATED, SET_AUTHENTICATION, SET_TOKEN, SET_USERNAME} from "@/store/storeconstants.js";
 
 const app = createApp(App)
 const store = createStore({
@@ -30,14 +30,29 @@ app.config.errorHandler = ((error, instance, info) => {
     console.log("Vue instance:", instance);
     console.log("Error info:", info);
 })
-
+app.use(store);
+app.use(router);
+app.mixin({
+    methods: {
+        logout() {
+            store.commit(`auth/${SET_AUTHENTICATION}`, false);
+            store.commit(`auth/${SET_TOKEN}`, undefined);
+            store.commit(`auth/${SET_USERNAME}`, "");
+            router.push(router.getRoutes().find(a => a.name === "home"))
+        }
+    },
+    computed: {
+        isLoggedIn() {
+            return true;
+            //return store.getters[`auth/${IS_USER_AUTHENTICATED}`]
+        }
+    }
+})
+app.mount('#app')
 router.beforeEach(async (to, from) => {
     if (!store.getters[`auth/${IS_USER_AUTHENTICATED}`] && to.name !== "home") {
         // TODO uncomment
-        // return {name: 'home'}
+        //return {name: 'home'}
     }
-})
 
-app.use(store);
-app.use(router);
-app.mount('#app')
+})

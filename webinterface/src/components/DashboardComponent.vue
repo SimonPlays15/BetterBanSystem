@@ -3,17 +3,39 @@
   -->
 
 <script setup>
-
 </script>
 
 <script>
+import axios from "axios";
+import {GET_TOKEN} from "@/store/storeconstants.js";
+
 export default {
   data() {
     return {
       playerActions: [],
+      serverInformations: {
+        maxPlayers: "??",
+        onlinePlayers: "??",
+        bannedPlayers: "??",
+        mutedPlayers: "??"
+      }
     }
   },
-  methods: {}
+  methods: {
+    updateDashboard: function () {
+      setTimeout(() => {
+        const call = axios.post("http://localhost:8080/api/v1", {}, {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${this.$store.getters[`auth/${GET_TOKEN}`]}`
+          }
+        });
+      }, 5000);
+    }
+  },
+  created: function () {
+    //this.updateDashboard()
+  }
 }
 
 </script>
@@ -36,7 +58,8 @@ export default {
                   <span class="text-center fw-bold">Online Players:</span>
                 </div>
                 <div class="col">
-                  <span id="onlinePlayers" class="text-danger">0</span>/<span id="maxPlayers">20</span>
+                  <span id="onlinePlayers" class="text-danger">{{ serverInformations.onlinePlayers }}</span>/<span
+                    id="maxPlayers">{{ serverInformations.maxPlayers }}</span>
                 </div>
               </div>
             </div>
@@ -60,7 +83,7 @@ export default {
                   <span class="text-center fw-bold">Banned Players</span>
                 </div>
                 <div class="col">
-                  <span id="onlinePlayers">0</span>
+                  <span id="onlinePlayers">{{ serverInformations.bannedPlayers }}</span>
                 </div>
               </div>
             </div>
@@ -84,7 +107,7 @@ export default {
                   <span class="text-center fw-bold">Muted Players</span>
                 </div>
                 <div class="col">
-                  <span id="onlinePlayers">0</span>
+                  <span id="onlinePlayers">{{ serverInformations.mutedPlayers }}</span>
                 </div>
               </div>
             </div>

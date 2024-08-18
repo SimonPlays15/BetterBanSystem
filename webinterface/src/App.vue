@@ -8,9 +8,6 @@ import {RouterView} from 'vue-router';
 import DashboardComponent from "@/components/DashboardComponent.vue";
 import ConsoleComponent from "@/components/ConsoleComponent.vue";
 import router from "@/router/index.js";
-import {logout} from "@/assets/js/globalmethods.js";
-
-console.log(router.currentRoute)
 </script>
 
 <script>
@@ -35,13 +32,6 @@ export default {
         return "nav-link active";
       }
       return "nav-link";
-    }
-  },
-  computed: {
-    isLoggedIn() {
-      // TODO REMOVE COMMENT
-      return true;
-      //return this.$store.getters[`auth/${GET_USERNAME}`] && this.$store.getters[`auth/${IS_USER_AUTHENTICATED}`];
     }
   },
 }
@@ -81,7 +71,7 @@ export default {
             <span class="navbar-text" style="margin-right: 5px; margin-left: 5px;">{{
                 $store.getters[`auth/${GET_USERNAME}`] ? $store.getters[`auth/${GET_USERNAME}`] : "UNDEFINED"
               }}</span>
-            <button class="btn btn-outline-danger btn-sm" type="button" @click="logout($store)">Logout</button>
+            <button class="btn btn-outline-danger btn-sm" type="button" @click="logout()">Logout</button>
           </div>
         </div>
       </div>

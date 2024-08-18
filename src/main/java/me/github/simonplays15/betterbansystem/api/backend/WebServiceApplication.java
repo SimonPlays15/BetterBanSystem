@@ -9,6 +9,7 @@ package me.github.simonplays15.betterbansystem.api.backend;/*
 import io.javalin.Javalin;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
+import io.javalin.http.NotAcceptableResponse;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.http.util.NaiveRateLimit;
 import me.github.simonplays15.betterbansystem.api.backend.auth.AuthHandler;
@@ -18,6 +19,7 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -112,6 +114,12 @@ public class WebServiceApplication {
                 });
             });
             config.router.mount(router -> {
+                router.before(context -> {
+                    context.header("Accept", "application/json");
+                    if (context.header("Content-Type") != null)
+                        if (!Objects.equals(context.header("Content-Type"), "application/json"))
+                            throw new NotAcceptableResponse();
+                });
                 router.beforeMatched(AuthHandler::handleAccess);
                 router.beforeMatched(context -> NaiveRateLimit.requestPerTimeUnit(context, 10, TimeUnit.SECONDS));
             });

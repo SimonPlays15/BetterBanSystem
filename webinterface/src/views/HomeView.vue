@@ -42,9 +42,10 @@
 
 <script>
 
-import {GET_USERNAME, SET_AUTHENTICATION} from "@/store/storeconstants.js";
+import {GET_USERNAME, SET_AUTHENTICATION, SET_TOKEN, SET_USERNAME} from "@/store/storeconstants.js";
 import {addAlert} from "@/assets/js/globalmethods.js"
 import axios from "axios";
+import router from "@/router/index.js";
 
 export default {
   data() {
@@ -52,8 +53,7 @@ export default {
       input: {
         username: "",
         password: ""
-      },
-      output: ""
+      }
     }
   },
   computed: {
@@ -67,21 +67,34 @@ export default {
     },
     login() {
       if (this.input.username !== "" || this.input.password !== "") {
-        const postCall = axios.get("http://localhost:8080/api", {
+        const postCall = axios.post("http://localhost:8080/api/v1", {}, {
           headers: {
             "Content-Type": "application/json"
           },
+          withCredentials: true,
           auth: {
             username: this.input.username,
             password: this.input.password
           }
         }).catch(error => {
-          console.log("Error", error)
-        }).then(result => {
-          console.log("Result", result)
-        }).finally(() => {
-          console.log("Finally:", postCall);
+          const a = error.response.data;
+
+          if (a.status === 403)
+            addAlert("danger", "Failed to login", "Username or password is wrong please try again");
+          else
+            addAlert("danger", a.message, error.message);
+
+        }).then((result) => {
+          if (!result)
+            return;
+          const token = JSON.parse(result.data.title).token;
+          this.$store.commit(`auth/${SET_AUTHENTICATION}`, true);
+          this.$store.commit(`auth/${SET_TOKEN}`, token);
+          this.$store.commit(`auth/${SET_USERNAME}`, this.input.username);
+          router.push(router.getRoutes().find(a => a.name === "dashboard"));
+          addAlert("success", " Logged in ", "Successfully logged in as " + this.getUsername())
         })
+
       } else {
         this.$store.commit(`auth/${SET_AUTHENTICATION}`, false);
         addAlert("danger", "Failed to login", "Username and password field cannot be empty.")

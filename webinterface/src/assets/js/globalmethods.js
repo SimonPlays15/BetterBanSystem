@@ -3,8 +3,6 @@
  */
 
 import {Alert} from 'bootstrap';
-import {SET_AUTHENTICATION, SET_TOKEN, SET_USERNAME} from "@/store/storeconstants.js";
-import router from "@/router/index.js";
 
 export function addAlert(type, title, message, addTimeout = true, closeable = true) {
     function uuidv4() {
@@ -32,11 +30,4 @@ export function addAlert(type, title, message, addTimeout = true, closeable = tr
             if (exists)
                 new Alert(`#${randomId}`, '').close();
         }, 10000)
-}
-
-export function logout(store) {
-    store.commit(`auth/${SET_AUTHENTICATION}`, false);
-    store.commit(`auth/${SET_TOKEN}`, undefined);
-    store.commit(`auth/${SET_USERNAME}`, "");
-    router.push(router.getRoutes().find(a => a.name === "home"))
 }
