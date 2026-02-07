@@ -32,7 +32,7 @@ It was never easier to ban, mute or warn a user
 
 ### You have some suggestions, tips or additional functions?
 
-Simply Join our discord [MCDevStudios](https://discord.gg/QWpsnKPC8W) and create a ticket and suggest your function
+Simply Join our discord ???? and create a ticket and suggest your function
 
 ## Installation
 
@@ -62,7 +62,7 @@ Simply Join our discord [MCDevStudios](https://discord.gg/QWpsnKPC8W) and create
 ## Report Issues ⚠️
 
 Have you found a bug, a vulnerability, or have some other issues? Join our
-discord [MCDevStudios](https://discord.gg/QWpsnKPC8W) and create a ticket.
+discord ???? and create a ticket.
 
 ## How to use
 
